@@ -19,3 +19,5 @@ CHÚ THÍCH CÁC PACKAGES
 - FE truy cập vào BE. Kiểu thiết lập hạ tầng
 
 - Resources: Chứa files cấu hình như application.properties (lưu User/Pass db) hoặc files SQL mẫu
+
+- test linh tinh 
