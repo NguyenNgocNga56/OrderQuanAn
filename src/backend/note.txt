@@ -1,0 +1,21 @@
+CHÚ THÍCH CÁC PACKAGES
+
+- Entity: Class các thực thể
+
+- Enums: Các tập giá trị hằng số cố định
+
+- Service: Logic nghiệp vụ (java), thanh toán, xử lý đk,...
+
+- Controller: Tiếp nhận rq từ web (FE) thông qua API và trả kq
+
+- Repository: Tầng truy cập dữ liệu db, làm việc trực tiếp với SQL (mấy câu lệnh của jdbc). Chuyển đổi giữa JV và SQL
+
+- DTO: Đôi khi Entity có quá nhiều thông tin, có thể dùng DTO để chỉ đóng gói những thông tin cần thiết nhất để gửi cho FE
+
+- Utils: Hỗ trợ, cô cho file ngon vl <(")
+
+- Config: Thiết lập cấu hình hệ thống (System Configuration). Nơi chứa các cấu hình để Java có thể kết nối với SQL Server, hoặc cấu hình cho phép 
+
+- FE truy cập vào BE. Kiểu thiết lập hạ tầng
+
+- Resources: Chứa files cấu hình như application.properties (lưu User/Pass db) hoặc files SQL mẫu

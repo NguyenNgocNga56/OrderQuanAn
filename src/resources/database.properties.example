@@ -1,0 +1,5 @@
+#db.url=jdbc:sqlserver://localhost:1433;databaseName=FoodOrderDB;encrypt=true;trustServerCertificate=true
+#db.username=sa
+#db.password=your_password_here
+
+#khuc nay mn copy roi xoa chu example ve lm nha
