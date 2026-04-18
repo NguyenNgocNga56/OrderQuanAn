@@ -8,9 +8,8 @@ public class DoAn extends MonAn {
     // ================ CONSTRUCTOR =================
     public DoAn() { super(); }
 
-    public DoAn(String idMon, String tenMon, double gia, String moTa,
-                TrangThaiMonAn trangThai, String menuId, String donViTinh) {
-        super(idMon, tenMon, gia, moTa, trangThai, menuId);
+    public DoAn(String idMon, String tenMon, double gia, String moTa, String hinhAnh, TrangThaiMonAn trangThai, String menuId, String donViTinh) {
+        super(idMon, tenMon, gia, moTa, hinhAnh, trangThai, menuId);
         this.donViTinh = donViTinh;
     }
 

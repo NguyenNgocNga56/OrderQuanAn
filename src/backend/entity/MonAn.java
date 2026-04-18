@@ -7,17 +7,19 @@ public abstract class MonAn {
     private String tenMon;
     private double gia;
     private String moTa;
+    private String hinhAnh;
     private TrangThaiMonAn trangThai;
     private String menuId;
 
     // ================ CONSTRUCTOR =================
     public MonAn(){}
 
-    public MonAn(String idMon, String tenMon, double gia, String moTa, TrangThaiMonAn trangThai, String menuId) {
+    public MonAn(String idMon, String tenMon, double gia, String moTa, String hinhAnh, TrangThaiMonAn trangThai, String menuId) {
         this.idMon = idMon;
         this.tenMon = tenMon;
         this.gia = gia;
         this.moTa = moTa;
+        this.hinhAnh = hinhAnh;
         this.trangThai = trangThai;
         this.menuId = menuId;
     }
@@ -44,6 +46,10 @@ public abstract class MonAn {
         return moTa;
     }
 
+    public String getHinhAnh() {
+        return hinhAnh;
+    }
+
     public TrangThaiMonAn getTrangThai() {
         return trangThai;
     }
@@ -68,6 +74,10 @@ public abstract class MonAn {
 
     public void setMoTa(String moTa) {
         this.moTa = moTa;
+    }
+
+    public void setHinhAnh(String hinhAnh) {
+        this.hinhAnh = hinhAnh;
     }
 
     public void setTrangThai(TrangThaiMonAn trangThai) {

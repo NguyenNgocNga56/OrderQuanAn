@@ -9,9 +9,8 @@ public class DoUong extends MonAn {
     // ================ CONSTRUCTOR =================
     public DoUong() { super(); }
 
-    public DoUong(String idMon, String tenMon, double gia, String moTa,
-                  TrangThaiMonAn trangThai, String menuId, SizeDoUong size) {
-        super(idMon, tenMon, gia, moTa, trangThai, menuId);
+    public DoUong(String idMon, String tenMon, double gia, String moTa, String hinhAnh, TrangThaiMonAn trangThai, String menuId, SizeDoUong size) {
+        super(idMon, tenMon, gia, moTa, hinhAnh, trangThai, menuId);
         this.size = size;
     }
 
