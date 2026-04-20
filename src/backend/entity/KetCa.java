@@ -3,72 +3,73 @@ package backend.entity;
 import java.time.LocalDateTime;
 
 public class KetCa {
-    private String idKetCa;
-    private String idCaLv;
-    private String idNhanVien;
+    private String KetCaID;
+    private String CaID;
+    private String NhanVienID;
     private LocalDateTime tgBatDau;
     private LocalDateTime tgKetThuc;
-    private double tongDoanhThu;
+    private double TongDoanhThu;
 
     // ================ CONSTRUCTOR =================
     public KetCa() {}
 
-    public KetCa(String idKetCa, String idCaLv, String idNhanVien, LocalDateTime tgBatDau) {
-        this.idKetCa = idKetCa;
-        this.idCaLv = idCaLv;
-        this.idNhanVien = idNhanVien;
+    public KetCa(String idKetCa, String CaID, String NhanVienID, LocalDateTime tgBatDau) {
+        this.KetCaID = KetCaID;
+        this.CaID = CaID;
+        this.NhanVienID = NhanVienID;
         this.tgBatDau = tgBatDau;
-        this.tongDoanhThu = 0; // Mới mở ca thì doanh thu = 0
+        this.TongDoanhThu = 0; // Mới mở ca thì doanh thu = 0
     }
 
     // ================ GETTER =================
-    public String getIdKetCa() {
-        return idKetCa;
-    }
+    
+    public String getKetCaID() {
+		return KetCaID;
+	}
 
-    public String getIdCaLv() {
-        return idCaLv;
-    }
+	public String getCaID() {
+		return CaID;
+	}
 
-    public String getIdNhanVien() {
-        return idNhanVien;
-    }
+	public String getNhanVienID() {
+		return NhanVienID;
+	}
 
-    public LocalDateTime getTgBatDau() {
-        return tgBatDau;
-    }
+	public LocalDateTime getTgBatDau() {
+		return tgBatDau;
+	}
 
-    public LocalDateTime getTgKetThuc() {
-        return tgKetThuc;
-    }
+	public LocalDateTime getTgKetThuc() {
+		return tgKetThuc;
+	}
 
-    public double getTongDoanhThu() {
-        return tongDoanhThu;
-    }
-
-
+	public double getTongDoanhThu() {
+		return TongDoanhThu;
+	}
     // ================ SETTER =================
-    public void setIdKetCa(String idKetCa) {
-        this.idKetCa = idKetCa;
-    }
 
-    public void setIdCaLv(String idCaLv) {
-        this.idCaLv = idCaLv;
-    }
+	public void setKetCaID(String KetCaID) {
+		this.KetCaID = KetCaID;
+	}
 
-    public void setIdNhanVien(String idNhanVien) {
-        this.idNhanVien = idNhanVien;
-    }
+	public void setCaID(String CaID) {
+		this.CaID = CaID;
+	}
 
-    public void setTgBatDau(LocalDateTime tgBatDau) {
-        this.tgBatDau = tgBatDau;
-    }
+	public void setNhanVienID(String nhanVienID) {
+		NhanVienID = nhanVienID;
+	}
 
-    public void setTgKetThuc(LocalDateTime tgKetThuc) {
-        this.tgKetThuc = tgKetThuc;
-    }
+	public void setTgBatDau(LocalDateTime tgBatDau) {
+		this.tgBatDau = tgBatDau;
+	}
 
-    public void setTongDoanhThu(double tongDoanhThu) {
-        this.tongDoanhThu = tongDoanhThu;
-    }
+	public void setTgKetThuc(LocalDateTime tgKetThuc) {
+		this.tgKetThuc = tgKetThuc;
+	}
+
+	public void setTongDoanhThu(double tongDoanhThu) {
+		TongDoanhThu = tongDoanhThu;
+	}  
+    
 }
