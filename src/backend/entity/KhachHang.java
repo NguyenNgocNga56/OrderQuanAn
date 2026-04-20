@@ -3,54 +3,54 @@ package backend.entity;
 import backend.enums.LoaiKhachHang;
 
 public class KhachHang extends ConNguoi {
-    private int diemTichLuy;
-    private LoaiKhachHang loaiKhachHang;
+    private int DiemTichLuy;
+    private LoaiKhachHang LoaiKhachHang;
 
     public KhachHang() {
         super();
-        this.loaiKhachHang = LoaiKhachHang.DONG; //Mặc định là khách Đồng
+        this.LoaiKhachHang = LoaiKhachHang.DONG; //Mặc định là khách Đồng
     }
 
-    public KhachHang(String id, String hoTen, String sdt, String diaChi, String email, int diemTichLuy) {
-        super(id, hoTen, sdt, diaChi, email);
-        this.diemTichLuy = diemTichLuy;
+    public KhachHang(String ID, String HoTen, String Sdt, String DiaChi, String Email, int DiemTichLuy) {
+        super(ID, HoTen, Sdt, DiaChi, Email);
+        this.DiemTichLuy = DiemTichLuy;
         capNhatHangKhachHang(); // Tự tính khi KT
     }
 
     // Auto nhảy hạng dựa trên điểm
     public void capNhatHangKhachHang() {
-        if(diemTichLuy >= 1000) {
-            this.loaiKhachHang = LoaiKhachHang.KIM_CUONG;
-        } else if(diemTichLuy >= 500){
-            this.loaiKhachHang = LoaiKhachHang.VANG;
-        } else if(diemTichLuy >= 100){
-            this.loaiKhachHang = LoaiKhachHang.BAC;
+        if(DiemTichLuy >= 1000) {
+            this.LoaiKhachHang = LoaiKhachHang.KIM_CUONG;
+        } else if(DiemTichLuy >= 500){
+            this.LoaiKhachHang = LoaiKhachHang.VANG;
+        } else if(DiemTichLuy >= 100){
+            this.LoaiKhachHang = LoaiKhachHang.BAC;
         } else{
-            this.loaiKhachHang = LoaiKhachHang.DONG;
+            this.LoaiKhachHang = LoaiKhachHang.DONG;
         }
     }
 
     // ================ HÀM CHỨC NĂNG =================
     @Override
     public void hienThiVaiTro() {
-        System.out.println("Khách hàng hạng: " + loaiKhachHang.getTenHienThi());
+        System.out.println("Khách hàng hạng: " + LoaiKhachHang.getTenHienThi());
     }
 
     // ================ GETTER - SETTER =================
 
     public int getDiemTichLuy() {
-        return diemTichLuy;
+        return DiemTichLuy;
     }
 
     public void setDiemTichLuy(int diemTichLuy) {
-        this.diemTichLuy = diemTichLuy;
+        this.DiemTichLuy = diemTichLuy;
     }
 
     public LoaiKhachHang getLoaiKhachHang() {
-        return loaiKhachHang;
+        return LoaiKhachHang;
     }
 
-    public void setLoaiKhachHang(LoaiKhachHang loaiKhachHang) {
-        this.loaiKhachHang = loaiKhachHang;
+    public void setLoaiKhachHang(LoaiKhachHang LoaiKhachHang) {
+        this.LoaiKhachHang = LoaiKhachHang;
     }
 }
