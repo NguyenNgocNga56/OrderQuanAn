@@ -3,80 +3,79 @@ package backend.entity;
 import java.time.LocalDateTime;
 
 public class HoaDon {
-    private String idHoaDon;
-    private String idDonHang;
-    private LocalDateTime ngayLap;
-    private double tongTien; // Lấy từ DonHang sang
-    private double giamGia;  // Tiền được giảm (từ KhuyenMai hoặc Member)
-    private double thanhTien; // = tongTien - giamGia
+    private String HoaDonID;
+    private String DonHangID;
+    private LocalDateTime NgayLap;
+    private double TongTien; // Lấy từ DonHang sang
+    private double GiamGia;  // Tiền được giảm (từ KhuyenMai hoặc Member)
+    private double ThanhTien; // = tongTien - giamGia
 
     // ================ CONSTRUCTOR =================
     public HoaDon() {}
 
-    public HoaDon(String idHoaDon, String idDonHang, double tongTien, double giamGia) {
-        this.idHoaDon = idHoaDon;
-        this.idDonHang = idDonHang;
-        this.ngayLap = LocalDateTime.now();
-        this.tongTien = tongTien;
-        this.giamGia = giamGia;
+    public HoaDon(String HoaDonID, String DonHangID, double TongTien, double GiamGia) {
+        this.HoaDonID = HoaDonID;
+        this.DonHangID = DonHangID;
+        this.NgayLap = LocalDateTime.now();
+        this.TongTien = TongTien;
+        this.GiamGia = GiamGia;
         // Tính toán thành tiền ngay khi khởi tạo
-        this.thanhTien = this.tongTien - this.giamGia;
+        this.ThanhTien = this.TongTien - this.GiamGia;
     }
 
     // ================ HÀM HỖ TRỢ =================
     // Auto update thành tiền khi giá trị đổi
     private void updateThanhTien() {
-        this.thanhTien = this.tongTien - this.giamGia;
+        this.ThanhTien = this.TongTien - this.GiamGia;
     }
 
     // ================ GETTER =================
 
 
     public String getIdHoaDon() {
-        return idHoaDon;
+        return HoaDonID;
     }
 
     public String getIdDonHang() {
-        return idDonHang;
+        return DonHangID;
     }
 
     public LocalDateTime getNgayLap() {
-        return ngayLap;
+        return NgayLap;
     }
 
     public double getTongTien() {
-        return tongTien;
+        return TongTien;
     }
 
     public double getGiamGia() {
-        return giamGia;
+        return GiamGia;
     }
 
     public double getThanhTien() {
-        return thanhTien;
+        return ThanhTien;
     }
 
     // ================ SETTER =================
-    public void setIdHoaDon(String idHoaDon) {
-        this.idHoaDon = idHoaDon;
+    public void setIdHoaDon(String HoaDonID) {
+        this.HoaDonID = HoaDonID;
     }
 
-    public void setIdDonHang(String idDonHang) {
-        this.idDonHang = idDonHang;
+    public void setIdDonHang(String DonHangID) {
+        this.DonHangID = DonHangID;
     }
 
-    public void setNgayLap(LocalDateTime ngayLap) {
-        this.ngayLap = ngayLap;
+    public void setNgayLap(LocalDateTime NgayLap) {
+        this.NgayLap = NgayLap;
     }
 
-    public void setTongTien(double tongTien) {
-        this.tongTien = tongTien;
+    public void setTongTien(double TongTien) {
+        this.TongTien = TongTien;
         updateThanhTien();
     }
 
-    public void setGiamGia(double giamGia) {
-        this.giamGia = giamGia;
+    public void setGiamGia(double GiamGia) {
+        this.GiamGia = GiamGia;
         updateThanhTien();
     }
-
 }
