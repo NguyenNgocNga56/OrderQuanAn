@@ -3,88 +3,86 @@ package backend.entity;
 import backend.enums.TrangThaiMonAn;
 
 public abstract class MonAn {
-    private String idMon;
-    private String tenMon;
-    private double gia;
-    private String moTa;
-    private String hinhAnh;
-    private TrangThaiMonAn trangThai;
-    private String menuId;
+    private String MonID;
+    private String TenMon;
+    private double Gia;
+    private String MoTa;
+    private String HinhAnh;
+    private TrangThaiMonAn TrangThai;
+    private String MenuId;
 
     // ================ CONSTRUCTOR =================
     public MonAn(){}
 
-    public MonAn(String idMon, String tenMon, double gia, String moTa, String hinhAnh, TrangThaiMonAn trangThai, String menuId) {
-        this.idMon = idMon;
-        this.tenMon = tenMon;
-        this.gia = gia;
-        this.moTa = moTa;
-        this.hinhAnh = hinhAnh;
-        this.trangThai = trangThai;
-        this.menuId = menuId;
-    }
+    
+    public MonAn(String MonID, String TenMon, double Gia, String MoTa, String HinhAnh, TrangThaiMonAn TrangThai,
+			String MenuId) {
+		super();
+		this.MonID = MonID;
+		this.TenMon = TenMon;
+		this.Gia = Gia;
+		this.MoTa = MoTa;
+		this.HinhAnh = HinhAnh;
+		this.TrangThai = TrangThai;
+		this.MenuId = MenuId;
+	}
 
     // =============== HÀM CHỨC NĂNG ===============
     // Tính giá bán, k phải giá bàn đâu=))))
     public abstract double giaBan();
 
-    // ================ GETTER =================
 
-    public String getIdMon() {
-        return idMon;
-    }
+	// ================ GETTER =================
+	
+    public String getMonID() {
+		return MonID;
+	}
+	public String getTenMon() {
+		return TenMon;
+	}
 
-    public String getTenMon() {
-        return tenMon;
-    }
+	public double getGia() {
+		return Gia;
+	}
 
-    public double getGia() {
-        return gia;
-    }
+	public String getMoTa() {
+		return MoTa;
+	}
+	public String getHinhAnh() {
+		return HinhAnh;
+	}
+	public TrangThaiMonAn getTrangThai() {
+		return TrangThai;
+	}
+	public String getMenuId() {
+		return MenuId;
+	}
 
-    public String getMoTa() {
-        return moTa;
-    }
+	// ================ GETTER ================= 
+	
+	public void setMonID(String monID) {
+		MonID = monID;
+	}
+	public void setTenMon(String tenMon) {
+		TenMon = tenMon;
+	}
+	public void setGia(double gia) {
+		Gia = gia;
+	}
+	public void setMoTa(String moTa) {
+		MoTa = moTa;
+	}
 
-    public String getHinhAnh() {
-        return hinhAnh;
-    }
+	public void setHinhAnh(String hinhAnh) {
+		HinhAnh = hinhAnh;
+	}
 
-    public TrangThaiMonAn getTrangThai() {
-        return trangThai;
-    }
+	public void setTrangThai(TrangThaiMonAn trangThai) {
+		TrangThai = trangThai;
+	}
 
-    public String getMenuId() {
-        return menuId;
-    }
+	public void setMenuId(String menuId) {
+		MenuId = menuId;
+	}
 
-    // ================ SETTER =================
-
-    public void setIdMon(String idMon) {
-        this.idMon = idMon;
-    }
-
-    public void setTenMon(String tenMon) {
-        this.tenMon = tenMon;
-    }
-
-    public void setGia(double gia) {
-        this.gia = gia;
-    }
-
-    public void setMoTa(String moTa) {
-        this.moTa = moTa;
-    }
-
-    public void setHinhAnh(String hinhAnh) {
-        this.hinhAnh = hinhAnh;
-    }
-
-    public void setTrangThai(TrangThaiMonAn trangThai) {
-        this.trangThai = trangThai;
-    }
-
-    public void setMenuId(String menuId) {
-        this.menuId = menuId;
-    }
 }
