@@ -6,85 +6,80 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class DonHang {
-    private String idDonHang;
-    private TrangThaiDonHang trangThai;
-    private double tongTien;
-    private LocalDateTime ngayDat;
-    private String idKhachHang;
-    private String idNhanVien;
+    private String DonHangID;
+    private TrangThaiDonHang TrangThai;
+    private double TongTien;
+    private LocalDateTime NgayDat;
+    private String KhachHangID;
+    private String NhanVienID;
 
     private Map<String, ChiTietDonHang> items = new LinkedHashMap<>(); // Lưu các chi tiết đơn hàng
 
     // ================ CONSTRUCTOR =================
     public DonHang(){}
 
-    public DonHang(String idDonHang, TrangThaiDonHang trangThai, double tongTien, LocalDateTime ngayDat, String idKhachHang, String idNhanVien) {
-        this.idDonHang = idDonHang;
-        this.trangThai = trangThai;
-        this.tongTien = tongTien;
-        this.ngayDat = ngayDat;
-        this.idKhachHang = idKhachHang;
-        this.idNhanVien = idNhanVien;
-    }
+    public DonHang(String DonHangID, TrangThaiDonHang TrangThai, double TongTien, LocalDateTime NgayDat,
+			String KhachHangID, String NhanVienID) {
+		super();
+		this.DonHangID = DonHangID;
+		this.TrangThai = TrangThai;
+		this.TongTien = TongTien;
+		this.NgayDat = NgayDat;
+		this.KhachHangID = KhachHangID;
+		this.NhanVienID =NhanVienID;
+	}
 
-    // ================ HÀM CHỨC NĂNG =================
+	// ================ HÀM CHỨC NĂNG =================
     // Auto update tổng tiền
     public void tuDongCapNhatTongTien() {
         double temp = 0;
         for (ChiTietDonHang ct : items.values()) {
-            temp += ct.gettongTien(); // Lấy tổng tiền từng dòng cộng lại
+            temp += ct.getTongTien(); // Lấy tổng tiền từng dòng cộng lại
         }
-        this.tongTien = temp;
+        this.TongTien = temp;
     }
 
     // ================ GETTER =================
 
     public String getIdDonHang() {
-        return idDonHang;
+        return DonHangID;
     }
-
     public TrangThaiDonHang getTrangThai() {
-        return trangThai;
+        return TrangThai;
     }
-
     public double getTongTien() {
-        return tongTien;
+        return TongTien;
     }
-
     public LocalDateTime getNgayDat() {
-        return ngayDat;
+        return NgayDat;
     }
-
     public String getIdKhachHang() {
-        return idKhachHang;
+        return KhachHangID;
     }
-
     public String getIdNhanVien() {
-        return idNhanVien;
+        return NhanVienID;
     }
 
     // ================ SETTER =================
-    public void setIdDonHang(String idDonHang) {
-        this.idDonHang = idDonHang;
-    }
+    
+	public void setDonHangID(String donHangID) {
+		DonHangID = donHangID;
+	}
+	public void setTrangThai(TrangThaiDonHang trangThai) {
+		TrangThai = trangThai;
+	}
+	public void setTongTien(double tongTien) {
+		TongTien = tongTien;
+	}
+	public void setNgayDat(LocalDateTime ngayDat) {
+		NgayDat = ngayDat;
+	}
+	public void setNhanVienID(String nhanVienID) {
+		NhanVienID = nhanVienID;
+	}
+	public void setKhachHangID(String khachHangID) {
+		KhachHangID = khachHangID;
+	}
 
-    public void setTrangThai(TrangThaiDonHang trangThai) {
-        this.trangThai = trangThai;
-    }
-
-    public void setTongTien(double tongTien) {
-        this.tongTien = tongTien;
-    }
-
-    public void setNgayDat(LocalDateTime ngayDat) {
-        this.ngayDat = ngayDat;
-    }
-
-    public void setIdKhachHang(String idKhachHang) {
-        this.idKhachHang = idKhachHang;
-    }
-
-    public void setIdNhanVien(String idNhanVien) {
-        this.idNhanVien = idNhanVien;
-    }
+    
 }
