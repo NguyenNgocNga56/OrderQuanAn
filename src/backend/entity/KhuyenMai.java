@@ -5,95 +5,99 @@ import backend.enums.LoaiKhuyenMai;
 import java.time.LocalDateTime;
 
 public class KhuyenMai {
-    private String idKhuyenMai;
-    private String tenKhuyenMai;
-    private LoaiKhuyenMai loaiKhuyenMai;  //tạm thời để string nhé, chứ t tính dùng enum :Đ
-    private double giaTri;
-    private LocalDateTime ngayBatDau;
-    private LocalDateTime ngayKetThuc;
-    private boolean dangKichHoat;
+    private String KhuyenMaiID;
+    private String TenKhuyenMai;
+    private LoaiKhuyenMai LoaiKhuyenMai;  //tạm thời để string nhé, chứ t tính dùng enum :Đ
+    private double GiaTri;
+    private LocalDateTime NgayBatDau;
+    private LocalDateTime NgayKetThuc;
+    private boolean DangKichHoat;
 
     // ================ CONSTRUCTOR =================
     public KhuyenMai() {}
 
-    public KhuyenMai(String idKhuyenMai, String tenKhuyenMai, LoaiKhuyenMai loaiKhuyenMai, double giaTri, LocalDateTime ngayBatDau, LocalDateTime ngayKetThuc, boolean dangKichHoat) {
-        this.idKhuyenMai = idKhuyenMai;
-        this.tenKhuyenMai = tenKhuyenMai;
-        this.loaiKhuyenMai = loaiKhuyenMai;
-        this.giaTri = giaTri;
-        this.ngayBatDau = ngayBatDau;
-        this.ngayKetThuc = ngayKetThuc;
-        this.dangKichHoat = dangKichHoat;
+    public KhuyenMai(String KhuyenMaiID, String TenKhuyenMai, LoaiKhuyenMai LoaiKhuyenMai, double GiaTri, LocalDateTime NgayBatDau, LocalDateTime NgayKetThuc, boolean DangKichHoat) {
+        this.KhuyenMaiID = KhuyenMaiID;
+        this.TenKhuyenMai = TenKhuyenMai;
+        this.LoaiKhuyenMai = LoaiKhuyenMai;
+        this.GiaTri = GiaTri;
+        this.NgayBatDau = NgayBatDau;
+        this.NgayKetThuc = NgayKetThuc;
+        this.DangKichHoat = DangKichHoat;
     }
 
     // ================ HÀM CHỨC NĂNG =================
     // Check xem mã còn hạn dùng k
     public boolean conHieuLuc() {
         LocalDateTime now = LocalDateTime.now();
-        return now.isAfter(ngayBatDau) && now.isBefore(ngayKetThuc);
+        return now.isAfter(NgayBatDau) && now.isBefore(NgayKetThuc);
     }
     public boolean hopLe() {
         LocalDateTime now = LocalDateTime.now();
-        boolean trongThoiHan = now.isAfter(ngayBatDau) && now.isBefore(ngayKetThuc);
-        return dangKichHoat && trongThoiHan;
+        boolean trongThoiHan = now.isAfter(NgayBatDau) && now.isBefore(NgayKetThuc);
+        return DangKichHoat && trongThoiHan;
     }
+
+    
 
     // ================ GETTER =================
-    public String getIdKhuyenMai() {
-        return idKhuyenMai;
-    }
+    
+    public String getKhuyenMaiID() {
+		return KhuyenMaiID;
+	}
 
-    public String getTenKhuyenMai() {
-        return tenKhuyenMai;
-    }
+	public String getTenKhuyenMai() {
+		return TenKhuyenMai;
+	}
 
-    public LoaiKhuyenMai getLoaiKhuyenMai() {
-        return loaiKhuyenMai;
-    }
+	public LoaiKhuyenMai getLoaiKhuyenMai() {
+		return LoaiKhuyenMai;
+	}
 
-    public double getGiaTri() {
-        return giaTri;
-    }
+	public double getGiaTri() {
+		return GiaTri;
+	}
 
-    public LocalDateTime getNgayBatDau() {
-        return ngayBatDau;
-    }
+	public LocalDateTime getNgayBatDau() {
+		return NgayBatDau;
+	}
 
-    public LocalDateTime getNgayKetThuc() {
-        return ngayKetThuc;
-    }
+	public LocalDateTime getNgayKetThuc() {
+		return NgayKetThuc;
+	}
 
-    public boolean isDangKichHoat() {
-        return dangKichHoat;
-    }
+	public boolean isDangKichHoat() {
+		return DangKichHoat;
+	}
 
+	// ================ SETTER =================
+	
+	public void setKhuyenMaiID(String khuyenMaiID) {
+		KhuyenMaiID = khuyenMaiID;
+	}
 
-    // ================ SETTER =================
-    public void setIdKhuyenMai(String idKhuyenMai) {
-        this.idKhuyenMai = idKhuyenMai;
-    }
+	public void setTenKhuyenMai(String tenKhuyenMai) {
+		TenKhuyenMai = tenKhuyenMai;
+	}
 
-    public void setTenKhuyenMai(String tenKhuyenMai) {
-        this.tenKhuyenMai = tenKhuyenMai;
-    }
+	public void setLoaiKhuyenMai(LoaiKhuyenMai loaiKhuyenMai) {
+		LoaiKhuyenMai = loaiKhuyenMai;
+	}
 
-    public void setLoaiKhuyenMai(LoaiKhuyenMai loaiKhuyenMai) {
-        this.loaiKhuyenMai = loaiKhuyenMai;
-    }
+	public void setGiaTri(double giaTri) {
+		GiaTri = giaTri;
+	}
 
-    public void setGiaTri(double giaTri) {
-        this.giaTri = giaTri;
-    }
+	public void setNgayBatDau(LocalDateTime ngayBatDau) {
+		NgayBatDau = ngayBatDau;
+	}
 
-    public void setNgayBatDau(LocalDateTime ngayBatDau) {
-        this.ngayBatDau = ngayBatDau;
-    }
+	public void setNgayKetThuc(LocalDateTime ngayKetThuc) {
+		NgayKetThuc = ngayKetThuc;
+	}
 
-    public void setNgayKetThuc(LocalDateTime ngayKetThuc) {
-        this.ngayKetThuc = ngayKetThuc;
-    }
+	public void setDangKichHoat(boolean dangKichHoat) {
+		DangKichHoat = dangKichHoat;
+	}
 
-    public void setDangKichHoat(boolean dangKichHoat) {
-        this.dangKichHoat = dangKichHoat;
-    }
-}
+}	
