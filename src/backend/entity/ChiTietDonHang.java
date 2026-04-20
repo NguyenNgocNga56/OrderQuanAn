@@ -1,10 +1,10 @@
 package backend.entity;
 
 public class ChiTietDonHang {
-    private String idChiTiet;
-    private String idDonHang;
+    private String CTDHID;
+    private String DonHangID;
     private MonAn monAn;
-    private int soLuong;
+    private int SoLuong;
     private double giaBan;    // Giá tại thời điểm bán (lấy từ monAn.giaBan())
     private double tongTien; // = soLuong * giaBan
 
@@ -12,69 +12,69 @@ public class ChiTietDonHang {
     // ================ CONSTRUCTOR =================
     public ChiTietDonHang() {}
 
-    public ChiTietDonHang(String idChiTiet, String idDonHang, MonAn monAn, int soLuong) {
-        this.idChiTiet = idChiTiet;
-        this.idDonHang = idDonHang;
+    public ChiTietDonHang(String CTDHID, String DonHangID, MonAn monAn, int SoLuong) {
+        this.CTDHID = CTDHID;
+        this.DonHangID = DonHangID;
         this.monAn = monAn;
-        this.soLuong = soLuong;
+        this.SoLuong = SoLuong;
 
         // Khi khởi tạo, lấy luôn giá bán từ đối tượng MonAn
         if (monAn != null) {
             this.giaBan = monAn.giaBan();
-            this.tongTien = this.soLuong * this.giaBan;
+            this.tongTien = this.SoLuong * this.giaBan;
         }
     }
 
 
     // ================ GETTER =================
 
-    public String getIdChiTiet() {
-        return idChiTiet;
-    }
+    public String getCTDHID() {
+		return CTDHID;
+	}
 
-    public String getIdDonHang() {
-        return idDonHang;
-    }
+	public String getDonHangID() {
+		return DonHangID;
+	}
 
-    public MonAn getMonAn() {
-        return monAn;
-    }
+	public MonAn getMonAn() {
+		return monAn;
+	}
 
-    public int getSoLuong() {
-        return soLuong;
-    }
+	public int getSoLuong() {
+		return SoLuong;
+	}
 
-    public double getGiaBan() {
-        return giaBan;
-    }
+	public double getGiaBan() {
+		return giaBan;
+	}
 
-    public double gettongTien() {
-        return tongTien;
-    }
+	public double getTongTien() {
+		return tongTien;
+	}
 
-    // ================ SETTER =================
+	// ================ SETTER =================
+	
+	public void setCTDHID(String CTDHID) {
+		this.CTDHID = CTDHID;
+	}
 
-    public void setIdChiTiet(String idChiTiet) {
-        this.idChiTiet = idChiTiet;
-    }
+	public void setDonHangID(String DonHangID) {
+		this.DonHangID = DonHangID;
+	}
 
-    public void setIdDonHang(String idDonHang) {
-        this.idDonHang = idDonHang;
-    }
+	public void setMonAn(MonAn monAn) {
+		this.monAn = monAn;
+	}
 
-    public void setMonAn(MonAn monAn) {
-        this.monAn = monAn;
-    }
+	public void setSoLuong(int SoLuong) {
+		this.SoLuong = SoLuong;
+	}
 
-    public void setSoLuong(int soLuong) {
-        this.soLuong = soLuong;
-    }
+	public void setGiaBan(double giaBan) {
+		this.giaBan = giaBan;
+	}
 
-    public void setGiaBan(double giaBan) {
-        this.giaBan = giaBan;
-    }
-
-    public void settongTien(double tongTien) {
-        this.tongTien = tongTien;
-    }
+	public void setTongTien(double tongTien) {
+		this.tongTien = tongTien;
+	}
 }
