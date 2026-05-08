@@ -15,14 +15,14 @@ public class HoaDonController {
     @GetMapping public List<HoaDon> getAll() { return repository.findAll(); }
 
     @GetMapping("/{id}")
-    public ResponseEntity<HoaDon> getById(@PathVariable Long id) {
+    public ResponseEntity<HoaDon> getById(@PathVariable Integer id) {
         return repository.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping public HoaDon create(@RequestBody HoaDon e) { return repository.save(e); }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         if (!repository.existsById(id)) return ResponseEntity.notFound().build();
         repository.deleteById(id); return ResponseEntity.noContent().build();
     }

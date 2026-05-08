@@ -16,7 +16,7 @@ public class DonHang {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "DonHangID")
-    private Long donHangID;
+    private Integer donHangID;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "TrangThai", length = 50)
@@ -36,6 +36,7 @@ public class DonHang {
     @JoinColumn(name = "NhanVienID")
     private NhanVien nhanVien;
 
+    // Bỏ final để Hibernate không bị lỗi khi mapping
     @OneToMany(mappedBy = "donHang", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ChiTietDonHang> chiTietDonHangs = new ArrayList<>();
 
@@ -44,8 +45,12 @@ public class DonHang {
         if (ngayDat == null) ngayDat = LocalDateTime.now();
     }
 
+    // Đã sửa thành getThanhTien() để khớp với file ChiTietDonHang mình sửa lúc nãy
     public void tuDongCapNhatTongTien() {
-        this.tongTien = chiTietDonHangs.stream()
-                .mapToDouble(ChiTietDonHang::getTongTien).sum();
+        if (chiTietDonHangs != null) {
+            this.tongTien = chiTietDonHangs.stream()
+                    .mapToDouble(ChiTietDonHang::getThanhTien)
+                    .sum();
+        }
     }
 }

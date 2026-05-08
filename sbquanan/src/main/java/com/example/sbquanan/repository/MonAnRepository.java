@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface MonAnRepository extends JpaRepository<MonAn, Long> {
-    List<MonAn> findByMenu_MenuID(Long menuId);
+public interface MonAnRepository extends JpaRepository<MonAn, Integer> {
+    List<MonAn> findByMenu_MenuID(Integer menuId);
 }

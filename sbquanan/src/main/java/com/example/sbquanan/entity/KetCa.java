@@ -13,22 +13,24 @@ public class KetCa {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "KetCaID")
-    private Long ketCaID;
+    private Integer ketCaID;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CaID")
+    @JoinColumn(name = "CaID", nullable = false)
     private CaLamViec caLamViec;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "NhanVienID")
+    @JoinColumn(name = "NhanVienID", nullable = false)
     private NhanVien nhanVien;
 
-    @Column(name = "TgBatDau")
+    // Sửa lại tên cột cho khớp chính xác với chữ thường/hoa trong SQL (tgBatDau)
+    @Column(name = "tgBatDau")
     private LocalDateTime tgBatDau;
 
-    @Column(name = "TgKetThuc")
+    @Column(name = "tgKetThuc")
     private LocalDateTime tgKetThuc;
 
+    // BẮT BUỘC: Bỏ 'final' để Hibernate có thể map dữ liệu
     @Column(name = "TongDoanhThu")
-    private double tongDoanhThu = 0;
+    private double tongDoanhThu;
 }

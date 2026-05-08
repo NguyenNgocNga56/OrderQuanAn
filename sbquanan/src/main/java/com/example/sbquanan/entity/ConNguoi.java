@@ -10,10 +10,9 @@ import lombok.NoArgsConstructor;
 public abstract class ConNguoi {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id; // Sẽ được ghi đè tên cột ở lớp con
 
-    @Column(name = "HoTen", nullable = false, length = 100)
-    private String hoTen;
+    private String hoTen; // Sẽ được ghi đè tên cột ở lớp con
 
     @Column(name = "SDT", length = 15)
     private String sdt;

@@ -1,9 +1,11 @@
 package com.example.sbquanan.entity;
 
 import com.example.sbquanan.enums.TrangThaiMonAn;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "MonAn")
@@ -15,7 +17,7 @@ public abstract class MonAn {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "MonID")
-    private Long monID;
+    private Integer monID;
 
     @Column(name = "TenMon", nullable = false, length = 100)
     private String tenMon;
@@ -35,6 +37,8 @@ public abstract class MonAn {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MenuID", nullable = false)
+    @JsonBackReference
+    @ToString.Exclude
     private Menu menu;
 
     public abstract double giaBan();

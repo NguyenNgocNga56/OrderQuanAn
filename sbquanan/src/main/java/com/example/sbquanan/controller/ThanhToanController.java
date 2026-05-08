@@ -15,14 +15,14 @@ public class ThanhToanController {
     @GetMapping public List<ThanhToan> getAll() { return repository.findAll(); }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ThanhToan> getById(@PathVariable Long id) {
+    public ResponseEntity<ThanhToan> getById(@PathVariable Integer id) {
         return repository.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping public ThanhToan create(@RequestBody ThanhToan e) { return repository.save(e); }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         if (!repository.existsById(id)) return ResponseEntity.notFound().build();
         repository.deleteById(id); return ResponseEntity.noContent().build();
     }

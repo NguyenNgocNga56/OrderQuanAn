@@ -13,7 +13,7 @@ public class CaLamViec {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "CaID")
-    private Long caID;
+    private Integer caID;
 
     @Column(name = "TenCa", length = 50)
     private String tenCa;

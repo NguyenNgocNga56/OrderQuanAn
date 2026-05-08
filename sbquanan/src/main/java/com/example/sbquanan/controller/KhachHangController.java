@@ -15,7 +15,7 @@ public class KhachHangController {
     @GetMapping public List<KhachHang> getAll() { return repository.findAll(); }
 
     @GetMapping("/{id}")
-    public ResponseEntity<KhachHang> getById(@PathVariable Long id) {
+    public ResponseEntity<KhachHang> getById(@PathVariable Integer id) {
         return repository.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
@@ -24,7 +24,7 @@ public class KhachHangController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<KhachHang> update(@PathVariable Long id, @RequestBody KhachHang updated) {
+    public ResponseEntity<KhachHang> update(@PathVariable Integer id, @RequestBody KhachHang updated) {
         return repository.findById(id).map(e -> {
             updated.setId(e.getId()); updated.capNhatHangKhachHang();
             return ResponseEntity.ok(repository.save(updated));
@@ -32,7 +32,7 @@ public class KhachHangController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         if (!repository.existsById(id)) return ResponseEntity.notFound().build();
         repository.deleteById(id); return ResponseEntity.noContent().build();
     }

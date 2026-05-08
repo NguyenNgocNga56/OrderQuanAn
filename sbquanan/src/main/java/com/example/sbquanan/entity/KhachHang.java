@@ -8,10 +8,15 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "KhachHang")
+@AttributeOverrides({
+        @AttributeOverride(name = "id", column = @Column(name = "KhachHangID")),
+        @AttributeOverride(name = "hoTen", column = @Column(name = "TenKhach"))
+})
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class KhachHang extends ConNguoi {
+    // BẮT BUỘC: Bỏ 'final' để Hibernate có thể cập nhật điểm
     @Column(name = "DiemTichLuy")
     private int diemTichLuy = 0;
 

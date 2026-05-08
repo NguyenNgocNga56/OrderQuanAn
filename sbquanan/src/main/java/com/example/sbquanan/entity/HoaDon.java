@@ -13,11 +13,16 @@ public class HoaDon {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "HoaDonID")
-    private Long hoaDonID;
+    private Integer hoaDonID;
 
+    // Quan hệ 1-1 với Đơn Hàng (Unique trong SQL)
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "DonHangID", nullable = false)
+    @JoinColumn(name = "DonHangID", nullable = false, unique = true)
     private DonHang donHang;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "KhuyenMaiID")
+    private KhuyenMai khuyenMai;
 
     @Column(name = "NgayLap")
     private LocalDateTime ngayLap;
@@ -28,12 +33,13 @@ public class HoaDon {
     @Column(name = "GiamGia")
     private double giamGia;
 
-    @Column(name = "ThanhTien")
+    @Column(name = "ThanhTien", insertable = false, updatable = false)
     private double thanhTien;
 
     @PrePersist
     public void prePersist() {
-        if (ngayLap == null) ngayLap = LocalDateTime.now();
-        this.thanhTien = this.tongTien - this.giamGia;
+        if (ngayLap == null) {
+            ngayLap = LocalDateTime.now();
+        }
     }
 }

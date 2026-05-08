@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 public class ChiTietDonHang {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "CTDHID")
-    private Long ctdhID;
+    @Column(name = "CTDH_ID") // Sửa lại cho khớp SQL
+    private Integer ctdhID;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "DonHangID", nullable = false)
@@ -25,18 +25,21 @@ public class ChiTietDonHang {
     @Column(name = "SoLuong")
     private int soLuong;
 
-    @Column(name = "GiaBan")
-    private double giaBan;
+    @Column(name = "DonGia") // Sửa từ giaBan thành DonGia
+    private double donGia;
 
-    @Column(name = "TongTien")
-    private double tongTien;
+    // Cột này SQL tự tính nên ta để insertable và updatable = false
+    @Column(name = "ThanhTien", insertable = false, updatable = false)
+    private double thanhTien;
 
+    // Logic này vẫn giữ để dùng trong Java nếu cần,
+    // nhưng khi lưu xuống DB, SQL sẽ tự tính lại theo công thức của nó.
     @PrePersist
     @PreUpdate
     public void tinhToan() {
         if (monAn != null) {
-            this.giaBan = monAn.giaBan();
-            this.tongTien = this.soLuong * this.giaBan;
+            // Lưu ý: Đảm bảo trong MonAn có field 'gia' hoặc 'donGia' tương ứng
+            this.donGia = monAn.getGia();
         }
     }
 }

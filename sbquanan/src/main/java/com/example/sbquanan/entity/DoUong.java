@@ -12,9 +12,11 @@ import lombok.NoArgsConstructor;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
+
 public class DoUong extends MonAn {
+
     @Enumerated(EnumType.STRING)
-    @Column(name = "Loai", length = 50)
+    @Column(name = "Loai", length = 50) // Đồ uống dùng cột Loai để lưu Size
     private SizeDoUong size;
 
     public DoUong(String tenMon, double gia, String moTa, TrangThaiMonAn trangThai,

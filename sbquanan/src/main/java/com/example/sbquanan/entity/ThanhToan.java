@@ -15,7 +15,7 @@ public class ThanhToan {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ThanhToanID")
-    private Long thanhToanID;
+    private Integer thanhToanID;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "HoaDonID", nullable = false)
@@ -32,7 +32,7 @@ public class ThanhToan {
     private LocalDateTime thoiGian;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "TrangThai", length = 30)
+    @Column(name = "TrangThai", length = 50) // Chỉnh lại 50 cho khớp NVARCHAR(50) trong SQL
     private TrangThaiThanhToan trangThai;
 
     @PrePersist
