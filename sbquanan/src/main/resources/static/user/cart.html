@@ -1,10 +1,204 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quán Ăn – Đặt Hàng</title>
+    <link rel="stylesheet" href="../css/style.css" />
 </head>
 <body>
 
+<nav class="navbar">
+    <a class="navbar-brand" href="index.html"><span class="logo-icon">🍜</span> Quán Ngon</a>
+    <ul class="navbar-links">
+        <li><a href="index.html">Thực đơn</a></li>
+        <li><a href="cart.html" class="active">Giỏ hàng</a></li>
+        <li><a href="product.html">Tra cứu đơn</a></li>
+    </ul>
+    <div class="navbar-right">
+        <button class="cart-btn">🛒 <span class="cart-count">0</span></button>
+    </div>
+</nav>
+
+<div class="page-header">
+    <div class="container">
+        <h1>🛒 Giỏ Hàng & Đặt Món</h1>
+        <p>Xem lại và xác nhận đơn hàng của bạn</p>
+    </div>
+</div>
+
+<div class="container" style="padding-top:2rem; padding-bottom:3rem;">
+    <div style="display:grid; grid-template-columns:1fr 360px; gap:1.5rem; align-items:start;">
+
+        <!-- LEFT: Cart Items -->
+        <div>
+            <h2 class="section-title">📋 Món đã chọn</h2>
+            <div id="cartDetail" class="table-wrap">
+                <div class="loader"><div class="spinner"></div>Đang tải...</div>
+            </div>
+            <div style="margin-top:1rem; display:flex; gap:.7rem;">
+                <a href="index.html" class="btn btn-outline">← Thêm món</a>
+                <button class="btn btn-ghost" onclick="Cart.clear(); renderCartPage(); toast('Đã xóa giỏ hàng','warning');">🗑 Xóa tất cả</button>
+            </div>
+        </div>
+
+        <!-- RIGHT: Order Form -->
+        <div>
+            <h2 class="section-title">📝 Thông tin đặt hàng</h2>
+            <div style="background:var(--card-bg); border-radius:var(--radius); border:1px solid var(--border); padding:1.4rem; box-shadow:var(--shadow);">
+
+                <div class="form-group">
+                    <label class="form-label">Khách hàng</label>
+                    <select class="form-select" id="khachHangId">
+                        <option value="">-- Chọn khách hàng --</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Nhân viên phục vụ</label>
+                    <select class="form-select" id="nhanVienId">
+                        <option value="">-- Chọn nhân viên --</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Ghi chú</label>
+                    <textarea class="form-control" id="ghiChu" rows="2" placeholder="Ít cay, không hành, dị ứng..."></textarea>
+                </div>
+
+                <hr style="border-color:var(--border); margin:1rem 0;" />
+
+                <div class="cart-total-row"><span>Số lượng món:</span><span id="sumCount">0</span></div>
+                <div class="cart-total-row final"><span>Tổng tiền:</span><span id="sumTotal">0 ₫</span></div>
+
+                <button class="btn btn-primary btn-block btn-lg" style="margin-top:1rem;" onclick="submitOrder()">
+                    ✅ Xác nhận đặt hàng
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SUCCESS MODAL -->
+<div class="modal-overlay" id="successModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>🎉 Đặt hàng thành công!</h3>
+        </div>
+        <div class="modal-body" id="successBody"></div>
+        <div class="modal-footer">
+            <a href="product.html" class="btn btn-outline">Tra cứu đơn hàng</a>
+            <a href="index.html" class="btn btn-primary">Đặt thêm</a>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container"></div>
+<script src="../js/main.js"></script>
+<script>
+    // ── RENDER CART TABLE ─────────────────────────────────────────
+    function renderCartPage() {
+      const items = Cart.getAll();
+      const container = document.getElementById('cartDetail');
+      const sumCount = document.getElementById('sumCount');
+      const sumTotal = document.getElementById('sumTotal');
+
+      const total = Cart.total();
+      const count = Cart.count();
+      if (sumCount) sumCount.textContent = `${count} món`;
+      if (sumTotal) sumTotal.textContent = fmt(total);
+
+      if (!items.length) {
+        container.innerHTML = `
+          <div class="cart-empty" style="padding:3rem;">
+            <div class="empty-icon" style="font-size:3rem;margin-bottom:1rem;">🛒</div>
+            <p>Giỏ hàng trống. <a href="index.html" style="color:var(--primary);">Chọn món ngay →</a></p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Món ăn</th>
+              <th style="text-align:center;">SL</th>
+              <th style="text-align:right;">Đơn giá</th>
+              <th style="text-align:right;">Thành tiền</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${items.map(i => `
+              <tr>
+                <td><span style="margin-right:.5rem;">${getFoodEmoji(i.tenMon)}</span>${i.tenMon}</td>
+                <td style="text-align:center;">
+                  <div class="qty-ctrl" style="justify-content:center;">
+                    <button class="qty-btn" onclick="Cart.setQty(${i.monID}, ${i.qty-1}); renderCartPage()">−</button>
+                    <span class="qty-num">${i.qty}</span>
+                    <button class="qty-btn" onclick="Cart.setQty(${i.monID}, ${i.qty+1}); renderCartPage()">+</button>
+                  </div>
+                </td>
+                <td style="text-align:right;">${fmt(i.gia)}</td>
+                <td style="text-align:right; font-weight:700; color:var(--primary);">${fmt(i.gia * i.qty)}</td>
+                <td><button class="btn btn-ghost btn-sm" onclick="Cart.remove(${i.monID}); renderCartPage()">✕</button></td>
+              </tr>`).join('')}
+          </tbody>
+        </table>`;
+    }
+
+    // ── LOAD SELECTS ─────────────────────────────────────────────
+    async function loadSelects() {
+      try {
+        const [kh, nv] = await Promise.all([api.get('/khachhang'), api.get('/nhanvien')]);
+        const khSel = document.getElementById('khachHangId');
+        kh.forEach(k => { const o = document.createElement('option'); o.value = k.id || k.khachHangID; o.textContent = k.tenKhachHang || k.hoTen || `KH ${k.id}`; khSel.appendChild(o); });
+        const nvSel = document.getElementById('nhanVienId');
+        nv.forEach(n => { const o = document.createElement('option'); o.value = n.id || n.nhanVienID; o.textContent = n.tenNhanVien || n.hoTen || `NV ${n.id}`; nvSel.appendChild(o); });
+      } catch { /* server may not have data yet */ }
+    }
+
+    // ── SUBMIT ORDER ─────────────────────────────────────────────
+    async function submitOrder() {
+      const items = Cart.getAll();
+      if (!items.length) { toast('Giỏ hàng trống!', 'warning'); return; }
+
+      const khId = document.getElementById('khachHangId').value;
+      const nvId = document.getElementById('nhanVienId').value;
+
+      const payload = {
+        trangThai: 'PENDING',
+        tongTien: Cart.total(),
+        khachHang: khId ? { id: parseInt(khId) } : null,
+        nhanVien:  nvId ? { id: parseInt(nvId) } : null,
+        chiTietDonHangs: items.map(i => ({
+          monAn: { monID: i.monID },
+          soLuong: i.qty,
+          thanhTien: i.gia * i.qty,
+        })),
+      };
+
+      try {
+        const order = await api.post('/donhang', payload);
+        Cart.clear();
+        renderCartPage();
+        document.getElementById('successBody').innerHTML = `
+          <div style="text-align:center; padding:1rem 0;">
+            <div style="font-size:3.5rem; margin-bottom:1rem;">🎉</div>
+            <p><strong>Mã đơn hàng:</strong> #${order.donHangID || '—'}</p>
+            <p style="margin-top:.5rem; color:var(--text-muted);">Tổng tiền: <strong style="color:var(--primary);">${fmt(order.tongTien || Cart.total())}</strong></p>
+            <p style="margin-top:.5rem; color:var(--text-muted);">Trạng thái: ${statusBadge('PENDING')}</p>
+          </div>`;
+        openModal('successModal');
+      } catch (err) {
+        toast('Lỗi khi đặt hàng. Kiểm tra server Java!', 'error');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCartPage();
+      loadSelects();
+    });
+</script>
 </body>
 </html>
