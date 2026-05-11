@@ -1,10 +1,473 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quán Ngon – Đặt món online</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <style>
+        /* ---- PRICE RANGE SLIDER ---- */
+        .range-wrap { display:flex; align-items:center; gap:.7rem; }
+        .range-wrap input[type=range] {
+            flex:1; accent-color: var(--primary);
+            height:4px; cursor:pointer;
+        }
+        .range-val {
+            font-size:.82rem; font-weight:700;
+            color:var(--primary); min-width:72px; text-align:right;
+        }
+
+        /* ---- SORT SELECT ---- */
+        .sort-select {
+            padding:.5rem 1rem; border-radius:50px;
+            border:1.5px solid var(--border);
+            background:var(--card-bg); font-family:inherit;
+            font-size:.875rem; font-weight:500;
+            color:var(--text); outline:none; cursor:pointer;
+            transition:border-color .2s;
+        }
+        .sort-select:focus { border-color:var(--primary); }
+
+        /* ---- ORDER HISTORY MODAL ---- */
+        #historyModal .modal { max-width:680px; width:95%; }
+        .order-history-card {
+            border:1px solid var(--border);
+            border-radius:var(--radius-sm);
+            padding:1rem 1.2rem;
+            margin-bottom:.8rem;
+            background:var(--bg);
+            transition:var(--trans);
+        }
+        .order-history-card:hover { border-color:var(--accent); background:#fff; }
+        .order-history-header {
+            display:flex; justify-content:space-between;
+            align-items:center; margin-bottom:.6rem;
+        }
+        .order-history-items {
+            display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.5rem;
+        }
+        .order-item-chip {
+            background:var(--bg2); border:1px solid var(--border);
+            border-radius:50px; padding:.2rem .7rem;
+            font-size:.78rem; color:var(--text-muted);
+            display:flex; align-items:center; gap:.3rem;
+        }
+        .order-item-chip img {
+            width:20px; height:20px; border-radius:50%; object-fit:cover;
+        }
+
+        /* ---- TOOLBAR ---- */
+        .toolbar {
+            display:flex; flex-wrap:wrap; gap:.8rem;
+            align-items:center; margin-bottom:1.2rem;
+        }
+        .toolbar .search-box { flex:1; min-width:200px; max-width:340px; }
+
+        /* ---- EMPTY STATE ---- */
+        .empty-state {
+            text-align:center; padding:4rem 2rem;
+            color:var(--text-muted);
+        }
+        .empty-state .empty-icon { font-size:4rem; margin-bottom:1rem; }
+        .empty-state p { font-size:1rem; }
+    </style>
 </head>
 <body>
 
+<!-- ==================== NAVBAR ==================== -->
+<nav class="navbar">
+    <a class="navbar-brand" href="index.html">
+        <span class="logo-icon">🍜</span> Quán Ngon
+    </a>
+    <ul class="navbar-links">
+        <li><a href="index.html" class="active">Trang chủ</a></li>
+        <li><a href="cart.html">Giỏ hàng</a></li>
+        <li><a href="#" onclick="openHistoryModal()">Đơn hàng</a></li>
+    </ul>
+    <div class="navbar-right">
+        <button class="cart-btn" title="Xem giỏ hàng">
+            🛒 <span class="cart-count">0</span>
+        </button>
+    </div>
+</nav>
+
+<!-- ==================== HERO ==================== -->
+<div class="page-header">
+    <div class="container">
+        <h1>🍽 Thực Đơn Hôm Nay</h1>
+        <p>Chọn món yêu thích – giao tận bàn nhanh chóng</p>
+    </div>
+</div>
+
+<!-- ==================== MAIN ==================== -->
+<div class="container" style="padding-top:1.5rem; padding-bottom:3rem;">
+
+    <!-- MENU TABS (danh mục) -->
+    <div id="menuFilter" class="filter-bar">
+        <button class="filter-btn active" onclick="filterMenu(null, this)">Tất cả</button>
+    </div>
+
+    <!-- TOOLBAR: search + sort + price -->
+    <div class="toolbar">
+        <!-- Search -->
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Tìm tên món..." oninput="applyFilters()" />
+        </div>
+
+        <!-- Sort -->
+        <select class="sort-select" id="sortSelect" onchange="applyFilters()">
+            <option value="default">Mặc định</option>
+            <option value="price-asc">Giá thấp → cao</option>
+            <option value="price-desc">Giá cao → thấp</option>
+            <option value="name-asc">Tên A → Z</option>
+        </select>
+
+        <!-- Price range -->
+        <div style="display:flex;flex-direction:column;gap:.2rem;min-width:200px;">
+            <label style="font-size:.78rem;color:var(--text-muted);font-weight:600;">
+                Khoảng giá tối đa
+            </label>
+            <div class="range-wrap">
+                <input type="range" id="priceRange" min="0" max="500000"
+                       step="10000" value="500000" oninput="applyFilters()" />
+                <span class="range-val" id="priceRangeVal">Tất cả</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MENU GRID -->
+    <div id="menuGrid" class="menu-grid">
+        <div class="loader"><div class="spinner"></div>Đang tải thực đơn...</div>
+    </div>
+</div>
+
+<!-- ==================== CART PANEL ==================== -->
+<div class="cart-panel" id="cartPanel">
+    <div class="cart-panel-header">
+        <h3>🛒 Giỏ hàng</h3>
+        <button class="close-btn" data-close-cart>✕</button>
+    </div>
+    <div class="cart-items" id="cartItemsPanel"></div>
+    <div class="cart-footer" style="padding:1rem 1.4rem; border-top:1px solid var(--border);">
+        <div class="cart-total-row" style="display:flex;justify-content:space-between;margin-bottom:.5rem;">
+            <span style="font-weight:600;">Tổng cộng</span>
+            <span class="cart-total-display" style="font-weight:800;color:var(--primary);font-size:1.1rem;">0 đ</span>
+        </div>
+        <div style="display:flex;gap:.6rem;margin-top:.8rem;">
+            <button class="btn btn-outline btn-sm"
+                    onclick="Cart.clear(); renderCartPanel(); toast('Đã xoá giỏ hàng','warning')">
+                🗑 Xoá
+            </button>
+            <a href="cart.html" class="btn btn-primary" style="flex:1;text-align:center;justify-content:center;">
+                Đặt món →
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== ITEM DETAIL MODAL ==================== -->
+<div class="modal-overlay" id="detailModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="modalName">Chi tiết món</h3>
+            <button class="close-btn" data-close-modal="detailModal">✕</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" data-close-modal="detailModal">Đóng</button>
+            <button class="btn btn-primary" id="modalAddBtn">+ Thêm vào giỏ</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== ORDER HISTORY MODAL ==================== -->
+<div class="modal-overlay" id="historyModal">
+    <div class="modal" style="max-width:680px;width:95%;">
+        <div class="modal-header">
+            <h3>📋 Đơn hàng đã đặt</h3>
+            <button class="close-btn" data-close-modal="historyModal">✕</button>
+        </div>
+        <div class="modal-body" id="historyBody" style="max-height:60vh;overflow-y:auto;">
+            <div class="loader"><div class="spinner"></div></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" data-close-modal="historyModal">Đóng</button>
+            <a href="cart.html" class="btn btn-primary">Đặt thêm →</a>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== TOAST ==================== -->
+<div class="toast-container"></div>
+
+<script src="../js/main.js"></script>
+<script>
+// ============================================================
+// DATA
+// ============================================================
+let allItems    = [];   // tất cả món từ server
+let currentMenu = null; // menuID đang lọc
+
+// ============================================================
+// LOAD MENU TABS
+// ============================================================
+async function loadMenuTabs() {
+    try {
+        const menus = await api.get('/menu');
+        const bar   = document.getElementById('menuFilter');
+        menus.forEach(m => {
+            const btn = document.createElement('button');
+            btn.className   = 'filter-btn';
+            btn.textContent = m.tenMenu || `Menu #${m.menuID}`;
+            btn.onclick     = () => filterMenu(m.menuID, btn);
+            bar.appendChild(btn);
+        });
+    } catch { /* tabs không bắt buộc */ }
+}
+
+// ============================================================
+// LOAD DISHES
+// ============================================================
+async function loadDishes(menuId = null) {
+    const grid = document.getElementById('menuGrid');
+    grid.innerHTML = '<div class="loader"><div class="spinner"></div>Đang tải...</div>';
+    try {
+        const path = menuId ? `/monan/menu/${menuId}` : '/monan';
+        allItems   = await api.get(path);
+        // Cập nhật max price slider
+        if (allItems.length) {
+            const max = Math.max(...allItems.map(i => i.gia || 0));
+            const slider = document.getElementById('priceRange');
+            slider.max   = Math.ceil(max / 10000) * 10000 || 500000;
+            slider.value = slider.max;
+            updateRangeLabel();
+        }
+        applyFilters();
+    } catch {
+        grid.innerHTML = `<div class="empty-state">
+            <div class="empty-icon">⚠️</div>
+            <p>Không thể tải thực đơn. Kiểm tra server Java đang chạy tại <b>localhost:8080</b>.</p>
+        </div>`;
+    }
+}
+
+function filterMenu(menuId, btn) {
+    document.querySelectorAll('#menuFilter .filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentMenu = menuId;
+    loadDishes(menuId);
+}
+
+// ============================================================
+// APPLY FILTERS (search + sort + price)
+// ============================================================
+function applyFilters() {
+    const q        = document.getElementById('searchInput').value.toLowerCase().trim();
+    const sort     = document.getElementById('sortSelect').value;
+    const maxPrice = parseInt(document.getElementById('priceRange').value);
+    updateRangeLabel();
+
+    let filtered = allItems
+        .filter(i => {
+            const nameOk  = !q || (i.tenMon || '').toLowerCase().includes(q)
+                                || (i.moTa  || '').toLowerCase().includes(q);
+            const priceOk = (i.gia || 0) <= maxPrice;
+            return nameOk && priceOk;
+        });
+
+    // Sắp xếp
+    if (sort === 'price-asc')  filtered.sort((a, b) => (a.gia||0) - (b.gia||0));
+    if (sort === 'price-desc') filtered.sort((a, b) => (b.gia||0) - (a.gia||0));
+    if (sort === 'name-asc')   filtered.sort((a, b) => (a.tenMon||'').localeCompare(b.tenMon||'', 'vi'));
+
+    renderGrid(filtered);
+}
+
+function updateRangeLabel() {
+    const slider = document.getElementById('priceRange');
+    const label  = document.getElementById('priceRangeVal');
+    const val    = parseInt(slider.value);
+    label.textContent = (val >= parseInt(slider.max))
+        ? 'Tất cả'
+        : fmt(val);
+}
+
+// ============================================================
+// RENDER GRID
+// ============================================================
+function renderGrid(items) {
+    const grid = document.getElementById('menuGrid');
+    if (!items.length) {
+        grid.innerHTML = `<div class="empty-state">
+            <div class="empty-icon">🔍</div>
+            <p>Không tìm thấy món phù hợp.</p>
+        </div>`;
+        return;
+    }
+    grid.innerHTML = items.map(item => {
+        const available = !item.trangThai || item.trangThai === 'AVAILABLE';
+        const emoji     = getFoodEmoji(item.tenMon);
+        return `
+        <div class="card" onclick="showDetail(${item.monID})">
+            <div class="card-img">
+                ${item.hinhAnh
+                    ? `<img src="${item.hinhAnh}" alt="${item.tenMon}"
+                           onerror="this.parentElement.textContent='${emoji}'" />`
+                    : emoji}
+            </div>
+            <div class="card-body">
+                <div class="card-name">${item.tenMon}</div>
+                <div class="card-desc">${item.moTa || 'Món ngon đặc biệt của quán'}</div>
+                <div class="card-footer">
+                    <span class="card-price">${fmt(item.gia)}</span>
+                    ${available
+                        ? `<button class="btn btn-primary btn-sm"
+                               onclick="event.stopPropagation(); addToCart(${item.monID})">
+                               + Thêm
+                           </button>`
+                        : `<span class="badge badge-danger">Hết</span>`}
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ============================================================
+// ITEM DETAIL MODAL
+// ============================================================
+function showDetail(monID) {
+    const item = allItems.find(i => i.monID === monID);
+    if (!item) return;
+    document.getElementById('modalName').textContent = item.tenMon;
+    const emoji = getFoodEmoji(item.tenMon);
+    const available = !item.trangThai || item.trangThai === 'AVAILABLE';
+    document.getElementById('modalBody').innerHTML = `
+        <div style="text-align:center; margin-bottom:1.2rem;">
+            ${item.hinhAnh
+                ? `<img src="${item.hinhAnh}" alt="${item.tenMon}"
+                       style="width:100%;max-height:220px;object-fit:cover;border-radius:var(--radius-sm);"
+                       onerror="this.outerHTML='<div style=font-size:5rem>${emoji}</div>'" />`
+                : `<div style="font-size:5rem;padding:1rem 0;">${emoji}</div>`}
+        </div>
+        <p style="color:var(--text-muted); margin-bottom:.8rem;">${item.moTa || 'Không có mô tả.'}</p>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:1.4rem;font-weight:800;color:var(--primary);">${fmt(item.gia)}</span>
+            ${statusBadge(item.trangThai || 'AVAILABLE')}
+        </div>`;
+    const addBtn = document.getElementById('modalAddBtn');
+    if (available) {
+        addBtn.style.display = '';
+        addBtn.onclick = () => { addToCart(monID); closeModal('detailModal'); };
+    } else {
+        addBtn.style.display = 'none';
+    }
+    openModal('detailModal');
+}
+
+// ============================================================
+// ADD TO CART
+// ============================================================
+function addToCart(monID) {
+    const item = allItems.find(i => i.monID === monID);
+    if (!item) return;
+    Cart.add({ monID: item.monID, tenMon: item.tenMon, gia: item.gia, hinhAnh: item.hinhAnh || '' });
+    renderCartPanel();
+}
+
+// ============================================================
+// CART PANEL RENDER
+// ============================================================
+function renderCartPanel() {
+    const items     = Cart.getAll();
+    const container = document.getElementById('cartItemsPanel');
+    if (!items.length) {
+        container.innerHTML = `<div style="padding:2rem;text-align:center;color:var(--text-muted);">
+            <div style="font-size:2.5rem;margin-bottom:.5rem;">🛒</div>
+            <p>Giỏ hàng trống</p>
+        </div>`;
+        return;
+    }
+    container.innerHTML = items.map(i => `
+        <div style="display:flex;align-items:center;gap:.8rem;padding:.7rem 0;border-bottom:1px solid var(--border);">
+            <div style="font-size:1.8rem;flex-shrink:0;">
+                ${i.hinhAnh
+                    ? `<img src="${i.hinhAnh}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;"
+                           onerror="this.outerHTML='${getFoodEmoji(i.tenMon)}'" />`
+                    : getFoodEmoji(i.tenMon)}
+            </div>
+            <div style="flex:1;min-width:0;">
+                <div style="font-weight:600;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${i.tenMon}</div>
+                <div style="font-size:.8rem;color:var(--primary);font-weight:700;">${fmt(i.gia)}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:.3rem;">
+                <button class="qty-btn" onclick="Cart.setQty(${i.monID},${i.qty-1}); renderCartPanel()">−</button>
+                <span style="min-width:18px;text-align:center;font-weight:700;">${i.qty}</span>
+                <button class="qty-btn" onclick="Cart.setQty(${i.monID},${i.qty+1}); renderCartPanel()">+</button>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="Cart.remove(${i.monID}); renderCartPanel()">✕</button>
+        </div>`).join('');
+}
+
+// ============================================================
+// ORDER HISTORY MODAL
+// ============================================================
+async function openHistoryModal() {
+    openModal('historyModal');
+    const body = document.getElementById('historyBody');
+    body.innerHTML = '<div class="loader"><div class="spinner"></div>Đang tải...</div>';
+    try {
+        const orders = await api.get('/orders');
+        if (!orders.length) {
+            body.innerHTML = `<div class="empty-state">
+                <div class="empty-icon">📋</div>
+                <p>Chưa có đơn hàng nào.</p>
+            </div>`;
+            return;
+        }
+        body.innerHTML = orders.slice().reverse().map(o => `
+            <div class="order-history-card">
+                <div class="order-history-header">
+                    <strong style="font-family:'Playfair Display',serif;">Đơn #${o.donHangID}</strong>
+                    <div style="display:flex;align-items:center;gap:.6rem;">
+                        <span style="font-weight:800;color:var(--primary);">${fmt(o.tongTien||0)}</span>
+                        ${statusBadge(o.trangThai || 'DA_NHAN_DON_HANG')}
+                    </div>
+                </div>
+                <div style="font-size:.8rem;color:var(--text-muted);margin-bottom:.5rem;">
+                    📅 ${fmtDate(o.ngayDat)}
+                    ${o.tenKhachHang ? ` &nbsp;|&nbsp; 👤 ${o.tenKhachHang}` : ''}
+                </div>
+                <div class="order-history-items">
+                    ${(o.chiTiet||[]).map(ct => `
+                        <span class="order-item-chip">
+                            ${ct.hinhAnh
+                                ? `<img src="${ct.hinhAnh}" onerror="this.style.display='none'" />`
+                                : getFoodEmoji(ct.tenMon)}
+                            ${ct.tenMon} x${ct.soLuong}
+                        </span>`).join('')}
+                </div>
+            </div>`).join('');
+    } catch {
+        body.innerHTML = `<div class="empty-state">
+            <div class="empty-icon">⚠️</div>
+            <p>Không thể tải đơn hàng. Kiểm tra server.</p>
+        </div>`;
+    }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+    loadMenuTabs();
+    loadDishes();
+    renderCartPanel();
+});
+
+// Render lại cart panel mỗi khi Cart thay đổi
+const _origSave = Cart.save.bind(Cart);
+Cart.save = function(items) { _origSave(items); renderCartPanel(); };
+</script>
 </body>
 </html>
