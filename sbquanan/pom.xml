@@ -52,6 +52,28 @@
 	</dependencies>
 
 	<build>
+		<sourceDirectory>src/backend</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>src/resources</directory>
+			</resource>
+			<resource>
+				<directory>src/frontend</directory>
+				<targetPath>static</targetPath>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+			</testResource>
+			<testResource>
+				<directory>src/resources</directory>
+			</testResource>
+			<testResource>
+				<directory>src/frontend</directory>
+				<targetPath>static</targetPath>
+			</testResource>
+		</testResources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
