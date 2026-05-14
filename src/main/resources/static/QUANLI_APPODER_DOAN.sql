@@ -27,6 +27,10 @@ DROP TABLE IF EXISTS KhachHang;
 DROP TABLE IF EXISTS MonAn;
 DROP TABLE IF EXISTS Menu;
 
+SELECT COLUMN_NAME
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'NhanVien';
+
 -- MENU
 CREATE TABLE Menu(
     MenuID INT IDENTITY(1,1) PRIMARY KEY,
@@ -73,7 +77,8 @@ CREATE TABLE NhanVien (
     Email NVARCHAR(100),
     ChucVu NVARCHAR(50),
     Luong DECIMAL(10,2) CHECK (Luong >= 0),
-    TrangThai BIT DEFAULT 1 CHECK (TrangThai IN (0,1))
+    TrangThai BIT DEFAULT 1 CHECK (TrangThai IN (0,1)),
+    password NVARCHAR(255) NOT NULL
 );
 
 -- ĐƠN HÀNG
@@ -172,3 +177,12 @@ CREATE TABLE KetCa (
     FOREIGN KEY (CaID) REFERENCES CaLamViec(CaID),
     FOREIGN KEY (NhanVienID) REFERENCES NhanVien(NhanVienID)
 );
+
+
+INSERT INTO NhanVien 
+(TenNhanVien, ChucVu, DiaChi, Email, password, SDT, Luong, TrangThai)
+VALUES
+(N'Nguyễn Văn An',  N'QUAN_LY',      N'HCM', 'an@gmail.com',   '123', '0901111111', 15000000, '0'),
+(N'Trần Bình',      N'KY_THUAT_VIEN',N'HCM', 'binh@gmail.com', '123', '0902222222', 12000000, '1'),
+(N'Lê Cường',       N'KY_THUAT_VIEN',N'HCM', 'cuong@gmail.com','123', '0903333333', 12000000, '0'),
+(N'Phạm Dũng',      N'NGUOI_DUNG',   N'HCM', 'dung@gmail.com', '123', '0904444444',  9000000, '1');
