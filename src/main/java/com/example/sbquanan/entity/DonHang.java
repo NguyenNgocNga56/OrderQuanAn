@@ -20,7 +20,7 @@ public class DonHang {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "TrangThai", length = 50)
-    private TrangThaiDonHang trangThai;
+    private TrangThaiDonHang trangThai = TrangThaiDonHang.CHO_XAC_NHAN;
 
     @Column(name = "TongTien")
     private double tongTien;

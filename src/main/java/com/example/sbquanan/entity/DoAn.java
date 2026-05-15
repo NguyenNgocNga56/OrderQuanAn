@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class DoAn extends MonAn {
-    @Column(name = "Loai", length = 50)
+    @Column(name = "DonViTinh", length = 50)
     private String donViTinh;
 
     public DoAn(String tenMon, double gia, String moTa, String hinhAnh,

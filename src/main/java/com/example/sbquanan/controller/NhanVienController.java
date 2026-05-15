@@ -1,34 +1,54 @@
 package com.example.sbquanan.controller;
 
+import com.example.sbquanan.dto.ApiResponse;
 import com.example.sbquanan.entity.NhanVien;
-import com.example.sbquanan.repository.NhanVienRepository;
+import com.example.sbquanan.service.NhanVienService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/nhanvien")
+@CrossOrigin(origins = "*")
 public class NhanVienController {
-    @Autowired private NhanVienRepository repository;
 
-    @GetMapping public List<NhanVien> getAll() { return repository.findAll(); }
+    @Autowired private NhanVienService service;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<NhanVien> getById(@PathVariable Long id) {
-        return repository.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    @GetMapping
+    public ApiResponse<List<NhanVien>> getAll() {
+        return ApiResponse.success(service.getAll());
     }
 
-    @PostMapping public NhanVien create(@RequestBody NhanVien e) { return repository.save(e); }
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<NhanVien>> getById(@PathVariable Long id) {
+        return service.getById(id)
+                .map(nv -> ResponseEntity.ok(ApiResponse.success(nv)))
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping
+    public ApiResponse<NhanVien> create(@RequestBody NhanVien nhanVien) {
+        return ApiResponse.success(service.create(nhanVien), "Tạo nhân viên thành công");
+    }
 
     @PutMapping("/{id}")
-    public ResponseEntity<NhanVien> update(@PathVariable Long id, @RequestBody NhanVien updated) {
-        return repository.findById(id).map(e -> { updated.setId(e.getId()); return ResponseEntity.ok(repository.save(updated)); }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ApiResponse<NhanVien>> update(@PathVariable Long id, @RequestBody NhanVien nhanVien) {
+        try {
+            return ResponseEntity.ok(ApiResponse.success(service.update(id, nhanVien), "Cập nhật thành công"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        if (!repository.existsById(id)) return ResponseEntity.notFound().build();
-        repository.deleteById(id); return ResponseEntity.noContent().build();
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+        try {
+            service.delete(id);
+            return ResponseEntity.ok(ApiResponse.success(null, "Xóa thành công"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

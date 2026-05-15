@@ -18,7 +18,7 @@ public class ChiTietDonHang {
     @JoinColumn(name = "DonHangID", nullable = false)
     private DonHang donHang;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "MonID", nullable = false)
     private MonAn monAn;
 
@@ -31,12 +31,17 @@ public class ChiTietDonHang {
     @Column(name = "TongTien")
     private double tongTien;
 
-    @PrePersist
-    @PreUpdate
+
     public void tinhToan() {
         if (monAn != null) {
             this.giaBan = monAn.giaBan();
             this.tongTien = this.soLuong * this.giaBan;
         }
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void prePersistUpdate() {
+        this.tongTien = this.soLuong * this.giaBan;
     }
 }

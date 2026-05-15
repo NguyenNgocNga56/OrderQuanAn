@@ -19,6 +19,10 @@ public class HoaDon {
     @JoinColumn(name = "DonHangID", nullable = false)
     private DonHang donHang;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "KhuyenMaiID")
+    private KhuyenMai khuyenMai;
+
     @Column(name = "NgayLap")
     private LocalDateTime ngayLap;
 
@@ -34,6 +38,16 @@ public class HoaDon {
     @PrePersist
     public void prePersist() {
         if (ngayLap == null) ngayLap = LocalDateTime.now();
+        tinhThanhTien();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        tinhThanhTien();
+    }
+
+    // FIX: method công khai để Service có thể gọi trước khi save
+    public void tinhThanhTien() {
         this.thanhTien = this.tongTien - this.giamGia;
     }
 }

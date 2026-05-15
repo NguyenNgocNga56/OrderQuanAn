@@ -23,10 +23,10 @@ public class KetCa {
     @JoinColumn(name = "NhanVienID")
     private NhanVien nhanVien;
 
-    @Column(name = "TgBatDau")
+    @Column(name = "tgBatDau")
     private LocalDateTime tgBatDau;
 
-    @Column(name = "TgKetThuc")
+    @Column(name = "tgKetThuc")
     private LocalDateTime tgKetThuc;
 
     @Column(name = "TongDoanhThu")

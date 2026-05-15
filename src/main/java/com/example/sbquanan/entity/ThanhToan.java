@@ -33,7 +33,7 @@ public class ThanhToan {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "TrangThai", length = 30)
-    private TrangThaiThanhToan trangThai;
+    private TrangThaiThanhToan trangThai = TrangThaiThanhToan.CHO_XU_LY;
 
     @PrePersist
     public void prePersist() {

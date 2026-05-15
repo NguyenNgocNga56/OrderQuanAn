@@ -18,18 +18,21 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    // Loi khong tim thay tai nguyen theo id.
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleNotFound(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error(ex.getMessage()));
     }
 
+    // Loi nghiep vu do service chu dong nem ra.
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ApiResponse<Object>> handleBusinessException(BusinessException ex) {
         return ResponseEntity.badRequest()
                 .body(ApiResponse.error(ex.getMessage()));
     }
 
+    // Loi validate field khi controller dung @Valid.
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Object>> handleValidation(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult()
@@ -46,12 +49,14 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(message));
     }
 
+    // Body JSON sai cu phap hoac sai kieu du lieu.
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse<Object>> handleInvalidJson(HttpMessageNotReadableException ex) {
         return ResponseEntity.badRequest()
                 .body(ApiResponse.error("Body request khong hop le hoac sai dinh dang du lieu"));
     }
 
+    // Path variable/query param sai kieu, vi du id can Long nhung nhan chu.
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ApiResponse<Object>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
         String message = "Tham so '" + ex.getName() + "' khong dung dinh dang";
@@ -59,6 +64,7 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(message));
     }
 
+    // Thieu request parameter bat buoc.
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ApiResponse<Object>> handleMissingParam(MissingServletRequestParameterException ex) {
         String message = "Thieu tham so bat buoc: " + ex.getParameterName();
@@ -66,12 +72,14 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(message));
     }
 
+    // Goi sai HTTP method, vi du POST vao endpoint chi ho tro GET.
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ApiResponse<Object>> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
                 .body(ApiResponse.error("Phuong thuc HTTP khong duoc ho tro cho endpoint nay"));
     }
 
+    // Loi rang buoc database nhu trung unique key hoac vi pham foreign key.
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiResponse<Object>> handleDataIntegrity(DataIntegrityViolationException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
