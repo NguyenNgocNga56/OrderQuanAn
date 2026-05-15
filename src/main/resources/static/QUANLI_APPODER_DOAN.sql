@@ -173,18 +173,16 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.columns 
                WHERE Name = 'Size' AND Object_ID = Object_ID('MonAn'))
 
--- Drop constraint cũ nếu tồn tạI
+-- Drop constraint cũ nếu tồn tại
 IF EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_MonAn_Size')
     ALTER TABLE MonAn DROP CONSTRAINT CK_MonAn_Size;
 
--- Tạo lại constraint
+-- Tạo lại constraint (SỬA THÀNH KHÔNG DẤU)
 ALTER TABLE MonAn
-ADD CONSTRAINT CK_MonAn_PhanLoai 
-CHECK (PhanLoai IN (N'Đồ ăn', N'Đồ uống'));
+ADD CONSTRAINT CK_MonAn_PhanLoai CHECK (PhanLoai IN ('DO_AN', 'DO_UONG'));
 
 ALTER TABLE MonAn
-ADD CONSTRAINT CK_MonAn_Size 
-CHECK (Size IN ('S','M','L') OR Size IS NULL);
+ADD CONSTRAINT CK_MonAn_Size CHECK (Size IN ('S','M','L') OR Size IS NULL);
 
 -- ================= MENU =================
 INSERT INTO Menu (TenMenu, MoTa, TrangThai)
@@ -195,54 +193,55 @@ VALUES
 -- ⚠️ BIẾN PHẢI NẰM CÙNG BATCH INSERT
 DECLARE @doAn   INT = (SELECT MenuID FROM Menu WHERE TenMenu = N'Đồ ăn');
 DECLARE @doUong INT = (SELECT MenuID FROM Menu WHERE TenMenu = N'Đồ uống');
---INSERT 22 MON AN
+
+--INSERT 22 MON AN (SỬA 'DO_AN')
 INSERT INTO MonAn(PhanLoai,TenMon,Gia,MoTa,HinhAnh,TrangThai,Loai,MenuID,Size) VALUES
-(N'Đồ ăn',N'Cơm phần',45000,N'Cơm trắng',N'/img/comphan.jpg',N'CON_HANG',N'Cơm',@doAn,NULL),
-(N'Đồ ăn',N'Cơm trứng',35000,N'Cơm chiên trứng',N'/img/comtrung.jpg',N'CON_HANG',N'Cơm',@doAn,NULL),
-(N'Đồ ăn',N'Cơm cà ri',50000,N'Cơm cà ri',N'/img/com-cari.jpg',N'CON_HANG',N'Cơm',@doAn,NULL),
-(N'Đồ ăn',N'Cơm sườn',55000,N'Cơm sườn',N'/img/com-suon.jpg',N'CON_HANG',N'Cơm',@doAn,NULL),
-(N'Đồ ăn',N'Cơm hộp',40000,N'Cơm hộp',N'/img/comhop.jpg',N'CON_HANG',N'Cơm',@doAn,NULL),
+('DO_AN',N'Cơm phần',45000,N'Cơm trắng',N'/img/comphan.jpg',N'CON_HANG',N'Cơm',@doAn,NULL),
+('DO_AN',N'Cơm trứng',35000,N'Cơm chiên trứng',N'/img/comtrung.jpg',N'CON_HANG',N'Cơm',@doAn,NULL),
+('DO_AN',N'Cơm cà ri',50000,N'Cơm cà ri',N'/img/com-cari.jpg',N'CON_HANG',N'Cơm',@doAn,NULL),
+('DO_AN',N'Cơm sườn',55000,N'Cơm sườn',N'/img/com-suon.jpg',N'CON_HANG',N'Cơm',@doAn,NULL),
+('DO_AN',N'Cơm hộp',40000,N'Cơm hộp',N'/img/comhop.jpg',N'CON_HANG',N'Cơm',@doAn,NULL),
 
-(N'Đồ ăn',N'Ramen',65000,N'Mì ramen',N'/img/ramen.jpg',N'CON_HANG',N'Mì',@doAn,NULL),
-(N'Đồ ăn',N'Udon',60000,N'Mì udon',N'/img/udon.jpg',N'CON_HANG',N'Mì',@doAn,NULL),
-(N'Đồ ăn',N'Mì xào',55000,N'Mì xào',N'/img/mi-xao.jpg',N'CON_HANG',N'Mì',@doAn,NULL),
-(N'Đồ ăn',N'Mì nước',50000,N'Mì nước',N'/img/mi-nuoc.jpg',N'CON_HANG',N'Mì',@doAn,NULL),
+('DO_AN',N'Ramen',65000,N'Mì ramen',N'/img/ramen.jpg',N'CON_HANG',N'Mì',@doAn,NULL),
+('DO_AN',N'Udon',60000,N'Mì udon',N'/img/udon.jpg',N'CON_HANG',N'Mì',@doAn,NULL),
+('DO_AN',N'Mì xào',55000,N'Mì xào',N'/img/mi-xao.jpg',N'CON_HANG',N'Mì',@doAn,NULL),
+('DO_AN',N'Mì nước',50000,N'Mì nước',N'/img/mi-nuoc.jpg',N'CON_HANG',N'Mì',@doAn,NULL),
 
-(N'Đồ ăn',N'Sushi',85000,N'Sushi',N'/img/sushi.jpg',N'CON_HANG',N'Nhật',@doAn,NULL),
-(N'Đồ ăn',N'Sashimi',95000,N'Sashimi',N'/img/sashimi.jpg',N'CON_HANG',N'Nhật',@doAn,NULL),
-(N'Đồ ăn',N'Tempura',70000,N'Tempura',N'/img/tempura.jpg',N'CON_HANG',N'Nhật',@doAn,NULL),
-(N'Đồ ăn',N'Takoyaki',55000,N'Takoyaki',N'/img/takoyaki.jpg',N'CON_HANG',N'Nhật',@doAn,NULL),
+('DO_AN',N'Sushi',85000,N'Sushi',N'/img/sushi.jpg',N'CON_HANG',N'Nhật',@doAn,NULL),
+('DO_AN',N'Sashimi',95000,N'Sashimi',N'/img/sashimi.jpg',N'CON_HANG',N'Nhật',@doAn,NULL),
+('DO_AN',N'Tempura',70000,N'Tempura',N'/img/tempura.jpg',N'CON_HANG',N'Nhật',@doAn,NULL),
+('DO_AN',N'Takoyaki',55000,N'Takoyaki',N'/img/takoyaki.jpg',N'CON_HANG',N'Nhật',@doAn,NULL),
 
-(N'Đồ ăn',N'Lẩu bò',150000,N'Lẩu bò',N'/img/laubo.jpg',N'CON_HANG',N'Lẩu',@doAn,NULL),
-(N'Đồ ăn',N'Lẩu heo',120000,N'Lẩu heo',N'/img/lauheo.jpg',N'CON_HANG',N'Lẩu',@doAn,NULL),
+('DO_AN',N'Lẩu bò',150000,N'Lẩu bò',N'/img/laubo.jpg',N'CON_HANG',N'Lẩu',@doAn,NULL),
+('DO_AN',N'Lẩu heo',120000,N'Lẩu heo',N'/img/lauheo.jpg',N'CON_HANG',N'Lẩu',@doAn,NULL),
 
-(N'Đồ ăn',N'Bánh xèo',45000,N'Bánh xèo',N'/img/banhxeo.jpg',N'CON_HANG',N'Việt',@doAn,NULL),
-(N'Đồ ăn',N'Thịt nướng',75000,N'Thịt nướng',N'/img/thit-nuong.jpg',N'CON_HANG',N'Nướng',@doAn,NULL),
-(N'Đồ ăn',N'Thịt chiên xù',65000,N'Thịt chiên xù',N'/img/thit-chien-xu.jpg',N'CON_HANG',N'Chiên',@doAn,NULL),
-(N'Đồ ăn',N'Thịt chiên',60000,N'Thịt chiên',N'/img/thit-chien.jpg',N'CON_HANG',N'Chiên',@doAn,NULL),
+('DO_AN',N'Bánh xèo',45000,N'Bánh xèo',N'/img/banhxeo.jpg',N'CON_HANG',N'Việt',@doAn,NULL),
+('DO_AN',N'Thịt nướng',75000,N'Thịt nướng',N'/img/thit-nuong.jpg',N'CON_HANG',N'Nướng',@doAn,NULL),
+('DO_AN',N'Thịt chiên xù',65000,N'Thịt chiên xù',N'/img/thit-chien-xu.jpg',N'CON_HANG',N'Chiên',@doAn,NULL),
+('DO_AN',N'Thịt chiên',60000,N'Thịt chiên',N'/img/thit-chien.jpg',N'CON_HANG',N'Chiên',@doAn,NULL),
 
-(N'Đồ ăn',N'Súp miso',25000,N'Súp miso',N'/img/miso.jpg',N'CON_HANG',N'Súp',@doAn,NULL),
-(N'Đồ ăn',N'Canh',20000,N'Canh',N'/img/canh.jpg',N'CON_HANG',N'Súp',@doAn,NULL),
-(N'Đồ ăn',N'Oden',55000,N'Oden',N'/img/oden.jpg',N'CON_HANG',N'Nhật',@doAn,NULL);
---INSERT 5 MON UONG X3 SIZE
+('DO_AN',N'Súp miso',25000,N'Súp miso',N'/img/miso.jpg',N'CON_HANG',N'Súp',@doAn,NULL),
+('DO_AN',N'Canh',20000,N'Canh',N'/img/canh.jpg',N'CON_HANG',N'Súp',@doAn,NULL),
+('DO_AN',N'Oden',55000,N'Oden',N'/img/oden.jpg',N'CON_HANG',N'Nhật',@doAn,NULL);
+
+--INSERT 5 MON UONG X3 SIZE (SỬA 'DO_UONG')
 INSERT INTO MonAn(PhanLoai,TenMon,Gia,MoTa,HinhAnh,TrangThai,Loai,MenuID,Size) VALUES
-(N'Đồ uống',N'Trà sữa',35000,N'Size S',N'/img/trasua.jpg',N'CON_HANG',N'Trà sữa',@doUong,'S'),
-(N'Đồ uống',N'Trà sữa',45000,N'Size M',N'/img/trasua.jpg',N'CON_HANG',N'Trà sữa',@doUong,'M'),
-(N'Đồ uống',N'Trà sữa',55000,N'Size L',N'/img/trasua.jpg',N'CON_HANG',N'Trà sữa',@doUong,'L'),
+('DO_UONG',N'Trà sữa',35000,N'Size S',N'/img/trasua.jpg',N'CON_HANG',N'Trà sữa',@doUong,'S'),
+('DO_UONG',N'Trà sữa',45000,N'Size M',N'/img/trasua.jpg',N'CON_HANG',N'Trà sữa',@doUong,'M'),
+('DO_UONG',N'Trà sữa',55000,N'Size L',N'/img/trasua.jpg',N'CON_HANG',N'Trà sữa',@doUong,'L'),
 
-(N'Đồ uống',N'Bingsu',55000,N'Size S',N'/img/bingsu.jpg',N'CON_HANG',N'Bingsu',@doUong,'S'),
-(N'Đồ uống',N'Bingsu',65000,N'Size M',N'/img/bingsu.jpg',N'CON_HANG',N'Bingsu',@doUong,'M'),
-(N'Đồ uống',N'Bingsu',75000,N'Size L',N'/img/bingsu.jpg',N'CON_HANG',N'Bingsu',@doUong,'L'),
+('DO_UONG',N'Bingsu',55000,N'Size S',N'/img/bingsu.jpg',N'CON_HANG',N'Bingsu',@doUong,'S'),
+('DO_UONG',N'Bingsu',65000,N'Size M',N'/img/bingsu.jpg',N'CON_HANG',N'Bingsu',@doUong,'M'),
+('DO_UONG',N'Bingsu',75000,N'Size L',N'/img/bingsu.jpg',N'CON_HANG',N'Bingsu',@doUong,'L'),
 
-(N'Đồ uống',N'Mochi',25000,N'Size S',N'/img/mochi.jpg',N'CON_HANG',N'Mochi',@doUong,'S'),
-(N'Đồ uống',N'Mochi',30000,N'Size M',N'/img/mochi.jpg',N'CON_HANG',N'Mochi',@doUong,'M'),
-(N'Đồ uống',N'Mochi',35000,N'Size L',N'/img/mochi.jpg',N'CON_HANG',N'Mochi',@doUong,'L'),
+('DO_UONG',N'Mochi',25000,N'Size S',N'/img/mochi.jpg',N'CON_HANG',N'Mochi',@doUong,'S'),
+('DO_UONG',N'Mochi',30000,N'Size M',N'/img/mochi.jpg',N'CON_HANG',N'Mochi',@doUong,'M'),
+('DO_UONG',N'Mochi',35000,N'Size L',N'/img/mochi.jpg',N'CON_HANG',N'Mochi',@doUong,'L'),
 
-(N'Đồ uống',N'Dango',20000,N'Size S',N'/img/dango.jpg',N'CON_HANG',N'Dango',@doUong,'S'),
-(N'Đồ uống',N'Dango',25000,N'Size M',N'/img/dango.jpg',N'CON_HANG',N'Dango',@doUong,'M'),
-(N'Đồ uống',N'Dango',30000,N'Size L',N'/img/dango.jpg',N'CON_HANG',N'Dango',@doUong,'L'),
+('DO_UONG',N'Dango',20000,N'Size S',N'/img/dango.jpg',N'CON_HANG',N'Dango',@doUong,'S'),
+('DO_UONG',N'Dango',25000,N'Size M',N'/img/dango.jpg',N'CON_HANG',N'Dango',@doUong,'M'),
+('DO_UONG',N'Dango',30000,N'Size L',N'/img/dango.jpg',N'CON_HANG',N'Dango',@doUong,'L'),
 
-(N'Đồ uống',N'Dorayaki',20000,N'Size S',N'/img/dorayaki.jpg',N'CON_HANG',N'Dorayaki',@doUong,'S'),
-(N'Đồ uống',N'Dorayaki',25000,N'Size M',N'/img/dorayaki.jpg',N'CON_HANG',N'Dorayaki',@doUong,'M'),
-(N'Đồ uống',N'Dorayaki',30000,N'Size L',N'/img/dorayaki.jpg',N'CON_HANG',N'Dorayaki',@doUong,'L');
-
+('DO_UONG',N'Dorayaki',20000,N'Size S',N'/img/dorayaki.jpg',N'CON_HANG',N'Dorayaki',@doUong,'S'),
+('DO_UONG',N'Dorayaki',25000,N'Size M',N'/img/dorayaki.jpg',N'CON_HANG',N'Dorayaki',@doUong,'M'),
+('DO_UONG',N'Dorayaki',30000,N'Size L',N'/img/dorayaki.jpg',N'CON_HANG',N'Dorayaki',@doUong,'L');
