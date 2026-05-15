@@ -143,8 +143,7 @@ async function loadMonAn(tab) {
     if (!grid) return;
     grid.innerHTML = '<div class="km-loading">⏳ Đang tải...</div>';
     try {
-        const endpoint = tab === 'doan' ? '/api/monan' : '/api/douong';
-        const items = await fetch(endpoint).then(r => r.json());
+const endpoint = tab === 'doan' ? 'http://localhost:8080/api/monan' : 'http://localhost:8080/api/douong';        const items = await fetch(endpoint).then(r => r.json());
         if (!items.length) {
             grid.innerHTML = '<p style="text-align:center;color:var(--text-muted);">Không có món nào.</p>';
             return;

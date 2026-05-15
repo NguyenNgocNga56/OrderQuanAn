@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
+@CrossOrigin("*") // Thêm đúng 1 dòng này để cho phép web lấy dữ liệu
 @RestController
 public class MonAnController {
     @Autowired private MonAnRepository repository;
