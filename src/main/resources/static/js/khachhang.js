@@ -24,9 +24,30 @@ const Cart = {
     count() { return this.getAll().reduce((s, i) => s + i.qty, 0); }
 };
 
+const KhachHangSession = {
+    key: 'qap_khachhang',
+    get() { try { return JSON.parse(localStorage.getItem(this.key)); } catch { return null; } },
+    save(khachHang) { localStorage.setItem(this.key, JSON.stringify(khachHang)); updateKhachHangHeader(); },
+    clear() { localStorage.removeItem(this.key); updateKhachHangHeader(); }
+};
+
 function updateCartBadge() {
     const b = document.getElementById('cartBadge');
     if (b) b.textContent = Cart.count();
+}
+
+function updateKhachHangHeader() {
+    const kh = KhachHangSession.get();
+    const nameEl = document.getElementById('khUserName');
+    const loginBtn = document.getElementById('btnKhLogin');
+    const logoutBtn = document.getElementById('btnKhLogout');
+
+    if (nameEl) {
+        nameEl.textContent = kh ? `Xin chào, ${kh.hoTen || kh.sdt}` : '';
+        nameEl.style.display = kh ? 'inline-flex' : 'none';
+    }
+    if (loginBtn) loginBtn.style.display = kh ? 'none' : 'inline-flex';
+    if (logoutBtn) logoutBtn.style.display = kh ? 'inline-flex' : 'none';
 }
 
 // ============================================================
@@ -223,6 +244,41 @@ async function dangKy() {
 // ============================================================
 // TRA CỨU ĐIỂM → GET /api/khachhang?sdt=xxx
 // ============================================================
+// ============================================================
+// DANG NHAP KHACH HANG -> POST /api/khachhang/login
+// ============================================================
+async function dangNhapKhachHang() {
+    const sdt = document.getElementById('loginSdt').value.trim();
+    const email = document.getElementById('loginEmail').value.trim();
+    const msg = document.getElementById('loginMsg');
+
+    if (!sdt || !email) {
+        setMsg(msg, 'Vui lòng nhập số điện thoại và email.', 'error');
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/khachhang/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sdt, email })
+        });
+        if (!res.ok) throw new Error();
+
+        const khachHang = await res.json();
+        KhachHangSession.save(khachHang);
+        setMsg(msg, 'Đăng nhập thành công!', 'success');
+        document.getElementById('loginSdt').value = '';
+        document.getElementById('loginEmail').value = '';
+        setTimeout(() => closeModal('dangNhapModal'), 600);
+    } catch {
+        setMsg(msg, 'Số điện thoại hoặc email không đúng.', 'error');
+    }
+}
+
+function dangXuatKhachHang() {
+    KhachHangSession.clear();
+}
 async function traCuu() {
     const sdt    = document.getElementById('tcSdt').value.trim();
     const msg    = document.getElementById('tcMsg');
@@ -274,6 +330,7 @@ function setMsg(el, text, type) {
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
     updateCartBadge();
+    updateKhachHangHeader();
     loadKhuyenMai();
     loadMonAn('doan');
 });

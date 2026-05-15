@@ -8,6 +8,10 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "KhachHang")
+@AttributeOverrides({
+    @AttributeOverride(name = "id", column = @Column(name = "KhachHangID")),
+    @AttributeOverride(name = "hoTen", column = @Column(name = "TenKhach", nullable = false, length = 100))
+})
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
@@ -26,3 +30,4 @@ public class KhachHang extends ConNguoi {
         else loaiKhachHang = LoaiKhachHang.DONG;
     }
 }
+
