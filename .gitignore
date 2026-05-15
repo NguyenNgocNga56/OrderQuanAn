@@ -1,41 +1,77 @@
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
+# ========================================================================
+# .gitignore cho dự án OrderQuanAn (Spring Boot - Maven)
+# ========================================================================
 
-### IntelliJ IDEA ###
-.idea
+### MAVEN & BUILD (QUAN TRỌNG NHẤT) ###
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+### INTELLIJ IDEA ###
+.idea/
 *.iws
 *.iml
 *.ipr
+out/
+/out/
+cmake-build-*/
+.navigation/
 
-### NetBeans ###
+### ECLIPSE ###
+.metadata/
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.classpath
+.project
+.factorypath
+.springBeans
+.sts4-cache
+
+### VS CODE ###
+.vscode/
+.history/
+*.code-workspace
+
+### NETBEANS ###
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
-### VS Code ###
-.vscode/
-
-### Mac OS ###
+### OPERATING SYSTEM (Tránh conflict file ẩn của Windows/Mac) ###
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
 
-# Giấu file cấu hình db
-src/resources/database.properties
+### CONFIG & DATABASE (Giấu file cấu hình cá nhân) ###
+src/main/resources/database.properties
+# application.properties # Nếu bạn muốn mỗi người tự giữ config DB riêng thì bỏ comment dòng này
 
-#ẩn các file này vì nó là mấy file cấu hình riêng trong intelij
-.idea/
-out/
-*.iml
-*.class
+### LOGS ###
+*.log
+/logs/
