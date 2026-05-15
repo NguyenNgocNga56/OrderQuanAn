@@ -60,8 +60,8 @@ CREATE TABLE KhachHang (
     Email NVARCHAR(100),
     DiemTichLuy INT DEFAULT 0 CHECK (DiemTichLuy >= 0),
     LoaiKhachHang NVARCHAR(20) 
-        CHECK (LoaiKhachHang IN (N'Đồng', N'Bạc', N'Vàng', N'Kim cương')) 
-        DEFAULT N'Đồng'
+        CHECK (LoaiKhachHang IN (N'DONG', N'BAC', N'VANG', N'KIM_CUONG'))
+        DEFAULT N'DONG'
 );
 
 -- NHÂN VIÊN
@@ -73,7 +73,8 @@ CREATE TABLE NhanVien (
     Email NVARCHAR(100),
     ChucVu NVARCHAR(50),
     Luong DECIMAL(10,2) CHECK (Luong >= 0),
-    TrangThai BIT DEFAULT 1 CHECK (TrangThai IN (0,1))
+    TrangThai BIT DEFAULT 1 CHECK (TrangThai IN (0,1)),
+    password NVARCHAR(255) NOT NULL
 );
 
 -- ĐƠN HÀNG
@@ -172,3 +173,11 @@ CREATE TABLE KetCa (
     FOREIGN KEY (CaID) REFERENCES CaLamViec(CaID),
     FOREIGN KEY (NhanVienID) REFERENCES NhanVien(NhanVienID)
 );
+
+INSERT INTO NhanVien
+(TenNhanVien, ChucVu, DiaChi, Email, password, SDT, Luong, TrangThai)
+VALUES
+    (N'Nguyễn Ngọc Ngà',  N'QUAN_LY',      N'HCM', 'nga@gmail.com',   '12345', '0901111111', 15000000, '1'),
+    (N'Trần Thảo Nương',      N'KY_THUAT_VIEN',N'HCM', 'nuong@gmail.com', '12345', '0902222222', 12000000, '1'),
+    (N'Phạm Ngọc Tú',       N'KY_THUAT_VIEN',N'HCM', 'ngoctus@gmail.com','12345', '0903333333', 12000000, '1'),
+    (N'Trần Minh Tú',      N'NGUOI_DUNG',   N'HCM', 'minhtu94@gmail.com', '12345', '0904444444',  9000000, '1');
