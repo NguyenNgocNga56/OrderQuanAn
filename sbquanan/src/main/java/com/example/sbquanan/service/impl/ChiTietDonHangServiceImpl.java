@@ -30,7 +30,6 @@ public class ChiTietDonHangServiceImpl implements ChiTietDonHangService {
 
     @Override
     public ChiTietDonHang create(ChiTietDonHang entity) {
-        // FIX: gọi tinhToan() sau khi monAn đã được set (EAGER load) để tính giaBan và tongTien
         entity.tinhToan();
         return repository.save(entity);
     }

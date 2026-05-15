@@ -19,7 +19,6 @@ public class HoaDon {
     @JoinColumn(name = "DonHangID", nullable = false)
     private DonHang donHang;
 
-    // FIX: thêm KhuyenMai (có trong schema SQL nhưng bị thiếu trong entity cũ)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "KhuyenMaiID")
     private KhuyenMai khuyenMai;
@@ -39,7 +38,6 @@ public class HoaDon {
     @PrePersist
     public void prePersist() {
         if (ngayLap == null) ngayLap = LocalDateTime.now();
-        // FIX: chỉ tính khi tongTien đã được set (> 0), tránh ghi 0 sai
         tinhThanhTien();
     }
 

@@ -20,13 +20,10 @@ public class BanServiceImpl implements BanService {
 
     @Override
     public List<Ban> getAll() { return repository.findAll(); }
-
     @Override
     public Optional<Ban> getById(Long id) { return repository.findById(id); }
-
     @Override
     public Ban create(Ban entity) { return repository.save(entity); }
-
     @Override
     public Ban update(Long id, Ban updated) {
         if (!repository.existsById(id))

@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class DoAn extends MonAn {
-    // FIX: đổi column name thành "DonViTinh" để không xung đột với "Loai" của DoUong (enum)
     @Column(name = "DonViTinh", length = 50)
     private String donViTinh;
 
