@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/khachhang")
@@ -13,6 +14,23 @@ public class KhachHangController {
     @Autowired private KhachHangRepository repository;
 
     @GetMapping public List<KhachHang> getAll() { return repository.findAll(); }
+
+    @GetMapping("/sdt/{sdt}")
+    public ResponseEntity<KhachHang> getBySdt(@PathVariable String sdt) {
+        return repository.findBySdt(sdt).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<KhachHang> login(@RequestBody Map<String, String> body) {
+        String sdt = body.getOrDefault("sdt", "").trim();
+        String email = body.getOrDefault("email", "").trim();
+        if (sdt.isEmpty() || email.isEmpty()) return ResponseEntity.badRequest().build();
+
+        return repository.findBySdt(sdt)
+                .filter(khachHang -> khachHang.getEmail() != null && khachHang.getEmail().equalsIgnoreCase(email))
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(401).build());
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<KhachHang> getById(@PathVariable Long id) {

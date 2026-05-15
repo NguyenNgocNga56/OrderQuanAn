@@ -168,6 +168,10 @@ async function loadSelects() {
             o.textContent = k.hoTen + (k.sdt ? ` (${k.sdt})` : '');
             khSel.appendChild(o);
         });
+        try {
+            const khachHangDangNhap = JSON.parse(localStorage.getItem('qap_khachhang'));
+            if (khachHangDangNhap && khachHangDangNhap.id) khSel.value = khachHangDangNhap.id;
+        } catch {}
         const nvSel = document.getElementById('selNhanVien');
         nvs.forEach(n => {
             const o = document.createElement('option');
