@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
-@DiscriminatorValue("Đồ ăn")
+@DiscriminatorValue("DO_AN")
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor

@@ -25,9 +25,6 @@
             <button class="btn-cart" onclick="toggleCart()">
                 🛒 Giỏ hàng <span class="cart-badge" id="cartBadge">0</span>
             </button>
-            <span class="kh-user-name" id="khUserName" style="display:none;"></span>
-            <button class="btn-login" id="btnKhLogin" onclick="openModal('dangNhapModal')">Đăng nhập</button>
-            <button class="btn-login" id="btnKhLogout" onclick="dangXuatKhachHang()" style="display:none;">Đăng xuất</button>
             <button class="btn-login" onclick="openModal('dangKyModal')">👤 Đăng ký / Tra cứu</button>
         </nav>
     </div>
@@ -158,29 +155,6 @@
     </div>
 </div>
 
-<!-- MODAL ĐĂNG NHẬP KHÁCH HÀNG -->
-<div class="modal-overlay" id="dangNhapModal" onclick="closeModalOut(event,'dangNhapModal')">
-    <div class="modal-box">
-        <button class="modal-close" onclick="closeModal('dangNhapModal')">×</button>
-        <div class="modal-header">
-            <div class="modal-icon">👤</div>
-            <h2>Đăng nhập khách hàng</h2>
-            <p>Dùng số điện thoại và email đã đăng ký</p>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:16px;">
-            <div class="form-group">
-                <label>Số điện thoại</label>
-                <input type="tel" id="loginSdt" placeholder="0901234567">
-            </div>
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="loginEmail" placeholder="email@example.com" onkeydown="if(event.key==='Enter') dangNhapKhachHang()">
-            </div>
-            <div class="form-msg" id="loginMsg"></div>
-            <button class="btn-submit" onclick="dangNhapKhachHang()">Đăng nhập</button>
-        </div>
-    </div>
-</div>
 <!-- MODAL TRA CỨU -->
 <div class="modal-overlay" id="traCuuModal" onclick="closeModalOut(event,'traCuuModal')">
     <div class="modal-box">
