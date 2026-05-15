@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quán Ăn – Thực Đơn</title>
+    <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <a class="navbar-brand" href="index.html">
+        <span class="logo-icon">🍜</span> Quán Ngon
+    </a>
+    <ul class="navbar-links">
+        <li><a href="index.html" class="active">Thực đơn</a></li>
+        <li><a href="cart.html">Giỏ hàng</a></li>
+        <li><a href="product.html">Tra cứu đơn</a></li>
+    </ul>
+    <div class="navbar-right">
+        <button class="cart-btn">
+            🛒 Giỏ hàng
+            <span class="cart-count">0</span>
+        </button>
+    </div>
+</nav>
+
+<!-- HERO -->
+<div class="page-header">
+    <div class="container">
+        <h1>🍽️ Thực Đơn Hôm Nay</h1>
+        <p>Chọn món yêu thích và đặt ngay tại bàn</p>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="container" style="padding-top:1.5rem">
+
+    <!-- SEARCH + FILTER -->
+    <div style="display:flex; flex-wrap:wrap; gap:1rem; align-items:center; margin-bottom:1rem;">
+        <div class="search-box" style="flex:1; min-width:200px;">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Tìm món ăn..." oninput="handleSearch()" />
+        </div>
+        <div class="filter-bar" id="menuFilter" style="margin:0;flex-wrap:wrap;">
+            <button class="filter-btn active" onclick="filterMenu(null, this)">Tất cả</button>
+        </div>
+    </div>
+
+    <!-- MENU GRID -->
+    <div id="menuGrid" class="menu-grid">
+        <div class="loader"><div class="spinner"></div>Đang tải thực đơn...</div>
+    </div>
+</div>
+
+<!-- CART PANEL -->
+<div class="cart-panel" id="cartPanel">
+    <div class="cart-panel-header">
+        <h3>🛒 Giỏ hàng</h3>
+        <button class="close-btn" data-close-cart>✕</button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-footer">
+        <div class="cart-total-row"><span>Tạm tính</span><span class="cart-total-display">0 ₫</span></div>
+        <div class="cart-total-row final"><span>Tổng cộng</span><span class="cart-total-display">0 ₫</span></div>
+        <div style="display:flex;gap:.6rem;margin-top:.8rem;">
+            <button class="btn btn-outline btn-sm" onclick="Cart.clear(); toast('Đã xóa giỏ hàng','warning')">Xóa hết</button>
+            <a href="cart.html" class="btn btn-primary" style="flex:1;text-align:center;justify-content:center;">Đặt hàng →</a>
+        </div>
+    </div>
+</div>
+
+<!-- ITEM DETAIL MODAL -->
+<div class="modal-overlay" id="detailModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="modalName">Chi tiết món</h3>
+            <button class="close-btn" data-close-modal="detailModal">✕</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" data-close-modal="detailModal">Đóng</button>
+            <button class="btn btn-primary" id="modalAddBtn">🛒 Thêm vào giỏ</button>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container"></div>
+
+<script src="../js/main.js"></script>
+<script>
+    let allItems = [];
+    let currentMenuId = null;
+
+    // ── LOAD ALL MENU TABS ──────────────────────────────────────
+    async function loadMenuTabs() {
+      try {
+        const menus = await api.get('/menu');
+        const bar = document.getElementById('menuFilter');
+        menus.forEach(m => {
+          const btn = document.createElement('button');
+          btn.className = 'filter-btn';
+          btn.textContent = m.tenMenu || `Menu #${m.menuID}`;
+          btn.onclick = () => filterMenu(m.menuID, btn);
+          bar.appendChild(btn);
+        });
+      } catch { /* silent – tabs optional */ }
+    }
+
+    // ── LOAD DISHES ─────────────────────────────────────────────
+    async function loadDishes(menuId = null) {
+      const grid = document.getElementById('menuGrid');
+      grid.innerHTML = '<div class="loader"><div class="spinner"></div>Đang tải...</div>';
+      try {
+        const path = menuId ? `/monan/menu/${menuId}` : '/monan';
+        allItems = await api.get(path);
+        renderGrid(allItems);
+      } catch {
+        grid.innerHTML = '<div class="loader">⚠️ Không thể tải thực đơn. Kiểm tra server Java đang chạy tại <b>localhost:8080</b>.</div>';
+      }
+    }
+
+    function filterMenu(menuId, btn) {
+      document.querySelectorAll('#menuFilter .filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentMenuId = menuId;
+      loadDishes(menuId);
+    }
+
+    function handleSearch() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = allItems.filter(i => i.tenMon?.toLowerCase().includes(q) || i.moTa?.toLowerCase().includes(q));
+      renderGrid(filtered);
+    }
+
+    // ── RENDER GRID ─────────────────────────────────────────────
+    function renderGrid(items) {
+      const grid = document.getElementById('menuGrid');
+      if (!items.length) {
+        grid.innerHTML = '<div class="loader">🍽️ Không tìm thấy món nào.</div>';
+        return;
+      }
+      grid.innerHTML = items.map(item => {
+        const available = !item.trangThai || item.trangThai === 'AVAILABLE';
+        const emoji = getFoodEmoji(item.tenMon);
+        return `
+          <div class="card" onclick="showDetail(${item.monID})">
+            <div class="card-img">${item.hinhAnh ? `<img src="${item.hinhAnh}" alt="${item.tenMon}" onerror="this.parentElement.textContent='${emoji}'" />` : emoji}</div>
+            <div class="card-body">
+              <div class="card-name">${item.tenMon}</div>
+              <div class="card-desc">${item.moTa || 'Món ngon đặc biệt của quán'}</div>
+              <div class="card-footer">
+                <span class="card-price">${fmt(item.gia)}</span>
+                ${available
+                  ? `<button class="btn btn-primary btn-sm" onclick="event.stopPropagation();addToCart(${item.monID})">+ Thêm</button>`
+                  : `<span class="badge badge-danger">Hết hàng</span>`}
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    // ── DETAIL MODAL ─────────────────────────────────────────────
+    async function showDetail(id) {
+      try {
+        const item = await api.get(`/monan/${id}`);
+        document.getElementById('modalName').textContent = item.tenMon;
+        document.getElementById('modalBody').innerHTML = `
+          <div style="text-align:center;font-size:4rem;margin-bottom:1rem;">${getFoodEmoji(item.tenMon)}</div>
+          <p style="color:var(--text-muted);margin-bottom:1rem;">${item.moTa || 'Món ngon đặc biệt của quán'}</p>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:.8rem;background:var(--bg);border-radius:var(--radius-sm);">
+            <span>Giá bán:</span>
+            <strong style="color:var(--primary);font-size:1.2rem;">${fmt(item.gia)}</strong>
+          </div>
+          <div style="margin-top:.6rem;">
+            ${statusBadge(item.trangThai || 'AVAILABLE')}
+          </div>`;
+        const addBtn = document.getElementById('modalAddBtn');
+        addBtn.onclick = () => { addToCart(id); closeModal('detailModal'); };
+        addBtn.disabled = item.trangThai === 'UNAVAILABLE';
+        openModal('detailModal');
+      } catch { toast('Không thể tải chi tiết món','error'); }
+    }
+
+    function addToCart(id) {
+      const item = allItems.find(i => i.monID === id);
+      if (!item) return;
+      Cart.add(item);
+    }
+
+    // ── CART RENDER ───────────────────────────────────────────────
+    function renderCartItems() {
+      const container = document.getElementById('cartItems');
+      if (!container) return;
+      const items = Cart.getAll();
+      if (!items.length) {
+        container.innerHTML = '<div class="cart-empty"><div class="empty-icon">🛒</div><p>Giỏ hàng trống</p></div>';
+        return;
+      }
+      container.innerHTML = items.map(i => `
+        <div class="cart-item">
+          <div class="cart-item-icon">${getFoodEmoji(i.tenMon)}</div>
+          <div class="cart-item-info">
+            <div class="cart-item-name">${i.tenMon}</div>
+            <div class="cart-item-price">${fmt(i.gia)}</div>
+          </div>
+          <div class="qty-ctrl">
+            <button class="qty-btn" onclick="Cart.setQty(${i.monID}, ${i.qty - 1})">−</button>
+            <span class="qty-num">${i.qty}</span>
+            <button class="qty-btn" onclick="Cart.setQty(${i.monID}, ${i.qty + 1})">+</button>
+          </div>
+        </div>`).join('');
+    }
+
+    // ── INIT ─────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+      loadMenuTabs();
+      loadDishes();
+    });
+</script>
+</body>
+</html>
