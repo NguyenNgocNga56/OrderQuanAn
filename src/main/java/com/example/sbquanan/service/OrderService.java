@@ -60,6 +60,15 @@ public class OrderService {
         double tongTien = 0;
 
         for (OrderRequest.OrderItemRequest item : req.getItems()) {
+            if (item.getMonId() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Mon trong gio hang khong hop le.");
+            }
+            if (item.getSoLuong() <= 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "So luong mon phai lon hon 0.");
+            }
+
             MonAn mon = monAnRepo.findById(item.getMonId().longValue())
                     .orElseThrow(() -> new ResponseStatusException(
                             HttpStatus.NOT_FOUND, "Khong tim thay mon: " + item.getMonId()));
