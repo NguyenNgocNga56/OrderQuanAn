@@ -1,9 +1,4 @@
-﻿-- ============================================================
---  QUANLI_APPODER_DOAN - FILE TỔNG HỢP HOÀN CHỈNH
---  Gộp từ: QUANLI_APPODER_DOAN.sql (v2) + orderquanan.sql + khongtrungemail.sql
--- ============================================================
-
-USE master;
+﻿USE master;
 GO
 
 IF DB_ID('QUANLI_APPODER_DOAN') IS NOT NULL
@@ -20,9 +15,7 @@ GO
 USE QUANLI_APPODER_DOAN;
 GO
 
--- ============================================================
 --  TẠO BẢNG
--- ============================================================
 
 -- 1. MENU
 CREATE TABLE Menu (
@@ -189,13 +182,10 @@ CREATE TABLE KetCa (
 );
 GO
 
--- ============================================================
 --  INSERT DỮ LIỆU
--- ============================================================
 
 -- NHÂN VIÊN
--- Gộp từ file v2 + file orderquanan.sql
--- (Các email từ orderquanan đã có trong v2 → loại bỏ trùng, chỉ giữ bản ghi mới nhất)
+
 INSERT INTO NhanVien (TenNhanVien, SDT, DiaChi, Email, ChucVu, Luong, TrangThai, Password)
 VALUES
     (N'Nguyễn Ngọc Ngà',    '0901111111', N'HCM', 'nga@gmail.com',         N'QUAN_LY',         15000000, 1, '12345'),
@@ -204,7 +194,6 @@ VALUES
     (N'Trần Minh Tú',       '0904444444', N'HCM', 'minhtu94@gmail.com',     N'NGUOI_DUNG',       9000000, 1, '12345'),
     (N'Nguyễn Văn Admin',   '0905555555', N'HCM', 'admin@example.com',      N'Quản lý',         10000000, 1, '123456'),
     (N'Nguyễn Thị Hương',   '0909999999', N'HCM', 'chuquan@example.com',    N'Chủ quán',        25000000, 1, '123456'),
-    -- Từ orderquanan.sql (email khác với bên trên, giữ lại)
     (N'Trần Thảo Nương (PH)', '0922000000', NULL,  'admin1@example.com',    N'Quản lý',           800000, 1, '123456'),
     (N'Phạm Ngọc Tú (PH)',    '0933000000', NULL,  'admin2@example.com',    N'Quản lý',           800000, 1, '123456'),
     (N'Trần Minh Tú (PH)',    '0944000000', NULL,  'admin3@example.com',    N'Quản lý',           800000, 1, '123456');
@@ -301,10 +290,10 @@ VALUES
 ('DO_UONG', N'Dorayaki', 30000, N'Dorayaki Size L',     N'/img/dorayaki.jpg', N'CON_HANG', N'Dorayaki', @doUong, 'L');
 GO
 
--- ============================================================
---  DỌN DẸP EMAIL TRÙNG (từ khongtrungemail.sql)
+
+--  DỌN DẸP EMAIL TRÙNG
 --  Xóa nhân viên trùng email, chỉ giữ bản ghi ID nhỏ nhất
--- ============================================================
+
 DELETE FROM NhanVien
 WHERE NhanVienID NOT IN (
     SELECT MIN(NhanVienID) FROM NhanVien GROUP BY Email
