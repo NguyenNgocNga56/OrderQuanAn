@@ -37,7 +37,7 @@ public class OrderService {
 
         // 1. Tao DonHang
         DonHang donHang = new DonHang();
-        donHang.setTrangThai(TrangThaiDonHang.DA_NHAN_DON_HANG);
+        donHang.setTrangThai(TrangThaiDonHang.CHO_XAC_NHAN);
         donHang.setNgayDat(LocalDateTime.now());
 
         if (req.getKhachHangId() != null) {

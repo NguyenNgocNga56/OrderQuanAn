@@ -156,26 +156,35 @@ function renderCartPage() {
 }
 
 async function loadSelects() {
+    const khSel = document.getElementById('selKhachHang');
+    const nvSel = document.getElementById('selNhanVien');
+
     try {
-        const [khs, nvs] = await Promise.all([
+        const [khResponse, nvResponse] = await Promise.all([
             fetch('/api/khachhang').then(r => r.json()),
             fetch('/api/nhanvien').then(r => r.json())
         ]);
-        const khSel = document.getElementById('selKhachHang');
+
+        const khs = Array.isArray(khResponse) ? khResponse : (khResponse.data || []);
+        const nvs = Array.isArray(nvResponse) ? nvResponse : (nvResponse.data || []);
+
         khs.forEach(k => {
             const o = document.createElement('option');
             o.value = k.id;
             o.textContent = k.hoTen + (k.sdt ? ` (${k.sdt})` : '');
             khSel.appendChild(o);
         });
-        const nvSel = document.getElementById('selNhanVien');
-        nvs.forEach(n => {
+
+        nvs.filter(n => n.trangThai !== false).forEach(n => {
             const o = document.createElement('option');
             o.value = n.id;
-            o.textContent = n.hoTen;
+            o.textContent = n.hoTen + (n.chucVu ? ` - ${n.chucVu}` : '');
             nvSel.appendChild(o);
         });
-    } catch {}
+    } catch {
+        khSel.innerHTML = '<option value="">-- Không tải được khách hàng --</option>';
+        nvSel.innerHTML = '<option value="">-- Không tải được nhân viên --</option>';
+    }
 }
 
 async function datMon() {

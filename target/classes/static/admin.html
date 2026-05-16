@@ -111,6 +111,38 @@
             </div>
         </div>
 
+        <!-- KHU VUC QUAN LY NHANH -->
+        <div class="admin-manager" id="adminManager" style="display:none;">
+            <div class="admin-manager-head">
+                <div>
+                    <h2 id="managerTitle">Quản lý</h2>
+                    <p id="managerSub">Danh sách dữ liệu</p>
+                </div>
+                <button class="btn-logout" onclick="closeManager()">Đóng</button>
+            </div>
+
+            <div class="mon-form" id="monForm" style="display:none;">
+                <input type="text" id="monTen" placeholder="Tên món">
+                <input type="number" id="monGia" placeholder="Giá">
+                <select id="monMenu"></select>
+                <select id="monPhanLoai">
+                    <option value="doan">Đồ ăn</option>
+                    <option value="douong">Đồ uống</option>
+                </select>
+                <select id="monTrangThai">
+                    <option value="CON_HANG">Còn hàng</option>
+                    <option value="HET_HANG">Hết hàng</option>
+                    <option value="NGUNG_BAN">Ngừng bán</option>
+                </select>
+                <input type="text" id="monLoai" placeholder="Đơn vị / size S M L">
+                <input type="text" id="monHinhAnh" placeholder="/img/ten-anh.jpg">
+                <input type="text" id="monMoTa" placeholder="Mô tả">
+                <button class="btn-submit" onclick="themMonAnAdmin()">Thêm món</button>
+            </div>
+
+            <div class="admin-table-wrap" id="managerContent"></div>
+        </div>
+
     </div>
 </div>
 
