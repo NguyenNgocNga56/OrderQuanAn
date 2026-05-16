@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ### IntelliJ IDEA ###
 out/
 !**/src/main/**/out/
@@ -5,18 +6,69 @@ out/
 .kotlin
 
 ### Eclipse ###
+=======
+HELP.md
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+### INTELLIJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+/out/
+cmake-build-*/
+.navigation/
+
+### ECLIPSE ###
+.metadata/
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+### STS ###
+>>>>>>> origin/NguyenNgocNga
 .apt_generated
 .classpath
-.factorypath
 .project
 .settings
 .springBeans
 .sts4-cache
+
+### VS CODE ###
+.vscode/
+.history/
+*.code-workspace
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
-### NetBeans ###
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NETBEANS ###
 /nbproject/private/
 /nbbuild/
 /dist/
@@ -37,3 +89,25 @@ src/resources/database.properties
 out/
 *.iml
 *.class
+
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### OPERATING SYSTEM (Tránh conflict file ẩn của Windows/Mac) ###
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+### CONFIG & DATABASE (Giấu file cấu hình cá nhân) ###
+src/main/resources/database.properties
+# application.properties # Nếu bạn muốn mỗi người tự giữ config DB riêng thì bỏ comment dòng này
+
+### LOGS ###
+*.log
+/logs/
