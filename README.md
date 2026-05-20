@@ -150,9 +150,9 @@ mvnw.cmd spring-boot:run
 
 ##  Nhóm SixeVEn
 
-**Nguyễn Ngọc Ngà** — Branch: `NguyenNgocNga`
-**Trần Thảo Nương** — Branch: `TranThaoNuong`
-**Phạm Ngọc Tú** — Branch: `PhamNgocTu`
-**Trần Minh Tú** — Branch: `MinhTu94`
+- **Nguyễn Ngọc Ngà** — Branch: `NguyenNgocNga`
+- **Trần Thảo Nương** — Branch: `TranThaoNuong`
+- **Phạm Ngọc Tú** — Branch: `PhamNgocTu`
+- **Trần Minh Tú** — Branch: `MinhTu94`
 
 ---

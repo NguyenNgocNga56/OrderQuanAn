@@ -13,7 +13,6 @@ import java.util.List;
 @RequestMapping("/api/khuyenmai")
 @CrossOrigin(origins = "*")
 public class KhuyenMaiController {
-
     @Autowired private KhuyenMaiService service;
 
     @GetMapping

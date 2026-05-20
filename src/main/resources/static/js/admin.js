@@ -36,6 +36,7 @@ async function loadStats() {
             const res = await fetch(api.url, { headers });
             if (res.ok) {
                 const data = unwrapApiData(await res.json());
+                const data = await res.json();
                 const el = document.getElementById(api.id);
                 if (el) el.textContent = Array.isArray(data) ? data.length : '—';
             }
@@ -104,6 +105,7 @@ async function loadMenuOptions() {
 
     try {
         const menus = unwrapApiData(await fetch('/api/menu').then(r => r.json()));
+        const menus = await fetch('/api/menu').then(r => r.json());
         select.innerHTML = menus.map(m => `<option value="${m.menuID}">${escapeHtml(m.tenMenu || 'Menu')}</option>`).join('');
     } catch {
         select.innerHTML = '<option value="">Không tải được menu</option>';
@@ -209,6 +211,7 @@ async function loadGenericManager(api) {
 
     try {
         const data = unwrapApiData(await fetch(api).then(r => r.json()));
+        const data = await fetch(api).then(r => r.json());
         const rows = Array.isArray(data) ? data : [data];
         if (!rows.length) {
             content.innerHTML = '<div class="admin-empty">Chưa có dữ liệu.</div>';

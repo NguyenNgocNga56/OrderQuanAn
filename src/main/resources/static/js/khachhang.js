@@ -256,6 +256,7 @@ function setMsg(el, text, type) {
 // INIT
 document.addEventListener('DOMContentLoaded', () => {
     updateCartBadge();
+    updateKhachHangHeader();
     loadKhuyenMai();
     loadMonAn('doan');
 });

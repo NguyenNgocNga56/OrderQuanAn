@@ -32,9 +32,11 @@ public class KhuyenMai {
     @Column(name = "NgayKetThuc")
     private LocalDateTime ngayKetThuc;
 
+    @Column(name = "DangKichHoat")
+    private boolean dangKichHoat;
+
     public boolean hopLe() {
         LocalDateTime now = LocalDateTime.now();
-        return ngayBatDau != null && ngayKetThuc != null
-                && now.isAfter(ngayBatDau) && now.isBefore(ngayKetThuc);
+        return dangKichHoat && now.isAfter(ngayBatDau) && now.isBefore(ngayKetThuc);
     }
 }

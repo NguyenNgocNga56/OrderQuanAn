@@ -252,7 +252,6 @@ h1, h2, h3, h4, .logo-text, .hero-title, .section-title,
   background: rgba(184, 92, 58, 0.03);
 }
 
-/* Hero visual */
 .hero-visual {
   flex: 1;
   max-width: 460px;
