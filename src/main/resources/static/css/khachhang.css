@@ -1,22 +1,7 @@
-<<<<<<< HEAD
 /* NAV ACTIVE */
 .nav-active { color: var(--accent) !important; }
 
 /* KH HERO*/
-=======
-/* =========================================
-   KHÁCH HÀNG PAGE – thêm vào cuối style.css
-   hoặc dùng file riêng khachhang.css
-========================================= */
-
-/* NAV ACTIVE */
-.nav-active { color: var(--accent) !important; }
-
-/* =========================================
-   KH HERO
-========================================= */
->>>>>>> 854df00051b53759b0398cd5ff6d72d04bf962ec
-.kh-hero {
     min-height: 100vh;
     padding-top: 64px;
     background: var(--bg);
@@ -759,8 +744,6 @@
 
   .mini-toast {
     white-space: normal;
-=======
->>>>>>> 854df00051b53759b0398cd5ff6d72d04bf962ec
     text-align: center;
     transition: transform 0.2s, border-color 0.2s;
 }
@@ -773,9 +756,7 @@
 .hang-vang { border-color: #e8a045; }
 .hang-kim  { border-color: #7df; }
 
-/* =========================================
-   KHUYẾN MÃI BANNER
-========================================= */
+/* KHUYẾN MÃI BANNER */
 .khuyen-mai-section {
     background: var(--surface);
     padding: 80px 32px;
@@ -823,9 +804,7 @@
 .km-expired { opacity: 0.55; }
 .km-loading { text-align: center; padding: 2rem; color: var(--text-muted); grid-column: 1/-1; }
 
-/* =========================================
-   THỰC ĐƠN
-========================================= */
+/* THỰC ĐƠN */
 .menu-section {
     padding: 80px 32px;
     background: var(--bg);
@@ -893,9 +872,7 @@
 }
 .btn-them:hover { background: var(--accent-dark); }
 
-/* =========================================
-   CART PANEL (slide)
-========================================= */
+/* CART PANEL (slide) */
 .cart-overlay {
     position: fixed;
     inset: 0;
@@ -994,7 +971,6 @@
     margin-left: 4px;
 }
 
-<<<<<<< HEAD
 :root {
   --bg: #050505;
   --surface: #fffaf0;
@@ -1014,10 +990,8 @@
   --font-body: 'Be Vietnam Pro', 'Inter', 'Noto Sans JP', sans-serif;
   --font-brush: 'Hiro Misake', 'Reggae One', 'Noto Serif JP', var(--font-body);
   --shadow: 0 18px 45px rgba(0, 0, 0, 0.28), 0 2px 0 rgba(255, 250, 240, 0.04);
-=======
-/* =========================================
-   TRA CỨU KẾT QUẢ
-========================================= */
+
+/* TRA CỨU KẾT QUẢ */
 .tc-card {
     display: flex;
     align-items: center;
@@ -1027,8 +1001,8 @@
     border-radius: 12px;
     padding: 16px;
     margin-bottom: 14px;
->>>>>>> 854df00051b53759b0398cd5ff6d72d04bf962ec
 }
+
 .tc-hang { font-size: 2.5rem; }
 .tc-ten { font-weight: 600; font-size: 1rem; margin-bottom: 4px; }
 .tc-diem, .tc-loai { font-size: 0.88rem; color: var(--text-muted); }
@@ -1048,9 +1022,7 @@
 }
 .tc-progress-label { font-size: 0.8rem; color: var(--text-muted); text-align: right; }
 
-/* =========================================
-   CART PAGE (cart.html)
-========================================= */
+/* CART PAGE (cart.html) */
 .cart-page-grid {
     display: grid;
     grid-template-columns: 1fr 360px;
@@ -1114,9 +1086,7 @@
     padding-top: 12px;
 }
 
-/* =========================================
-   MINI TOAST
-========================================= */
+/* MINI TOAST */
 .mini-toast {
     position: fixed;
     bottom: 32px; left: 50%;
@@ -1134,9 +1104,7 @@
 }
 .mini-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* =========================================
-   RESPONSIVE
-========================================= */
+/* RESPONSIVE */
 @media (max-width: 900px) {
     .hang-grid { grid-template-columns: repeat(2, 1fr); }
     .cart-page-grid { grid-template-columns: 1fr; }

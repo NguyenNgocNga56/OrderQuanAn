@@ -1,6 +1,4 @@
-// ============================================================
 // CART (localStorage)
-// ============================================================
 const Cart = {
     key: 'qap_cart',
     getAll() { try { return JSON.parse(localStorage.getItem(this.key)) || []; } catch { return []; } },
@@ -29,16 +27,12 @@ function updateCartBadge() {
     if (b) b.textContent = Cart.count();
 }
 
-// ============================================================
 // FORMAT TIỀN
-// ============================================================
 function fmtVND(n) {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n || 0);
 }
 
-// ============================================================
 // MODAL
-// ============================================================
 function openModal(id) {
     document.getElementById(id).classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -51,9 +45,7 @@ function closeModalOut(event, id) {
     if (event.target === event.currentTarget) closeModal(id);
 }
 
-// ============================================================
 // CART PANEL (slide)
-// ============================================================
 function toggleCart() {
     const panel   = document.getElementById('cartPanel');
     const overlay = document.getElementById('cartOverlay');
@@ -91,9 +83,7 @@ function renderCartPanel() {
         </div>`).join('');
 }
 
-// ============================================================
 // LOAD KHUYẾN MÃI
-// ============================================================
 async function loadKhuyenMai() {
     const grid = document.getElementById('kmGrid');
     if (!grid) return;
@@ -116,7 +106,7 @@ async function loadKhuyenMai() {
                 <div class="km-title">${km.tenKhuyenMai || 'Ưu đãi đặc biệt'}</div>
                 <div class="km-desc">${km.moTa || ''}</div>
                 <div class="km-deadline">
-                    ${hetHan ? `⏰ HSD: ${hetHan.toLocaleDateString('vi-VN')}` : ' Không giới hạn'}
+                    ${hetHan ? ` HSD: ${hetHan.toLocaleDateString('vi-VN')}` : ' Không giới hạn'}
                 </div>
                 <div class="km-status ${con ? 'km-con' : 'km-het'}">${con ? 'Còn hiệu lực' : ' Đã hết hạn'}</div>
             </div>`;
@@ -126,9 +116,7 @@ async function loadKhuyenMai() {
     }
 }
 
-// ============================================================
 // LOAD THỰC ĐƠN
-// ============================================================
 let currentTab = 'doan';
 
 function switchTab(tab, btn) {
@@ -141,7 +129,7 @@ function switchTab(tab, btn) {
 async function loadMonAn(tab) {
     const grid = document.getElementById('monGrid');
     if (!grid) return;
-    grid.innerHTML = '<div class="km-loading">⏳ Đang tải...</div>';
+    grid.innerHTML = '<div class="km-loading"> Đang tải...</div>';
     try {
         const endpoint = tab === 'doan' ? '/api/monan' : '/api/douong';
         const items = await fetch(endpoint).then(r => r.json());
@@ -189,9 +177,7 @@ function themVaoGio(monID, tenMon, gia, hinhAnh) {
     setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 2000);
 }
 
-// ============================================================
 // ĐĂNG KÝ KHÁCH HÀNG → POST /api/khachhang
-// ============================================================
 async function dangKy() {
     const hoTen  = document.getElementById('regHoTen').value.trim();
     const sdt    = document.getElementById('regSdt').value.trim();
@@ -210,7 +196,7 @@ async function dangKy() {
             body: JSON.stringify({ hoTen, sdt, email, diaChi })
         });
         if (!res.ok) throw new Error();
-        setMsg(msg, '🎉 Đăng ký thành công! Chào mừng bạn.', 'success');
+        setMsg(msg, ' Đăng ký thành công! Chào mừng bạn.', 'success');
         document.getElementById('regHoTen').value = '';
         document.getElementById('regSdt').value   = '';
         document.getElementById('regEmail').value = '';
@@ -220,9 +206,7 @@ async function dangKy() {
     }
 }
 
-// ============================================================
 // TRA CỨU ĐIỂM → GET /api/khachhang?sdt=xxx
-// ============================================================
 async function traCuu() {
     const sdt    = document.getElementById('tcSdt').value.trim();
     const msg    = document.getElementById('tcMsg');
@@ -252,7 +236,7 @@ async function traCuu() {
             document.getElementById('tcProgressLabel').textContent = `Còn ${next.can - diem} điểm lên hạng ${next.next}`;
         } else {
             document.getElementById('tcProgressFill').style.width = '100%';
-            document.getElementById('tcProgressLabel').textContent = '🏆 Hạng cao nhất!';
+            document.getElementById('tcProgressLabel').textContent = ' Hạng cao nhất!';
         }
 
         setMsg(msg, '', '');
@@ -269,9 +253,7 @@ function setMsg(el, text, type) {
     el.style.display = text ? 'block' : 'none';
 }
 
-// ============================================================
 // INIT
-// ============================================================
 document.addEventListener('DOMContentLoaded', () => {
     updateCartBadge();
     loadKhuyenMai();
