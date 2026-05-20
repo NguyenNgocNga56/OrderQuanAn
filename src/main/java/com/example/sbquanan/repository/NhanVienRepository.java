@@ -8,6 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface NhanVienRepository extends JpaRepository<NhanVien, Long> {
-    // Tìm nhân viên theo email (dùng cho đăng nhập)
     Optional<NhanVien> findByEmail(String email);
 }

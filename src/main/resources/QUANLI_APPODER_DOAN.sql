@@ -291,12 +291,12 @@ VALUES
 GO
 
 
---  DỌN DẸP EMAIL TRÙNG    S
+--  DỌN DẸP EMAIL TRÙNG
 --  Xóa nhân viên trùng email, chỉ giữ bản ghi ID nhỏ nhất
 
 DELETE FROM NhanVien
 WHERE NhanVienID NOT IN (
-SELECT MIN(NhanVienID) FROM NhanVien GROUP BY Email
+    SELECT MIN(NhanVienID) FROM NhanVien GROUP BY Email
 );
 GO
 

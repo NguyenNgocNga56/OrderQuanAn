@@ -3,7 +3,6 @@ package com.example.sbquanan.enums;
 public enum TrangThaiBan {
     TRONG("Trống"),
     CO_KHACH("Có khách"),
-    DAY("Đầy"),
     DEP_BAN("Dẹp bàn");
 
     private final String displayValue;

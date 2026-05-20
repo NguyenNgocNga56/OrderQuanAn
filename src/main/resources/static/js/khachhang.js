@@ -27,6 +27,10 @@ function updateCartBadge() {
     if (b) b.textContent = Cart.count();
 }
 
+<<<<<<< HEAD
+=======
+// ============================================================
+>>>>>>> 854df00051b53759b0398cd5ff6d72d04bf962ec
 // FORMAT TIỀN
 function fmtVND(n) {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n || 0);
@@ -207,6 +211,10 @@ async function dangKy() {
 }
 
 // TRA CỨU ĐIỂM → GET /api/khachhang?sdt=xxx
+<<<<<<< HEAD
+=======
+// ============================================================
+>>>>>>> 854df00051b53759b0398cd5ff6d72d04bf962ec
 async function traCuu() {
     const sdt    = document.getElementById('tcSdt').value.trim();
     const msg    = document.getElementById('tcMsg');
@@ -256,7 +264,6 @@ function setMsg(el, text, type) {
 // INIT
 document.addEventListener('DOMContentLoaded', () => {
     updateCartBadge();
-    updateKhachHangHeader();
     loadKhuyenMai();
     loadMonAn('doan');
 });

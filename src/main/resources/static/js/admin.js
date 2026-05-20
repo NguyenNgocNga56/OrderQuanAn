@@ -36,7 +36,10 @@ async function loadStats() {
             const res = await fetch(api.url, { headers });
             if (res.ok) {
                 const data = unwrapApiData(await res.json());
+<<<<<<< HEAD
                 const data = await res.json();
+=======
+>>>>>>> 854df00051b53759b0398cd5ff6d72d04bf962ec
                 const el = document.getElementById(api.id);
                 if (el) el.textContent = Array.isArray(data) ? data.length : '—';
             }
@@ -105,7 +108,10 @@ async function loadMenuOptions() {
 
     try {
         const menus = unwrapApiData(await fetch('/api/menu').then(r => r.json()));
+<<<<<<< HEAD
         const menus = await fetch('/api/menu').then(r => r.json());
+=======
+>>>>>>> 854df00051b53759b0398cd5ff6d72d04bf962ec
         select.innerHTML = menus.map(m => `<option value="${m.menuID}">${escapeHtml(m.tenMenu || 'Menu')}</option>`).join('');
     } catch {
         select.innerHTML = '<option value="">Không tải được menu</option>';
@@ -211,7 +217,10 @@ async function loadGenericManager(api) {
 
     try {
         const data = unwrapApiData(await fetch(api).then(r => r.json()));
+<<<<<<< HEAD
         const data = await fetch(api).then(r => r.json());
+=======
+>>>>>>> 854df00051b53759b0398cd5ff6d72d04bf962ec
         const rows = Array.isArray(data) ? data : [data];
         if (!rows.length) {
             content.innerHTML = '<div class="admin-empty">Chưa có dữ liệu.</div>';
