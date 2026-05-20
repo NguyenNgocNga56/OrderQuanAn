@@ -15,9 +15,7 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class NhanVienController {
     @Autowired private NhanVienService service;
-
-    @Autowired private NhanVienService service;
-
+    
     @GetMapping
     public ApiResponse<List<NhanVien>> getAll() {
         return ApiResponse.success(service.getAll());
