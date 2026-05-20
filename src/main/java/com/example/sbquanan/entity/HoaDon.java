@@ -46,7 +46,7 @@ public class HoaDon {
         tinhThanhTien();
     }
 
-    // FIX: method công khai để Service có thể gọi trước khi save
+    // method công khai để Service có thể gọi trước khi save
     public void tinhThanhTien() {
         this.thanhTien = this.tongTien - this.giamGia;
     }

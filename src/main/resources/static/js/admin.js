@@ -1,6 +1,4 @@
-// =============================================
 // KIỂM TRA SESSION KHI VÀO TRANG ADMIN
-// =============================================
 (function() {
     const token = sessionStorage.getItem('adminToken');
     if (!token) {
@@ -9,9 +7,7 @@
     }
 })();
 
-// =============================================
 // HIỂN THỊ TÊN ADMIN
-// =============================================
 window.addEventListener('DOMContentLoaded', function() {
     const name = sessionStorage.getItem('adminName') || 'Admin';
     const el = document.getElementById('adminName');
@@ -22,9 +18,7 @@ window.addEventListener('DOMContentLoaded', function() {
     setupQuickLinks();
 });
 
-// =============================================
 // LOAD THỐNG KÊ TỪ API
-// =============================================
 async function loadStats() {
     const token = sessionStorage.getItem('adminToken');
     const headers = { 'Authorization': 'Bearer ' + token };
@@ -42,6 +36,7 @@ async function loadStats() {
             const res = await fetch(api.url, { headers });
             if (res.ok) {
                 const data = unwrapApiData(await res.json());
+                const data = await res.json();
                 const el = document.getElementById(api.id);
                 if (el) el.textContent = Array.isArray(data) ? data.length : '—';
             }
@@ -51,9 +46,7 @@ async function loadStats() {
     }
 }
 
-// =============================================
 // ĐĂNG XUẤT
-// =============================================
 function logout() {
     if (confirm('Bạn có chắc muốn đăng xuất không?')) {
         sessionStorage.removeItem('adminToken');
@@ -62,9 +55,7 @@ function logout() {
     }
 }
 
-// =============================================
 // QUAN LY NHANH
-// =============================================
 const quickManagers = {
     '/api/ban': { title: 'Quản lý bàn', sub: 'Danh sách bàn hiện có' },
     '/api/monan': { title: 'Quản lý món ăn', sub: 'Xem, thêm và xóa món trong menu', monAn: true },
@@ -114,6 +105,7 @@ async function loadMenuOptions() {
 
     try {
         const menus = unwrapApiData(await fetch('/api/menu').then(r => r.json()));
+        const menus = await fetch('/api/menu').then(r => r.json());
         select.innerHTML = menus.map(m => `<option value="${m.menuID}">${escapeHtml(m.tenMenu || 'Menu')}</option>`).join('');
     } catch {
         select.innerHTML = '<option value="">Không tải được menu</option>';
@@ -219,6 +211,7 @@ async function loadGenericManager(api) {
 
     try {
         const data = unwrapApiData(await fetch(api).then(r => r.json()));
+        const data = await fetch(api).then(r => r.json());
         const rows = Array.isArray(data) ? data : [data];
         if (!rows.length) {
             content.innerHTML = '<div class="admin-empty">Chưa có dữ liệu.</div>';

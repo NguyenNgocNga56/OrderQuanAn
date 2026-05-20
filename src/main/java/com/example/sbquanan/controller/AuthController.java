@@ -25,9 +25,6 @@ public class AuthController {
     /**
      * POST /api/auth/login
      * Body: { "email": "...", "password": "..." }
-     *
-     * Lưu ý: hiện tại password được lưu thẳng (plain text).
-     * Trong thực tế nên dùng BCrypt để mã hóa mật khẩu.
      */
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> body) {
@@ -53,9 +50,7 @@ public class AuthController {
 
         NhanVien nhanVien = optNhanVien.get();
 
-        // Kiểm tra mật khẩu (plain text — nên dùng BCrypt trong thực tế)
-        // Giả sử trường password được lưu trong entity (sẽ thêm sau)
-        // Tạm thời kiểm tra theo logic đơn giản
+        // Kiểm tra mật khẩu
         if (!password.equals(nhanVien.getPassword())) {
             response.put("success", false);
             response.put("message", "Email hoặc mật khẩu không đúng.");
@@ -100,9 +95,7 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Kiểm tra token có hợp lệ không (dùng nội bộ).
-     */
+    /** Kiểm tra token có hợp lệ không */
     public static boolean isValidToken(String token) {
         return token != null && tokenStore.containsKey(token);
     }

@@ -1,25 +1,25 @@
-# 🍜 Hệ Thống Quản Lý Quán Ăn — Restaurant Order & Management System
+# Hệ Thống Quản Lý Quán Ăn — Restaurant Order & Management System
 
 > Ứng dụng backend quản lý toàn diện cho quán ăn: từ thực đơn, đặt bàn, gọi món đến thanh toán và ca làm việc nhân viên.
 
 ---
 
-## 📖 Giới Thiệu
+## Giới Thiệu
 
 **sbquanan** (Spring Boot Quản Ăn) là một REST API backend được xây dựng bằng **Spring Boot 3**, phục vụ cho bài toán quản lý quán ăn hiện đại. Hệ thống cho phép:
 
-- 🧑‍🍳 **Nhân viên** ghi nhận đơn hàng, quản lý bàn ăn theo thời gian thực
-- 🍱 **Quản lý thực đơn** linh hoạt với đồ ăn và đồ uống (kèm size)
-- 🧾 **Xuất hóa đơn** tự động, áp dụng khuyến mãi
-- 💳 **Thanh toán** đa phương thức
-- 📊 **Theo dõi ca làm việc** và kết ca cuối ngày
-- 👥 **Phân loại khách hàng** (thường, VIP, thành viên...)
+- **Nhân viên** ghi nhận đơn hàng, quản lý bàn ăn theo thời gian thực
+- **Quản lý thực đơn** linh hoạt với đồ ăn và đồ uống (kèm size)
+- **Xuất hóa đơn** tự động, áp dụng khuyến mãi
+- **Thanh toán** đa phương thức
+- **Theo dõi ca làm việc** và kết ca cuối ngày
+- **Phân loại khách hàng** (thường, VIP, thành viên...)
 
 Dù bạn là sinh viên tìm hiểu Spring Boot hay lập trình viên muốn tham khảo một hệ thống quản lý nhà hàng hoàn chỉnh — đây là project phù hợp để học hỏi và mở rộng.
 
 ---
 
-## 🏗️ Kiến Trúc & Công Nghệ
+## Kiến Trúc & Công Nghệ
 
 ```
 sbquanan/
@@ -43,40 +43,40 @@ sbquanan/
 
 ---
 
-## 🗂️ Các Module Chính
+## ️ Các Module Chính
 
-### 🪑 Quản lý Bàn (`Ban`)
+###  Quản lý Bàn (`Ban`)
 Theo dõi trạng thái bàn: `TRONG` / `CO_KHACH` / `DAT_TRUOC`. Mỗi bàn có thể liên kết với đơn hàng đang hoạt động.
 
-### 🍽️ Thực Đơn & Món Ăn (`MonAn`, `Menu`)
+### ️ Thực Đơn & Món Ăn (`MonAn`, `Menu`)
 - `MonAn` là class cha (abstract) dùng kiểu thừa kế `SINGLE_TABLE`
 - `DoAn` — đồ ăn thông thường
 - `DoUong` — đồ uống có thêm thuộc tính `size` (S/M/L)
 - Menu tổng hợp nhiều món, có trạng thái hoạt động/ẩn
 
-### 📝 Đơn Hàng (`DonHang`, `ChiTietDonHang`)
+###  Đơn Hàng (`DonHang`, `ChiTietDonHang`)
 Khách gọi món → tạo đơn hàng → từng dòng chi tiết đơn lưu số lượng + đơn giá. Trạng thái đơn: `CHO_XAC_NHAN` → `DANG_NAU` → `DA_PHUC_VU` → `DA_HUY`.
 
-### 🧾 Hóa Đơn & Thanh Toán (`HoaDon`, `ThanhToan`)
+###  Hóa Đơn & Thanh Toán (`HoaDon`, `ThanhToan`)
 Sau khi phục vụ xong, hệ thống tự tính `tongTien`, áp dụng `giamGia` (từ khuyến mãi), xuất `thanhTien`. Hỗ trợ: tiền mặt, chuyển khoản, thẻ.
 
-### 🎁 Khuyến Mãi (`KhuyenMai`)
+###  Khuyến Mãi (`KhuyenMai`)
 Hai loại: giảm theo **phần trăm** hoặc giảm **số tiền cố định**.
 
-### 👨‍💼 Nhân Viên & Ca Làm Việc (`NhanVien`, `CaLamViec`, `KetCa`)
+### Nhân Viên & Ca Làm Việc (`NhanVien`, `CaLamViec`, `KetCa`)
 Ghi nhận giờ vào/ra ca, kết ca cuối ngày với tổng doanh thu, số đơn xử lý.
 
-### 👤 Khách Hàng (`KhachHang`)
+###  Khách Hàng (`KhachHang`)
 Phân loại: `THUONG`, `THANH_VIEN`, `VIP` — cơ sở để áp dụng ưu đãi.
 
 ---
 
-## ⚙️ Hướng Dẫn Cài Đặt & Chạy
+##  Hướng Dẫn Cài Đặt & Chạy
 
 ### Yêu cầu hệ thống
-- ☕ Java 17+
-- 🗄️ SQL Server (local hoặc Docker)
-- 📦 Maven 3.x
+-  Java 17+
+- ️ SQL Server (local hoặc Docker)
+-  Maven 3.x
 
 ### Bước 1 — Clone project
 ```bash
@@ -103,11 +103,11 @@ spring.datasource.username=<your_username>
 spring.datasource.password=<your_password>
 ```
 
-> ⚠️ **Lưu ý:** Không commit file `application.properties` lên Git — nó đã được thêm vào `.gitignore`.
+> ️ **Lưu ý:** Không commit file `application.properties` lên Git — nó đã được thêm vào `.gitignore`.
 
 ### Bước 4 — Build & chạy
 ```bash
-# Chạy bằng Maven Wrapper (không cần cài Maven riêng)
+# Chạy bằng Maven Wrapper 
 ./mvnw spring-boot:run
 
 # Hoặc trên Windows
@@ -123,7 +123,7 @@ mvnw.cmd spring-boot:run
 
 ---
 
-## 🔌 API Endpoints Nổi Bật
+##  API Endpoints Nổi Bật
 
 | Method | Endpoint | Mô tả |
 |---|---|---|
@@ -140,7 +140,7 @@ mvnw.cmd spring-boot:run
 
 ---
 
-## 📌 Ghi Chú Phát Triển
+##  Ghi Chú Phát Triển
 
 - Project chưa có tầng **Service** — business logic hiện nằm trực tiếp trong Controller. Refactor sang Service layer là bước cải thiện tiếp theo.
 - Chưa có **Spring Security / JWT** — nên bổ sung nếu deploy production.
@@ -148,13 +148,11 @@ mvnw.cmd spring-boot:run
 
 ---
 
-## 👩‍💻  Nhóm SixeVEn
+##  Nhóm SixeVEn
 
-**Nguyễn Ngọc Ngà** — Branch: `NguyenNgocNga`
-**Trần Thảo Nương** — Branch: `TranThaoNuong`
-**Phạm Ngọc Tú** — Branch: `PhamNgocTu`
-**Trần Minh Tú** — Branch: `MinhTu94`
+- **Nguyễn Ngọc Ngà** — Branch: `NguyenNgocNga`
+- **Trần Thảo Nương** — Branch: `TranThaoNuong`
+- **Phạm Ngọc Tú** — Branch: `PhamNgocTu`
+- **Trần Minh Tú** — Branch: `MinhTu94`
 
 ---
-
-*Được xây dựng với ❤️ bằng Spring Boot & SQL Server*

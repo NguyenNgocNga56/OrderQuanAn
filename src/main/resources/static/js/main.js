@@ -1,6 +1,4 @@
-// =============================================
 // MODAL ĐĂNG NHẬP
-// =============================================
 
 function openLoginModal() {
     document.getElementById('loginModal').classList.add('active');
@@ -26,25 +24,21 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeLoginModal();
 });
 
-// =============================================
 // TOGGLE HIỆN/ẨN MẬT KHẨU
-// =============================================
 
 function togglePassword() {
     const input = document.getElementById('loginPassword');
     const btn = document.querySelector('.toggle-pw');
     if (input.type === 'password') {
         input.type = 'text';
-        btn.textContent = '🙈';
+        btn.textContent = 'X';
     } else {
         input.type = 'password';
         btn.textContent = '👁';
     }
 }
 
-// =============================================
 // XỬ LÝ ĐĂNG NHẬP
-// =============================================
 
 function setLoginMsg(msg, type) {
     const el = document.getElementById('loginMsg');
@@ -78,7 +72,7 @@ async function handleLogin(event) {
         const data = await response.json();
 
         if (response.ok && data.success) {
-            setLoginMsg('✅ Đăng nhập thành công!', 'success');
+            setLoginMsg(' Đăng nhập thành công!', 'success');
             // Lưu token/session
             if (data.token) sessionStorage.setItem('adminToken', data.token);
             if (data.hoTen) sessionStorage.setItem('adminName', data.hoTen);

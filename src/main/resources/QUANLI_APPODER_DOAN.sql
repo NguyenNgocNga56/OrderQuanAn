@@ -300,4 +300,4 @@ WHERE NhanVienID NOT IN (
 );
 GO
 
-PRINT N'✅ Khởi tạo database QUANLI_APPODER_DOAN hoàn tất!';
+PRINT N'Khởi tạo database QUANLI_APPODER_DOAN hoàn tất!';

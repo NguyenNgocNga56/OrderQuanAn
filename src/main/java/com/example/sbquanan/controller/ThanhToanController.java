@@ -3,6 +3,8 @@ package com.example.sbquanan.controller;
 import com.example.sbquanan.dto.ApiResponse;
 import com.example.sbquanan.entity.ThanhToan;
 import com.example.sbquanan.service.ThanhToanService;
+import com.example.sbquanan.service.ThanhToanService;
+import com.example.sbquanan.repository.ThanhToanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +15,7 @@ import java.util.List;
 @RequestMapping("/api/thanhtoan")
 @CrossOrigin(origins = "*")
 public class ThanhToanController {
+    @Autowired private ThanhToanRepository repository;
 
     @Autowired private ThanhToanService service;
 

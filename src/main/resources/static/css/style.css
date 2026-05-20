@@ -55,7 +55,7 @@ body {
   min-height: 100vh;
 }
 
-/* Headings - Japanese calligraphy style */
+/* Headings */
 h1, h2, h3, h4, .logo-text, .hero-title, .section-title,
 .modal-header h2, .admin-welcome h1, .feature-card h3,
 .km-title, .hang-name, .mon-ten, .cart-header h3, .tc-ten {
@@ -65,9 +65,7 @@ h1, h2, h3, h4, .logo-text, .hero-title, .section-title,
   text-transform: uppercase;
 }
 
-/* =========================================
-                    HEADER
-========================================= */
+/* HEADER */
 .header {
   position: fixed;
   top: 0; left: 0; right: 0;
@@ -148,9 +146,6 @@ h1, h2, h3, h4, .logo-text, .hero-title, .section-title,
   box-shadow: 0 4px 12px rgba(184, 92, 58, 0.25);
 }
 
-/* =========================================
-   HERO – Zen atmosphere with Japanese elegance
-========================================= */
 .hero {
   min-height: 100vh;
   padding-top: 68px;
@@ -257,7 +252,6 @@ h1, h2, h3, h4, .logo-text, .hero-title, .section-title,
   background: rgba(184, 92, 58, 0.03);
 }
 
-/* Hero visual – floating cards */
 .hero-visual {
   flex: 1;
   max-width: 460px;
@@ -342,9 +336,6 @@ h1, h2, h3, h4, .logo-text, .hero-title, .section-title,
   }
 }
 
-/* =========================================
-   FEATURES – Kimono grid style
-========================================= */
 .features {
   background: var(--surface2);
   padding: 80px 32px;
@@ -414,9 +405,7 @@ h1, h2, h3, h4, .logo-text, .hero-title, .section-title,
   line-height: 1.5;
 }
 
-/* =========================================
-   FOOTER
-========================================= */
+/* FOOTER */
 .footer {
   text-align: center;
   padding: 48px 32px;
@@ -427,9 +416,6 @@ h1, h2, h3, h4, .logo-text, .hero-title, .section-title,
   background: var(--surface);
 }
 
-/* =========================================
-   MODAL – Zen style
-========================================= */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -598,9 +584,7 @@ h1, h2, h3, h4, .logo-text, .hero-title, .section-title,
   transform: translateY(-1px);
 }
 
-/* =========================================
-   ADMIN PAGE – subdued tones
-========================================= */
+/* ADMIN PAGE */
 .admin-page {
   display: none;
   min-height: 100vh;
@@ -772,9 +756,6 @@ h1, h2, h3, h4, .logo-text, .hero-title, .section-title,
   }
 }
 
-/* =========================================
-   JAPANESE INK REDESIGN OVERRIDES
-========================================= */
 .header {
   background: rgba(5, 5, 5, 0.86);
   border-bottom-color: rgba(255, 250, 240, 0.14);

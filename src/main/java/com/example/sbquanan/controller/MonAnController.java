@@ -17,8 +17,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-@CrossOrigin("*") // Thêm đúng 1 dòng này để cho phép web lấy dữ liệu
+@CrossOrigin("*") // Cho phép web lấy dữ liệu
 @RestController
+@RequestMapping("/api/monan")
 public class MonAnController {
     @Autowired private MonAnRepository repository;
     @Autowired private MenuRepository menuRepository;
