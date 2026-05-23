@@ -24,7 +24,7 @@ public class MonAnController {
     @Autowired private MonAnRepository repository;
     @Autowired private MenuRepository menuRepository;
 
-    @GetMapping("/api/monan")
+    @GetMapping("")
     @Transactional(readOnly = true)
     public List<MonAnDTO> getAll() {
         return repository.findAllDoAn().stream()
@@ -32,7 +32,7 @@ public class MonAnController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/api/douong")
+    @GetMapping("/douong")
     @Transactional(readOnly = true)
     public List<MonAnDTO> getDoUong() {
         return repository.findAllDoUong().stream()
@@ -40,7 +40,7 @@ public class MonAnController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/api/monan/{id}")
+    @GetMapping("/{id}")
     @Transactional(readOnly = true)
     public ResponseEntity<MonAnDTO> getById(@PathVariable Long id) {
         return repository.findById(id)
@@ -48,7 +48,7 @@ public class MonAnController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/api/monan/menu/{menuId}")
+    @GetMapping("/menu/{menuId}")
     @Transactional(readOnly = true)
     public List<MonAnDTO> getByMenu(@PathVariable Long menuId) {
         return repository.findByMenu_MenuID(menuId).stream()
@@ -56,7 +56,7 @@ public class MonAnController {
                 .collect(Collectors.toList());
     }
 
-    @PostMapping("/api/monan")
+    @PostMapping("")
     public MonAn create(@RequestBody Map<String, Object> payload) {
         String tenMon = asString(payload.get("tenMon"));
         double gia = asDouble(payload.get("gia"));
@@ -116,7 +116,7 @@ public class MonAnController {
         return SizeDoUong.valueOf(value.toUpperCase());
     }
 
-    @DeleteMapping("/api/monan/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         if (!repository.existsById(id)) return ResponseEntity.notFound().build();
         repository.deleteById(id);
