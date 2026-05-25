@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin – Dashboard</title>
+    <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+<nav class="navbar">
+    <a class="navbar-brand" href="dashboard.html"><span class="logo-icon">🍜</span> Admin Panel</a>
+    <ul class="navbar-links">
+        <li><a href="dashboard.html" class="active">Dashboard</a></li>
+        <li><a href="manage.html">Quản lý</a></li>
+        <li><a href="../user/index.html" target="_blank">Xem trang khách</a></li>
+    </ul>
+</nav>
+
+<div class="page-header">
+    <div class="container">
+        <h1>📊 Bảng Điều Khiển</h1>
+        <p>Tổng quan hoạt động quán ăn</p>
+    </div>
+</div>
+
+<div class="container" style="padding-top:2rem; padding-bottom:3rem;">
+
+    <!-- STATS GRID -->
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card"><div class="stat-icon red">🍽️</div><div class="stat-info"><div class="stat-value" id="statMonAn">…</div><div class="stat-label">Món ăn</div></div></div>
+        <div class="stat-card"><div class="stat-icon orange">📦</div><div class="stat-info"><div class="stat-value" id="statDonHang">…</div><div class="stat-label">Đơn hàng</div></div></div>
+        <div class="stat-card"><div class="stat-icon green">👥</div><div class="stat-info"><div class="stat-value" id="statKhachHang">…</div><div class="stat-label">Khách hàng</div></div></div>
+        <div class="stat-card"><div class="stat-icon blue">💰</div><div class="stat-info"><div class="stat-value" id="statDoanhThu">…</div><div class="stat-label">Doanh thu</div></div></div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+
+        <!-- RECENT ORDERS -->
+        <div>
+            <h2 class="section-title">📋 Đơn hàng gần đây</h2>
+            <div class="table-wrap" id="recentOrders">
+                <div class="loader"><div class="spinner"></div></div>
+            </div>
+        </div>
+
+        <!-- ORDER STATUS SUMMARY -->
+        <div>
+            <h2 class="section-title">📈 Thống kê trạng thái</h2>
+            <div id="statusSummary" style="background:var(--card-bg); border-radius:var(--radius); border:1px solid var(--border); padding:1.2rem; box-shadow:var(--shadow);">
+                <div class="loader"><div class="spinner"></div></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MENU OVERVIEW -->
+    <div style="margin-top:1.5rem;">
+        <h2 class="section-title">🍱 Thực đơn hiện tại</h2>
+        <div id="menuOverview" class="menu-grid">
+            <div class="loader"><div class="spinner"></div>Đang tải...</div>
+        </div>
+    </div>
+
+</div>
+
+<div class="toast-container"></div>
+<script src="../js/main.js"></script>
+<script>
+    async function loadDashboard() {
+      try {
+        const [monan, donhang, khachhang] = await Promise.all([
+          api.get('/monan').catch(() => []),
+          api.get('/donhang').catch(() => []),
+          api.get('/khachhang').catch(() => []),
+        ]);
+
+        // STATS
+        document.getElementById('statMonAn').textContent    = monan.length;
+        document.getElementById('statDonHang').textContent  = donhang.length;
+        document.getElementById('statKhachHang').textContent = khachhang.length;
+        const doanhThu = donhang.reduce((s, d) => s + (d.tongTien || 0), 0);
+        document.getElementById('statDoanhThu').textContent = fmt(doanhThu);
+
+        // RECENT ORDERS (last 10)
+        const recent = [...donhang].reverse().slice(0, 10);
+        document.getElementById('recentOrders').innerHTML = recent.length ? `
+          <table>
+            <thead><tr><th>#</th><th>Tổng tiền</th><th>Trạng thái</th><th>Ngày</th></tr></thead>
+            <tbody>${recent.map(o => `
+              <tr>
+                <td><strong>#${o.donHangID}</strong></td>
+                <td style="color:var(--primary);font-weight:700;">${fmt(o.tongTien||0)}</td>
+                <td>${statusBadge(o.trangThai||'PENDING')}</td>
+                <td style="font-size:.8rem;color:var(--text-muted);">${fmtDate(o.ngayDat)}</td>
+              </tr>`).join('')}</tbody>
+          </table>` : '<div class="loader">Chưa có đơn hàng.</div>';
+
+        // STATUS SUMMARY
+        const statusCount = {};
+        donhang.forEach(d => { const s = d.trangThai || 'PENDING'; statusCount[s] = (statusCount[s]||0)+1; });
+        document.getElementById('statusSummary').innerHTML = Object.entries(statusCount).length
+          ? Object.entries(statusCount).map(([s, c]) => `
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;border-bottom:1px dashed var(--border);">
+                ${statusBadge(s)} <strong>${c} đơn</strong>
+              </div>`).join('')
+          : '<p style="color:var(--text-muted);text-align:center;padding:1rem;">Chưa có dữ liệu</p>';
+
+        // MENU OVERVIEW (first 8)
+        const items = monan.slice(0, 8);
+        document.getElementById('menuOverview').innerHTML = items.length
+          ? items.map(item => `
+              <div class="card">
+                <div class="card-img">${item.hinhAnh ? `<img src="${item.hinhAnh}" alt="${item.tenMon}" onerror="this.parentElement.textContent='${getFoodEmoji(item.tenMon)}'" />` : getFoodEmoji(item.tenMon)}</div>
+                <div class="card-body">
+                  <div class="card-name">${item.tenMon}</div>
+                  <div class="card-footer">
+                    <span class="card-price">${fmt(item.gia)}</span>
+                    ${statusBadge(item.trangThai || 'AVAILABLE')}
+                  </div>
+                </div>
+              </div>`).join('')
+          : '<div class="loader">Chưa có món ăn nào.</div>';
+
+      } catch(e) {
+        toast('Lỗi kết nối server Java (localhost:8080)', 'error');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadDashboard);
+</script>
+</body>
+</html>
