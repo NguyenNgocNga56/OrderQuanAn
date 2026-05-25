@@ -40,11 +40,16 @@ public class OrderService {
         donHang.setTrangThai(TrangThaiDonHang.CHO_XAC_NHAN);
         donHang.setNgayDat(LocalDateTime.now());
 
-        if (req.getKhachHangId() != null) {
-            KhachHang kh = khachHangRepo.findById(req.getKhachHangId().longValue())
+        KhachHang khachHang = null;
+        if (req.getSdtKhachHang() != null && !req.getSdtKhachHang().isBlank()) {
+            khachHang = khachHangRepo.findBySdt(req.getSdtKhachHang().trim()).orElse(null);
+        } else if (req.getKhachHangId() != null) {
+            khachHang = khachHangRepo.findById(req.getKhachHangId().longValue())
                     .orElseThrow(() -> new ResponseStatusException(
                             HttpStatus.NOT_FOUND, "Khong tim thay khach hang"));
-            donHang.setKhachHang(kh);
+        }
+        if (khachHang != null) {
+            donHang.setKhachHang(khachHang);
         }
         if (req.getNhanVienId() != null) {
             NhanVien nv = nhanVienRepo.findById(req.getNhanVienId().longValue())
@@ -88,6 +93,14 @@ public class OrderService {
         // 3. Cap nhat TongTien
         donHang.setTongTien(tongTien);
         donHang = donHangRepo.save(donHang);
+
+        if (donHang.getKhachHang() != null) {
+            KhachHang kh = donHang.getKhachHang();
+            int diemCong = (int) (tongTien / 10000);
+            kh.setDiemTichLuy(kh.getDiemTichLuy() + diemCong);
+            kh.capNhatHangKhachHang();
+            khachHangRepo.save(kh);
+        }
 
         // 4. Tao HoaDon
         HoaDon hoaDon = new HoaDon();

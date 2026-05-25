@@ -12,6 +12,8 @@ public class OrderRequest {
     private Integer banId;
     private Integer khachHangId;   // nullable – khách vãng lai
     private Integer nhanVienId;    // nullable
+    private String sdtKhachHang;   // nullable - dung cho gio hang khach
+    private String maKhuyenMai;    // nullable - tam thoi chua ap dung giam gia
 
     private List<OrderItemRequest> items;
 
