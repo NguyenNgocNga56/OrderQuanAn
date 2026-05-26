@@ -147,4 +147,9 @@ function renderSuccess(order) {
             <strong>Tổng cộng:</strong>
             <span style="font-size:1.3rem;font-weight:800;color:var(--accent);">${fmtVND(order.tongTien)}</span>
         </div>`;
+         // THÊM VÀO: sinh QR sau khi render xong
+            const qrData  = encodeURIComponent(`QuanAn67 - Don #${order.donHangID} - Thanh toan: ${order.tongTien}VND`);
+            document.getElementById('qrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=170x170&data=${qrData}&color=8b0000&bgcolor=ffffff&margin=8`;
+            document.getElementById('qrLabel').textContent = `Đơn #${order.donHangID} · ${fmtVND(order.tongTien)}`;
+        }
 }
