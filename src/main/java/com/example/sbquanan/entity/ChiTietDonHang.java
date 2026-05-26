@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 public class ChiTietDonHang {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "CTDHID")
+    @Column(name = "CTDH_ID")
     private Long ctdhID;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -25,10 +25,10 @@ public class ChiTietDonHang {
     @Column(name = "SoLuong")
     private int soLuong;
 
-    @Column(name = "GiaBan")
+    @Column(name = "DonGia")
     private double giaBan;
 
-    @Column(name = "TongTien")
+    @Column(name = "ThanhTien", insertable = false, updatable = false)
     private double tongTien;
 
     @PrePersist

@@ -13,7 +13,8 @@ public class OrderRequest {
     private Integer khachHangId;   // nullable – khách vãng lai
     private Integer nhanVienId;    // nullable
     private String sdtKhachHang;   // nullable - dung cho gio hang khach
-    private String maKhuyenMai;    // nullable - tam thoi chua ap dung giam gia
+    private Long khuyenMaiId;      // nullable - UI moi chon tu danh sach khuyen mai
+    private String maKhuyenMai;    // nullable - tuong thich neu FE gui ten/ma khuyen mai
 
     private List<OrderItemRequest> items;
 

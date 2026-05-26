@@ -32,7 +32,7 @@ public class HoaDon {
     @Column(name = "GiamGia")
     private double giamGia;
 
-    @Column(name = "ThanhTien")
+    @Column(name = "ThanhTien", insertable = false, updatable = false)
     private double thanhTien;
 
     @PrePersist
