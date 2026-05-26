@@ -12,8 +12,10 @@ import java.util.List;
 public class OrderResponse {
 
     private Integer donHangID;
+    private Long hoaDonID;
     private String  trangThai;
     private double  tongTien;
+    private double  giamGia;
     private LocalDateTime ngayDat;
 
     private String tenKhachHang;

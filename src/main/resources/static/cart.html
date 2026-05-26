@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giỏ hàng – QuanAn67</title>
+    <title>Giỏ hàng – QuanAnPro</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
@@ -15,20 +15,20 @@
 <header class="header">
     <div class="header-inner">
         <a href="/khachhang.html" class="logo">
-            <span class="logo-icon"></span>
+            <span class="logo-icon">🍜</span>
             <span class="logo-text">QuanAn<strong>Pro</strong></span>
         </a>
         <nav class="nav">
-            <a href="/khachhang.html"> Trang chủ</a>
-            <a href="/khachhang.html#menu-section"> Thực đơn</a>
-            <a href="/cart.html" class="nav-active"> Giỏ hàng</a>
+            <a href="/khachhang.html">🏠 Trang chủ</a>
+            <a href="/khachhang.html#menu-section">🍽 Thực đơn</a>
+            <a href="/cart.html" class="nav-active">🛒 Giỏ hàng</a>
         </nav>
     </div>
 </header>
 
 <div style="padding-top:64px; max-width:1100px; margin:0 auto; padding-left:24px; padding-right:24px; padding-bottom:60px;">
 
-    <h1 style="font-family:'Playfair Display',serif; font-size:2rem; margin:40px 0 8px;"> Giỏ hàng của bạn</h1>
+    <h1 style="font-family:'Playfair Display',serif; font-size:2rem; margin:40px 0 8px;">🛒 Giỏ hàng của bạn</h1>
     <p style="color:var(--text-muted); margin-bottom:32px;">Kiểm tra lại đơn hàng trước khi đặt món</p>
 
     <div class="cart-page-grid">
@@ -41,18 +41,59 @@
         <!-- THÔNG TIN ĐẶT HÀNG -->
         <div class="cart-page-info">
             <div class="info-card">
-                <h3 style="font-family:'Playfair Display',serif; margin-bottom:20px;"> Thông tin đặt hàng</h3>
+                <h3 style="font-family:'Playfair Display',serif; margin-bottom:20px;">📋 Thông tin đặt hàng</h3>
 
+                <!-- SĐT khách hàng -->
                 <div class="form-group">
-                    <label>Khách hàng</label>
-                    <select class="kh-select" id="selKhachHang">
-                        <option value="">-- Khách vãng lai --</option>
-                    </select>
+                    <label>Số điện thoại <span style="color:var(--text-muted);font-size:0.82rem;">(tuỳ chọn – để tích điểm)</span></label>
+                    <div style="display:flex;gap:8px;">
+                        <input type="tel" id="inputSdt" placeholder="0901234567"
+                               style="flex:1;"
+                               oninput="resetKhachHang()"
+                               onkeydown="if(event.key==='Enter') traCuuKhach()">
+                        <button onclick="traCuuKhach()" id="btnTraCuu"
+                                style="background:var(--accent);color:#fff;border:none;border-radius:8px;padding:0 14px;cursor:pointer;font-size:0.88rem;white-space:nowrap;">
+                            Tra cứu
+                        </button>
+                    </div>
+                    <!-- Kết quả tra cứu khách hàng -->
+                    <div id="khachInfo" style="display:none;margin-top:10px;background:var(--surface2);border-radius:8px;padding:10px 14px;font-size:0.88rem;">
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <span id="khachHang" style="font-size:1.4rem;"></span>
+                            <div>
+                                <div style="font-weight:600;" id="khachTen"></div>
+                                <div style="color:var(--text-muted);" id="khachLoai"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Không tìm thấy → gợi ý đăng ký -->
+                    <div id="khachNotFound" style="display:none;margin-top:8px;font-size:0.82rem;color:var(--text-muted);">
+                        Số điện thoại chưa đăng ký.
+                        <a href="/khachhang.html" style="color:var(--accent);">Đăng ký thành viên →</a>
+                    </div>
                 </div>
-                <div class="form-group" style="margin-top:12px;">
-                    <label>Nhân viên phục vụ</label>
-                    <select class="kh-select" id="selNhanVien">
-                        <option value="">-- Chọn nhân viên --</option>
+
+                <!-- Khuyến mãi -->
+                <div class="form-group" style="margin-top:14px;">
+                    <label>🎁 Áp dụng khuyến mãi</label>
+                    <select id="selKhuyenMai" onchange="applyKhuyenMai()"
+                            style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:0.9rem;">
+                        <option value="">-- Không dùng khuyến mãi --</option>
+                    </select>
+                    <!-- Thông tin KM đang chọn -->
+                    <div id="kmInfo" style="display:none;margin-top:8px;background:rgba(215,0,0,0.08);border:1px solid rgba(215,0,0,0.2);border-radius:8px;padding:8px 12px;font-size:0.85rem;color:var(--accent);">
+                        <span id="kmInfoText"></span>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top:14px;">
+                    <label>Phuong thuc thanh toan</label>
+                    <select id="selPhuongThuc"
+                            style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:0.9rem;">
+                        <option value="TIEN_MAT">Tien mat</option>
+                        <option value="CHUYEN_KHOAN">Chuyen khoan</option>
+                        <option value="THE_NGAN_HANG">The ngan hang</option>
+                        <option value="VI_DIEN_TU">Vi dien tu</option>
                     </select>
                 </div>
 
@@ -60,10 +101,13 @@
 
                 <div class="summary-row"><span>Số món:</span><span id="sumMon">0</span></div>
                 <div class="summary-row"><span>Tạm tính:</span><span id="sumTam">0 đ</span></div>
+                <div class="summary-row" id="rowGiamGia" style="display:none;color:var(--accent);">
+                    <span>Giảm giá:</span><span id="sumGiam">0 đ</span>
+                </div>
                 <div class="summary-row summary-total"><span>Tổng cộng:</span><span id="sumTotal">0 đ</span></div>
 
                 <button class="btn-primary" style="width:100%;margin-top:20px;font-size:1rem;padding:15px;" onclick="datMon()">
-                     Đặt món ngay
+                    ✅ Đặt món ngay
                 </button>
                 <a href="/khachhang.html#menu-section" class="btn-ghost" style="display:block;text-align:center;margin-top:10px;padding:12px;">
                     ← Thêm món
@@ -78,18 +122,308 @@
     <div class="modal-box" style="max-width:560px;">
         <button class="modal-close" onclick="closeModal('successModal')">✕</button>
         <div class="modal-header">
-            <div class="modal-icon"></div>
+            <div class="modal-icon">🎉</div>
             <h2>Đặt hàng thành công!</h2>
         </div>
         <div id="successBody"></div>
         <div style="display:flex;gap:10px;margin-top:20px;">
-            <a href="/khachhang.html" class="btn-ghost" style="flex:1;text-align:center;padding:12px;text-decoration:none;"> Về trang chủ</a>
+            <a href="/khachhang.html" class="btn-ghost" style="flex:1;text-align:center;padding:12px;text-decoration:none;">🏠 Về trang chủ</a>
             <button class="btn-primary" style="flex:1;" onclick="closeModal('successModal')">Đặt thêm</button>
         </div>
     </div>
 </div>
 
 <script src="/js/khachhang.js"></script>
-<script src="/js/cart.js"></script>
+<script>
+// ============================================================
+// STATE trang cart
+// ============================================================
+let _khachHangId  = null;   // ID khách tìm được qua SĐT
+let _giamGia      = 0;      // số tiền giảm (đã tính)
+let _kmId         = null;   // ID khuyến mãi đang chọn
+let _allKm        = [];     // danh sách KM tải từ API
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+    renderCartPage();
+    loadKhuyenMaiSelect();
+});
+
+// ============================================================
+// RENDER GIỎ HÀNG
+// ============================================================
+function renderCartPage() {
+    const items    = Cart.getAll();
+    const container= document.getElementById('cartPageItems');
+    const sumMon   = document.getElementById('sumMon');
+    const sumTam   = document.getElementById('sumTam');
+
+    const subtotal = Cart.total();
+    const count    = items.reduce((s,i) => s + i.qty, 0);
+    sumMon.textContent = count + ' món';
+    sumTam.textContent = fmtVND(subtotal);
+    updateTotal();
+
+    if (!items.length) {
+        container.innerHTML = `<div style="text-align:center;padding:4rem;color:var(--text-muted);">
+            <div style="font-size:3rem;margin-bottom:1rem;">🛒</div>
+            <p>Giỏ hàng trống. <a href="/khachhang.html#menu-section" style="color:var(--accent);">Chọn món ngay →</a></p>
+        </div>`;
+        return;
+    }
+
+    container.innerHTML = `
+        <table class="cart-table">
+            <thead><tr>
+                <th colspan="2">Món ăn</th>
+                <th style="text-align:center">Số lượng</th>
+                <th style="text-align:right">Đơn giá</th>
+                <th style="text-align:right">Thành tiền</th>
+                <th></th>
+            </tr></thead>
+            <tbody>
+            ${items.map(i => `<tr>
+                <td style="width:52px;padding-right:0;">
+                    ${i.hinhAnh
+                        ? `<img src="${i.hinhAnh}" style="width:44px;height:44px;border-radius:8px;object-fit:cover;" onerror="this.style.display='none'">`
+                        : `<span style="font-size:1.8rem;">🍽</span>`}
+                </td>
+                <td><strong>${i.tenMon}</strong></td>
+                <td style="text-align:center;">
+                    <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
+                        <button class="qty-btn" onclick="Cart.setQty(${i.monID},${i.qty-1});renderCartPage()">−</button>
+                        <span>${i.qty}</span>
+                        <button class="qty-btn" onclick="Cart.setQty(${i.monID},${i.qty+1});renderCartPage()">+</button>
+                    </div>
+                </td>
+                <td style="text-align:right;">${fmtVND(i.gia)}</td>
+                <td style="text-align:right;color:var(--accent);font-weight:700;">${fmtVND(i.gia*i.qty)}</td>
+                <td><button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1rem;" onclick="Cart.remove(${i.monID});renderCartPage()">✕</button></td>
+            </tr>`).join('')}
+            </tbody>
+        </table>
+        <div style="margin-top:12px;">
+            <button onclick="Cart.clear();renderCartPage();" style="background:none;border:1px solid var(--border);color:var(--text-muted);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:0.88rem;">
+                🗑 Xoá tất cả
+            </button>
+        </div>`;
+}
+
+// ============================================================
+// TRA CỨU KHÁCH HÀNG THEO SĐT
+// ============================================================
+function resetKhachHang() {
+    _khachHangId = null;
+    document.getElementById('khachInfo').style.display     = 'none';
+    document.getElementById('khachNotFound').style.display = 'none';
+    // reset KM về danh sách đầy đủ
+    applyKhuyenMai();
+}
+
+async function traCuuKhach() {
+    const sdt = document.getElementById('inputSdt').value.trim();
+    if (!sdt) return;
+
+    const btnTC = document.getElementById('btnTraCuu');
+    btnTC.textContent = '...';
+    btnTC.disabled    = true;
+
+    try {
+        const res = await fetch(`/api/khachhang/sdt/${encodeURIComponent(sdt)}`);
+        if (!res.ok) throw new Error('not found');
+        const kh = await res.json();
+
+        _khachHangId = kh.id;
+
+        const hangMap  = { DONG:'🥉 Đồng', BAC:'🥈 Bạc', VANG:'🥇 Vàng', KIM_CUONG:'💎 Kim Cương', THUONG:'👤 Thường', THANH_VIEN:'⭐ Thành viên', VIP:'💎 VIP' };
+        const giam = { DONG:0, THUONG:0, BAC:5, THANH_VIEN:5, VANG:10, VIP:10, KIM_CUONG:15 }[kh.loaiKhachHang] || 0;
+
+        document.getElementById('khachHang').textContent  = hangMap[kh.loaiKhachHang] || '👤';
+        document.getElementById('khachTen').textContent   = kh.hoTen + ` — ${kh.diemTichLuy || 0} điểm`;
+        document.getElementById('khachLoai').textContent  = giam > 0 ? `Ưu đãi thành viên: -${giam}% mỗi đơn` : 'Hạng Đồng – tích điểm để lên hạng';
+        document.getElementById('khachInfo').style.display     = 'block';
+        document.getElementById('khachNotFound').style.display = 'none';
+
+    } catch {
+        _khachHangId = null;
+        document.getElementById('khachInfo').style.display     = 'none';
+        document.getElementById('khachNotFound').style.display = 'block';
+    } finally {
+        btnTC.textContent = 'Tra cứu';
+        btnTC.disabled    = false;
+        applyKhuyenMai();
+    }
+}
+
+// ============================================================
+// LOAD KHUYẾN MÃI VÀO SELECT
+// ============================================================
+async function loadKhuyenMaiSelect() {
+    try {
+        const res  = await fetch('/api/khuyenmai');
+        const body = await res.json();
+        // KhuyenMaiController trả về ApiResponse { data: [...] }
+        _allKm = Array.isArray(body) ? body : (body.data || []);
+
+        const sel = document.getElementById('selKhuyenMai');
+        const now = new Date();
+
+        _allKm.forEach(km => {
+            const hetHan = km.ngayKetThuc ? new Date(km.ngayKetThuc) : null;
+            const hopLe  = !hetHan || hetHan >= now;
+            if (!hopLe) return; // ẩn KM hết hạn
+
+            const gia = km.giaTri ?? km.giaTriKhuyenMai ?? 0;
+            const loai = km.loaiKhuyenMai;
+            const label = loai === 'PHAN_TRAM' ? `Giảm ${gia}%` : `Giảm ${fmtVND(gia)}`;
+            const o = document.createElement('option');
+            o.value       = km.khuyenMaiID;
+            o.dataset.loai= loai;
+            o.dataset.gia = gia;
+            o.textContent = `${km.tenKhuyenMai || 'Ưu đãi'} — ${label}`;
+            sel.appendChild(o);
+        });
+    } catch {
+        // không tải được KM thì để trống, không block đặt hàng
+    }
+}
+
+// ============================================================
+// ÁP DỤNG KHUYẾN MÃI → CẬP NHẬT TỔNG
+// ============================================================
+function applyKhuyenMai() {
+    const sel      = document.getElementById('selKhuyenMai');
+    const kmInfo   = document.getElementById('kmInfo');
+    const kmInfoTx = document.getElementById('kmInfoText');
+    const rowGiam  = document.getElementById('rowGiamGia');
+    const sumGiam  = document.getElementById('sumGiam');
+    const subtotal = Cart.total();
+
+    if (!sel.value) {
+        _giamGia = 0;
+        _kmId    = null;
+        kmInfo.style.display  = 'none';
+        rowGiam.style.display = 'none';
+        updateTotal();
+        return;
+    }
+
+    const opt  = sel.options[sel.selectedIndex];
+    const loai = opt.dataset.loai;
+    const gia  = parseFloat(opt.dataset.gia) || 0;
+
+    _kmId = parseInt(sel.value);
+
+    if (loai === 'PHAN_TRAM') {
+        _giamGia = Math.round(subtotal * gia / 100);
+        kmInfoTx.textContent = `Giảm ${gia}% → Tiết kiệm ${fmtVND(_giamGia)}`;
+    } else {
+        _giamGia = Math.min(gia, subtotal); // không giảm vượt tổng đơn
+        kmInfoTx.textContent = `Giảm trực tiếp ${fmtVND(_giamGia)}`;
+    }
+
+    kmInfo.style.display  = 'block';
+    rowGiam.style.display = '';
+    sumGiam.textContent   = '−' + fmtVND(_giamGia);
+    updateTotal();
+}
+
+function updateTotal() {
+    const subtotal = Cart.total();
+    document.getElementById('sumTotal').textContent = fmtVND(Math.max(0, subtotal - _giamGia));
+}
+
+// ============================================================
+// ĐẶT MÓN → POST /orders
+// ============================================================
+async function datMon() {
+    const items = Cart.getAll();
+    if (!items.length) { alert('Giỏ hàng trống!'); return; }
+
+    const phuongThuc = document.getElementById('selPhuongThuc')?.value || 'TIEN_MAT';
+
+    const payload = {
+        khachHangId: _khachHangId || null,
+        nhanVienId:  null,
+        khuyenMaiId: _kmId || null,
+        items: items.map(i => ({ monId: i.monID, soLuong: i.qty }))
+    };
+
+    const btn = document.querySelector('button.btn-primary[onclick="datMon()"]');
+    if (btn) { btn.disabled = true; btn.textContent = 'Đang đặt...'; }
+
+    try {
+        const res = await fetch('/orders', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify(payload)
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || 'Lỗi server');
+        }
+        const order = await res.json();
+        const ttRes = await fetch(`/api/thanhtoan/donhang/${order.donHangID}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phuongThuc, soTien: order.tongTien })
+        });
+        if (!ttRes.ok) {
+            const err = await ttRes.json().catch(() => ({}));
+            throw new Error(err.message || 'Thanh toan that bai');
+        }
+        const payment = await ttRes.json();
+        Cart.clear();
+        renderSuccess(order, payment.data);
+        _giamGia = 0; _kmId = null; _khachHangId = null;
+        renderCartPage();
+        openModal('successModal');
+    } catch (e) {
+        alert('Lỗi khi đặt hàng: ' + e.message + '\n(Kiểm tra server đang chạy!)');
+    } finally {
+        if (btn) { btn.disabled = false; btn.textContent = '✅ Đặt món ngay'; }
+    }
+}
+
+// ============================================================
+// MODAL SUCCESS
+// ============================================================
+function renderSuccess(order, payment) {
+    const body = document.getElementById('successBody');
+    const rows = (order.chiTiet || []).map(ct => `
+        <tr>
+            <td style="padding:6px 0;">${ct.tenMon}</td>
+            <td style="text-align:center;">x${ct.soLuong}</td>
+            <td style="text-align:right;color:var(--accent);font-weight:700;">${fmtVND(ct.thanhTien)}</td>
+        </tr>`).join('');
+
+    const giamRow = _giamGia > 0
+        ? `<tr><td colspan="2" style="color:var(--accent);">Giảm giá</td><td style="text-align:right;color:var(--accent);">−${fmtVND(_giamGia)}</td></tr>`
+        : '';
+
+    const diemMessage = payment?.diemCong > 0
+        ? `<p style="text-align:center;margin-top:10px;font-size:0.85rem;color:var(--text-muted);">Da cong ${payment.diemCong} diem sau khi thanh toan.</p>`
+        : '';
+
+    body.innerHTML = `
+        <p style="text-align:center;margin-bottom:12px;">Mã đơn: <strong style="color:var(--accent);font-size:1.1rem;">#${order.donHangID}</strong></p>
+        <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
+            <thead><tr style="border-bottom:1px solid var(--border);">
+                <th style="text-align:left;padding:4px 0;">Món</th>
+                <th style="text-align:center;">SL</th>
+                <th style="text-align:right;">Thành tiền</th>
+            </tr></thead>
+            <tbody>${rows}${giamRow}</tbody>
+        </table>
+        <div style="border-top:2px solid var(--border);margin-top:12px;padding-top:12px;display:flex;justify-content:space-between;align-items:center;">
+            <strong>Tổng cộng:</strong>
+            <span style="font-size:1.3rem;font-weight:800;color:var(--accent);">${fmtVND(order.tongTien)}</span>
+        </div>
+        ${_khachHangId ? '<p style="text-align:center;margin-top:10px;font-size:0.85rem;color:var(--text-muted);">✨ Điểm tích lũy đã được cộng vào tài khoản của bạn!</p>' : ''}`;
+    body.innerHTML += diemMessage;
+}
+</script>
 </body>
 </html>
