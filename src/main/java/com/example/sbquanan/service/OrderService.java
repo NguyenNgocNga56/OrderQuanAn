@@ -43,7 +43,11 @@ public class OrderService {
 
         KhachHang khachHang = null;
         if (req.getSdtKhachHang() != null && !req.getSdtKhachHang().isBlank()) {
-            khachHang = khachHangRepo.findBySdt(req.getSdtKhachHang().trim()).orElse(null);
+            // Khách nhập SĐT → bắt buộc phải tồn tại trong DB để tích điểm
+            khachHang = khachHangRepo.findBySdt(req.getSdtKhachHang().trim())
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            "Khong tim thay khach hang voi SDT: " + req.getSdtKhachHang().trim()));
         } else if (req.getKhachHangId() != null) {
             khachHang = khachHangRepo.findById(req.getKhachHangId().longValue())
                     .orElseThrow(() -> new ResponseStatusException(
