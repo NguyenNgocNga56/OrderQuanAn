@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giỏ hàng – QuanAnPro</title>
+    <title>Giỏ hàng – QuanAn67</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
@@ -16,12 +16,12 @@
     <div class="header-inner">
         <a href="/khachhang.html" class="logo">
             <span class="logo-icon">🍜</span>
-            <span class="logo-text">QuanAn<strong>Pro</strong></span>
+            <span class="logo-text">QuanAn<strong>67</strong></span>
         </a>
         <nav class="nav">
-            <a href="/khachhang.html">🏠 Trang chủ</a>
-            <a href="/khachhang.html#menu-section">🍽 Thực đơn</a>
-            <a href="/cart.html" class="nav-active">🛒 Giỏ hàng</a>
+            <a href="/khachhang.html"> Trang chủ</a>
+            <a href="/khachhang.html#menu-section"> Thực đơn</a>
+            <a href="/cart.html" class="nav-active">Giỏ hàng</a>
         </nav>
     </div>
 </header>
@@ -41,7 +41,7 @@
         <!-- THÔNG TIN ĐẶT HÀNG -->
         <div class="cart-page-info">
             <div class="info-card">
-                <h3 style="font-family:'Playfair Display',serif; margin-bottom:20px;">📋 Thông tin đặt hàng</h3>
+                <h3 style="font-family:'Playfair Display',serif; margin-bottom:20px;"> Thông tin đặt hàng</h3>
 
                 <!-- SĐT khách hàng -->
                 <div class="form-group">
@@ -75,7 +75,7 @@
 
                 <!-- Khuyến mãi -->
                 <div class="form-group" style="margin-top:14px;">
-                    <label>🎁 Áp dụng khuyến mãi</label>
+                    <label> Áp dụng khuyến mãi</label>
                     <select id="selKhuyenMai" onchange="applyKhuyenMai()"
                             style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:0.9rem;">
                         <option value="">-- Không dùng khuyến mãi --</option>
@@ -107,7 +107,7 @@
                 <div class="summary-row summary-total"><span>Tổng cộng:</span><span id="sumTotal">0 đ</span></div>
 
                 <button class="btn-primary" style="width:100%;margin-top:20px;font-size:1rem;padding:15px;" onclick="datMon()">
-                    ✅ Đặt món ngay
+                     Đặt món ngay
                 </button>
                 <a href="/khachhang.html#menu-section" class="btn-ghost" style="display:block;text-align:center;margin-top:10px;padding:12px;">
                     ← Thêm món
@@ -126,6 +126,16 @@
             <h2>Đặt hàng thành công!</h2>
         </div>
         <div id="successBody"></div>
+
+        <!-- THÊM VÀO: QR thanh toán -->
+        <div id="qrSection" style="margin-top:20px;text-align:center;padding:16px 0;border-top:1px solid var(--border);">
+            <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;">Quét mã để thanh toán</p>
+            <div style="display:inline-block;background:#fff;padding:10px;border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,0.15);">
+                <img id="qrImg" src="" alt="QR" style="width:170px;height:170px;display:block;">
+            </div>
+            <p id="qrLabel" style="margin-top:8px;font-size:0.85rem;color:var(--text-muted);"></p>
+        </div>
+        <!-- sua o day !-->
         <div style="display:flex;gap:10px;margin-top:20px;">
             <a href="/khachhang.html" class="btn-ghost" style="flex:1;text-align:center;padding:12px;text-decoration:none;">🏠 Về trang chủ</a>
             <button class="btn-primary" style="flex:1;" onclick="closeModal('successModal')">Đặt thêm</button>
@@ -347,9 +357,14 @@
         if (!items.length) { alert('Giỏ hàng trống!'); return; }
 
         const sdtNhap = document.getElementById('inputSdt').value.trim();
+        // Nếu có nhập SĐT nhưng chưa tra cứu (hoặc đã đổi sau tra cứu) → tự động tra cứu trước
         if (sdtNhap && !_khachHangId) {
-            alert('Số điện thoại không tìm thấy trong hệ thống.\nVui lòng nhấn Tra cứu lại, hoặc xoá SĐT để đặt không tích điểm.');
-            return;
+            await traCuuKhach();
+            // Sau khi tra cứu: nếu vẫn không tìm thấy → _khachHangId vẫn null → block
+            if (document.getElementById('inputSdt').value.trim() && !_khachHangId) {
+                alert('Số điện thoại không tìm thấy trong hệ thống.\nVui lòng kiểm tra lại hoặc xoá SĐT để đặt không tích điểm.');
+                return;
+            }
         }
 
         const phuongThuc = document.getElementById('selPhuongThuc')?.value || 'TIEN_MAT';
