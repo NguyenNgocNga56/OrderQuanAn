@@ -25,6 +25,7 @@ public class OrderService {
     @Autowired private KhachHangRepository      khachHangRepo;
     @Autowired private NhanVienRepository       nhanVienRepo;
     @Autowired private HoaDonRepository         hoaDonRepo;
+    @Autowired private KhuyenMaiRepository      khuyenMaiRepo;
 
     // POST /orders
     @Transactional
@@ -40,11 +41,20 @@ public class OrderService {
         donHang.setTrangThai(TrangThaiDonHang.CHO_XAC_NHAN);
         donHang.setNgayDat(LocalDateTime.now());
 
-        if (req.getKhachHangId() != null) {
-            KhachHang kh = khachHangRepo.findById(req.getKhachHangId().longValue())
+        KhachHang khachHang = null;
+        if (req.getSdtKhachHang() != null && !req.getSdtKhachHang().isBlank()) {
+            // Khách nhập SĐT → bắt buộc phải tồn tại trong DB để tích điểm
+            khachHang = khachHangRepo.findBySdt(req.getSdtKhachHang().trim())
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            "Khong tim thay khach hang voi SDT: " + req.getSdtKhachHang().trim()));
+        } else if (req.getKhachHangId() != null) {
+            khachHang = khachHangRepo.findById(req.getKhachHangId().longValue())
                     .orElseThrow(() -> new ResponseStatusException(
                             HttpStatus.NOT_FOUND, "Khong tim thay khach hang"));
-            donHang.setKhachHang(kh);
+        }
+        if (khachHang != null) {
+            donHang.setKhachHang(khachHang);
         }
         if (req.getNhanVienId() != null) {
             NhanVien nv = nhanVienRepo.findById(req.getNhanVienId().longValue())
@@ -93,11 +103,15 @@ public class OrderService {
         HoaDon hoaDon = new HoaDon();
         hoaDon.setDonHang(donHang);
         hoaDon.setTongTien(tongTien);
-        hoaDon.setGiamGia(0);
+        apDungKhuyenMai(req, hoaDon, tongTien);
         hoaDon.setNgayLap(LocalDateTime.now());
-        hoaDonRepo.save(hoaDon);
+        hoaDon = hoaDonRepo.save(hoaDon);
 
-        return buildResponse(donHang, chiTiets);
+        OrderResponse response = buildResponse(donHang, chiTiets);
+        response.setHoaDonID(hoaDon.getHoaDonID());
+        response.setGiamGia(hoaDon.getGiamGia());
+        response.setTongTien(tinhThanhTien(hoaDon));
+        return response;
     }
 
     // GET /orders
@@ -124,8 +138,16 @@ public class OrderService {
         OrderResponse res = new OrderResponse();
         // FIX: donHangID la Long, cast sang Integer cho DTO
         res.setDonHangID(dh.getDonHangID() != null ? dh.getDonHangID().intValue() : null);
+        hoaDonRepo.findByDonHang_DonHangID(dh.getDonHangID())
+                .ifPresent(hoaDon -> {
+                    res.setHoaDonID(hoaDon.getHoaDonID());
+                    res.setGiamGia(hoaDon.getGiamGia());
+                    res.setTongTien(tinhThanhTien(hoaDon));
+                });
         res.setTrangThai(dh.getTrangThai() != null ? dh.getTrangThai().name() : null);
-        res.setTongTien(dh.getTongTien());
+        if (res.getHoaDonID() == null) {
+            res.setTongTien(dh.getTongTien());
+        }
         res.setNgayDat(dh.getNgayDat());
 
         if (dh.getKhachHang() != null) res.setTenKhachHang(dh.getKhachHang().getHoTen());
@@ -145,5 +167,43 @@ public class OrderService {
 
         res.setChiTiet(details);
         return res;
+    }
+
+    private void apDungKhuyenMai(OrderRequest req, HoaDon hoaDon, double tongTien) {
+        KhuyenMai khuyenMai = timKhuyenMai(req);
+
+        if (khuyenMai == null) {
+            hoaDon.setGiamGia(0);
+            return;
+        }
+        if (!khuyenMai.hopLe()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ma khuyen mai da het han hoac chua ap dung");
+        }
+
+        double giamGia = switch (khuyenMai.getLoaiKhuyenMai()) {
+            case PHAN_TRAM -> tongTien * khuyenMai.getGiaTri() / 100;
+            case GIAM_TIEN_MAT, SO_TIEN -> khuyenMai.getGiaTri();
+        };
+
+        hoaDon.setKhuyenMai(khuyenMai);
+        hoaDon.setGiamGia(Math.min(Math.max(giamGia, 0), tongTien));
+    }
+
+    private double tinhThanhTien(HoaDon hoaDon) {
+        double thanhTien = hoaDon.getThanhTien();
+        if (thanhTien > 0) return thanhTien;
+        return Math.max(hoaDon.getTongTien() - hoaDon.getGiamGia(), 0);
+    }
+
+    private KhuyenMai timKhuyenMai(OrderRequest req) {
+        if (req.getKhuyenMaiId() != null) {
+            return khuyenMaiRepo.findById(req.getKhuyenMaiId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Khong tim thay khuyen mai"));
+        }
+        if (req.getMaKhuyenMai() != null && !req.getMaKhuyenMai().isBlank()) {
+            return khuyenMaiRepo.findByTenKhuyenMaiIgnoreCase(req.getMaKhuyenMai().trim())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Khong tim thay ma khuyen mai"));
+        }
+        return null;
     }
 }
