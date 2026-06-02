@@ -3,9 +3,11 @@ package com.example.sbquanan.service;
 import com.example.sbquanan.entity.MonAn;
 import java.util.List;
 import java.util.Optional;
-
+ 
 public interface MonAnService {
     List<MonAn> getAll();
+    List<MonAn> getAllDoAn();      
+    List<MonAn> getAllDoUong();    
     Optional<MonAn> getById(Long id);
     List<MonAn> getByMenu(Long menuId);
     MonAn create(MonAn monAn);

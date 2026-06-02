@@ -7,31 +7,47 @@ import com.example.sbquanan.service.MonAnService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+ 
 import java.util.List;
 import java.util.Optional;
-
+ 
 @Service
 @Transactional
 public class MonAnServiceImpl implements MonAnService {
-
+ 
     @Autowired
     private MonAnRepository repository;
-
+ 
     @Override
-    public List<MonAn> getAll() { return repository.findAll(); }
-
+    public List<MonAn> getAll() {
+        return repository.findAll();
+    }
+ 
+    @Override // ★ MỚI
+    public List<MonAn> getAllDoAn() {
+        return repository.findAllDoAn();
+    }
+ 
+    @Override // ★ MỚI
+    public List<MonAn> getAllDoUong() {
+        return repository.findAllDoUong();
+    }
+ 
     @Override
-    public Optional<MonAn> getById(Long id) { return repository.findById(id); }
-
+    public Optional<MonAn> getById(Long id) {
+        return repository.findById(id);
+    }
+ 
     @Override
     public List<MonAn> getByMenu(Long menuId) {
         return repository.findByMenu_MenuID(menuId);
     }
-
+ 
     @Override
-    public MonAn create(MonAn monAn) { return repository.save(monAn); }
-
+    public MonAn create(MonAn monAn) {
+        return repository.save(monAn);
+    }
+ 
     @Override
     public MonAn update(Long id, MonAn updated) {
         return repository.findById(id)
@@ -44,9 +60,10 @@ public class MonAnServiceImpl implements MonAnService {
                     existing.setMenu(updated.getMenu());
                     return repository.save(existing);
                 })
-                .orElseThrow(() -> new ResourceNotFoundException("Món ăn không tồn tại với id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Món ăn không tồn tại với id: " + id));
     }
-
+ 
     @Override
     public void delete(Long id) {
         if (!repository.existsById(id))
