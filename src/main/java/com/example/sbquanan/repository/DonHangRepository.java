@@ -15,20 +15,17 @@ import java.util.List;
 @Repository
 public interface DonHangRepository extends JpaRepository<DonHang, Long> {
 
-    // Dashboard: lay tat ca don kem thong tin khach, nhan vien
     @Query("SELECT d FROM DonHang d " +
            "LEFT JOIN FETCH d.khachHang " +
            "LEFT JOIN FETCH d.nhanVien " +
            "ORDER BY d.ngayDat DESC")
     List<DonHang> findAllWithDetails();
 
-    // Thong ke theo khoang thoi gian
     @Query("SELECT d FROM DonHang d WHERE d.ngayDat BETWEEN :from AND :to")
     List<DonHang> findByNgayDatBetween(
             @Param("from") LocalDateTime from,
             @Param("to")   LocalDateTime to);
 
-    // Tim kiem don hang theo SDT khach
     @Query("SELECT d FROM DonHang d " +
            "LEFT JOIN FETCH d.khachHang k " +
            "WHERE (:sdt IS NULL OR k.sdt = :sdt) " +
@@ -38,15 +35,12 @@ public interface DonHangRepository extends JpaRepository<DonHang, Long> {
             @Param("sdt")  String sdt,
             @Param("ngay") LocalDateTime ngay);
 
-    // Dem don theo trang thai
     long countByTrangThai(TrangThaiDonHang trangThai);
 
-    // Pageable cho admin
     Page<DonHang> findAllByOrderByNgayDatDesc(Pageable pageable);
 
-    // Doanh thu hom nay (don HOAN_THANH)
-    @Query("SELECT COALESCE(SUM(d.tongTien), 0) FROM DonHang d " +
-           "WHERE d.trangThai = 'HOAN_THANH' " +
-           "AND d.ngayDat >= :startOfDay")
+    @Query("SELECT COALESCE(SUM(hd.thanhTien), 0) FROM HoaDon hd " +
+           "WHERE hd.donHang.trangThai = com.example.sbquanan.enums.TrangThaiDonHang.HOAN_THANH " +
+           "AND hd.donHang.ngayDat >= :startOfDay")
     double doanhThuTuNgay(@Param("startOfDay") LocalDateTime startOfDay);
 }

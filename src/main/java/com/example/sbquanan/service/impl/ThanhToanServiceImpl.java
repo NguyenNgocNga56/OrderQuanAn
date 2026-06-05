@@ -110,15 +110,6 @@ public class ThanhToanServiceImpl implements ThanhToanService {
                         "Thanh toán không tồn tại với id: " + id));
     }
 
-    @Override
-    public void delete(Long id) {
-        if (!repository.existsById(id))
-            throw new ResourceNotFoundException("Thanh toán không tồn tại với id: " + id);
-        repository.deleteById(id);
-    }
-
-    // ─── private helpers ───────────────────────────────────────────────────────
-
     private double tinhSoTienPhaiTra(HoaDon hoaDon) {
         double thanhTien = hoaDon.getThanhTien();
         if (thanhTien > 0) return thanhTien;

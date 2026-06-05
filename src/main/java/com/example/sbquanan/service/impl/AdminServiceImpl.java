@@ -1,5 +1,11 @@
 package com.example.sbquanan.service.impl;
 
+// =====================================================
+// Duong dan: src/main/java/com/example/sbquanan/service/impl/AdminServiceImpl.java
+// THAY THE toan bo file hien tai
+// Fix: getThongKe() dung HoaDon.thanhTien thay vi DonHang.tongTien
+// =====================================================
+
 import com.example.sbquanan.dto.DashboardDTO;
 import com.example.sbquanan.dto.ThongKeDTO;
 import com.example.sbquanan.entity.ChiTietDonHang;
@@ -27,23 +33,23 @@ import java.util.stream.Collectors;
 @Transactional
 public class AdminServiceImpl implements AdminService {
 
-    @Autowired private DonHangRepository      donHangRepo;
+    @Autowired private DonHangRepository       donHangRepo;
     @Autowired private ChiTietDonHangRepository chiTietRepo;
-    @Autowired private HoaDonRepository       hoaDonRepo;
+    @Autowired private HoaDonRepository        hoaDonRepo;
 
     @Override
     public DashboardDTO getDashboard() {
         List<DonHang> donHangs = donHangRepo.findAllWithDetails();
 
-        // Lay tat ca chi tiet 1 lan, group theo donHangID
         List<Long> ids = donHangs.stream()
-                .map(DonHang::getDonHangID).collect(Collectors.toList());
+                .map(DonHang::getDonHangID)
+                .collect(Collectors.toList());
+
         Map<Long, List<ChiTietDonHang>> chiTietMap = chiTietRepo
                 .findByDonHangIDIn(ids).stream()
                 .collect(Collectors.groupingBy(
                         ct -> ct.getDonHang().getDonHangID()));
 
-        // Lay tat ca hoa don 1 lan
         Map<Long, HoaDon> hoaDonMap = hoaDonRepo
                 .findByDonHang_DonHangIDIn(ids).stream()
                 .collect(Collectors.toMap(
@@ -62,6 +68,9 @@ public class AdminServiceImpl implements AdminService {
         tq.setDonDaPhucVu(count(list, "DA_PHUC_VU"));
         tq.setDonHoanThanh(count(list, "HOAN_THANH"));
         tq.setDonDaHuy(count(list, "DA_HUY"));
+
+        // FIX: doanhThuHomNay dung HoaDon.thanhTien (da tru khuyen mai)
+        // Lay tu DonHangRepository query join HoaDon
         tq.setDoanhThuHomNay(donHangRepo.doanhThuTuNgay(
                 LocalDate.now().atStartOfDay()));
 
@@ -83,10 +92,8 @@ public class AdminServiceImpl implements AdminService {
         donHang.setTrangThai(trangThaiMoi);
         donHangRepo.save(donHang);
 
-        List<ChiTietDonHang> chiTiet = chiTietRepo
-                .findByDonHangID(donHangID);
-        HoaDon hoaDon = hoaDonRepo
-                .findByDonHang_DonHangID(donHangID).orElse(null);
+        List<ChiTietDonHang> chiTiet = chiTietRepo.findByDonHangID(donHangID);
+        HoaDon hoaDon = hoaDonRepo.findByDonHang_DonHangID(donHangID).orElse(null);
         return toDonHangDTO(donHang, chiTiet, hoaDon);
     }
 
@@ -94,15 +101,25 @@ public class AdminServiceImpl implements AdminService {
     public ThongKeDTO getThongKe(LocalDateTime from, LocalDateTime to) {
         List<DonHang> donHangs = donHangRepo.findByNgayDatBetween(from, to);
 
-        long tongDon       = donHangs.size();
-        long donHoanThanh  = donHangs.stream()
+        long tongDon      = donHangs.size();
+        long donHoanThanh = donHangs.stream()
                 .filter(d -> d.getTrangThai() == TrangThaiDonHang.HOAN_THANH).count();
-        long donDaHuy      = donHangs.stream()
+        long donDaHuy     = donHangs.stream()
                 .filter(d -> d.getTrangThai() == TrangThaiDonHang.DA_HUY).count();
-        double doanhThu    = donHangs.stream()
+
+        // FIX: lay ID don HOAN_THANH -> tinh doanh thu tu HoaDon.thanhTien
+        // (thanhTien = tongTien - giamGia, chinh xac hon tongTien)
+        List<Long> idHoanThanh = donHangs.stream()
                 .filter(d -> d.getTrangThai() == TrangThaiDonHang.HOAN_THANH)
-                .mapToDouble(DonHang::getTongTien).sum();
-        long soKhach       = donHangs.stream()
+                .map(DonHang::getDonHangID)
+                .collect(Collectors.toList());
+
+        double doanhThu = idHoanThanh.isEmpty() ? 0 :
+                hoaDonRepo.findByDonHang_DonHangIDIn(idHoanThanh).stream()
+                        .mapToDouble(HoaDon::getThanhTien)
+                        .sum();
+
+        long soKhach = donHangs.stream()
                 .filter(d -> d.getKhachHang() != null)
                 .map(d -> d.getKhachHang().getId())
                 .distinct().count();
@@ -110,7 +127,6 @@ public class AdminServiceImpl implements AdminService {
         return new ThongKeDTO(tongDon, donHoanThanh, donDaHuy, doanhThu, soKhach);
     }
 
-    // ─── Helpers ──────────────────────────────────────────────────────────────
 
     private void validateChuyenTrangThai(TrangThaiDonHang hienTai,
                                           TrangThaiDonHang moi) {
@@ -125,7 +141,8 @@ public class AdminServiceImpl implements AdminService {
         };
         if (!hopLe) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Khong the chuyen tu " + hienTai + " sang " + moi);
+                    "Khong the chuyen tu " + hienTai + " sang " + moi
+                    + ". Flow hop le: CHO_XAC_NHAN -> DANG_NAU -> DA_PHUC_VU -> HOAN_THANH / DA_HUY");
         }
     }
 
@@ -145,10 +162,13 @@ public class AdminServiceImpl implements AdminService {
         if (dh.getNhanVien() != null) {
             dto.setTenNhanVien(dh.getNhanVien().getHoTen());
         }
+
         if (hoaDon != null) {
             dto.setGiamGia(hoaDon.getGiamGia());
             dto.setThanhTien(hoaDon.getThanhTien());
         } else {
+            // Chua co hoa don (don chua hoan thanh) -> thanhTien = tongTien
+            dto.setGiamGia(0);
             dto.setThanhTien(dh.getTongTien());
         }
 
@@ -160,11 +180,14 @@ public class AdminServiceImpl implements AdminService {
             m.setThanhTien(ct.getGiaBan() * ct.getSoLuong());
             return m;
         }).collect(Collectors.toList());
+
         dto.setChiTiet(monList);
         return dto;
     }
 
     private long count(List<DashboardDTO.DonHangDTO> list, String trangThai) {
-        return list.stream().filter(d -> trangThai.equals(d.getTrangThai())).count();
+        return list.stream()
+                .filter(d -> trangThai.equals(d.getTrangThai()))
+                .count();
     }
 }
