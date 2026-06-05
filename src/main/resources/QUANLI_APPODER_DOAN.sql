@@ -146,9 +146,12 @@ CREATE TABLE ChiTietDonHang (
 CREATE TABLE KhuyenMai (
     KhuyenMaiID   INT            IDENTITY(1,1) PRIMARY KEY,
     TenKhuyenMai  NVARCHAR(100)  NOT NULL,
+    MaKhuyenMai   VARCHAR(50)    NULL UNIQUE,
     LoaiKhuyenMai NVARCHAR(20)   NOT NULL
                       CHECK (LoaiKhuyenMai IN (N'PHAN_TRAM', N'GIAM_TIEN_MAT')),
     GiaTri        DECIMAL(10,2)  NOT NULL CHECK (GiaTri > 0),
+    DiemToiThieu  INT            DEFAULT 0 CHECK (DiemToiThieu >= 0),
+    TongTienToiThieu DECIMAL(10,2) DEFAULT 0 CHECK (TongTienToiThieu >= 0),
     NgayBatDau    DATETIME       NOT NULL,
     NgayKetThuc   DATETIME       NOT NULL,
     TrangThai     BIT            DEFAULT 1,
@@ -250,11 +253,11 @@ GO
 -- FIX: LoaiKhuyenMai chi PHAN_TRAM | GIAM_TIEN_MAT
 -- FIX: kieu DATETIME, NgayKetThuc = 2026 de con hieu luc khi demo
 -- FIX: xoa SO_TIEN
-INSERT INTO KhuyenMai (TenKhuyenMai, LoaiKhuyenMai, GiaTri, NgayBatDau, NgayKetThuc, TrangThai, MoTa)
+INSERT INTO KhuyenMai (TenKhuyenMai, MaKhuyenMai, LoaiKhuyenMai, GiaTri, DiemToiThieu, TongTienToiThieu, NgayBatDau, NgayKetThuc, TrangThai, MoTa)
 VALUES
-    (N'Giam 10% cuoi tuan',     N'PHAN_TRAM',     10,    '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 10% cho don hang cuoi tuan'),
-    (N'Tang 50k don tren 300k', N'GIAM_TIEN_MAT', 50000, '2025-05-01 00:00:00', '2026-12-31 23:59:59', 1, N'Tang 50k cho don tu 300k'),
-    (N'Uu dai thanh vien Vang', N'PHAN_TRAM',     15,    '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 15% cho hoi vien Vang');
+    (N'Giam 10% cuoi tuan',     'WEEKEND10', N'PHAN_TRAM',     10,    0,   0,      '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 10% cho don hang cuoi tuan'),
+    (N'Tang 50k don tren 300k', 'BILL300K',  N'GIAM_TIEN_MAT', 50000, 0,   300000, '2025-05-01 00:00:00', '2026-12-31 23:59:59', 1, N'Tang 50k cho don tu 300k'),
+    (N'Uu dai thanh vien Vang', 'VANG15',    N'PHAN_TRAM',     15,    500, 0,      '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 15% cho khach tu 500 diem');
 GO
 
 -- MENU

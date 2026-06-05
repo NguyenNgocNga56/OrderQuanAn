@@ -42,8 +42,11 @@ public class OrderServiceImpl implements OrderService {
         donHang.setNgayDat(LocalDateTime.now());
 
         KhachHang khachHang = null;
-        if (req.getSdtKhachHang() != null && !req.getSdtKhachHang().isBlank()) {
-            khachHang = khachHangRepo.findBySdt(req.getSdtKhachHang().trim()).orElse(null);
+        String sdtKhachHang = req.getSdtKhachHang() != null ? req.getSdtKhachHang().trim() : null;
+        if (sdtKhachHang != null && !sdtKhachHang.isBlank()) {
+            khachHang = khachHangRepo.findBySdt(sdtKhachHang)
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND, "Khong tim thay khach hang voi so dien thoai: " + sdtKhachHang));
         } else if (req.getKhachHangId() != null) {
             khachHang = khachHangRepo.findById(req.getKhachHangId().longValue())
                     .orElseThrow(() -> new ResponseStatusException(
@@ -99,7 +102,7 @@ public class OrderServiceImpl implements OrderService {
         HoaDon hoaDon = new HoaDon();
         hoaDon.setDonHang(donHang);
         hoaDon.setTongTien(tongTien);
-        apDungKhuyenMai(req, hoaDon, tongTien);
+        apDungKhuyenMai(req, hoaDon, tongTien, khachHang);
         hoaDon.setNgayLap(LocalDateTime.now());
         hoaDon = hoaDonRepo.save(hoaDon);
 
@@ -168,7 +171,7 @@ public class OrderServiceImpl implements OrderService {
         return res;
     }
 
-    private void apDungKhuyenMai(OrderRequest req, HoaDon hoaDon, double tongTien) {
+    private void apDungKhuyenMai(OrderRequest req, HoaDon hoaDon, double tongTien, KhachHang khachHang) {
         KhuyenMai khuyenMai = timKhuyenMai(req);
 
         if (khuyenMai == null) {
@@ -179,14 +182,23 @@ public class OrderServiceImpl implements OrderService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Ma khuyen mai da het han hoac chua ap dung");
         }
-
-        double giamGia = switch (khuyenMai.getLoaiKhuyenMai()) {
-            case PHAN_TRAM -> tongTien * khuyenMai.getGiaTri() / 100;
-            case GIAM_TIEN_MAT -> khuyenMai.getGiaTri();
-        };
+        if (tongTien < khuyenMai.getTongTienToiThieu()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Don hang chua dat tong tien toi thieu de dung ma khuyen mai");
+        }
+        if (khuyenMai.getDiemToiThieu() > 0) {
+            if (khachHang == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Ma khuyen mai nay yeu cau khach hang co so dien thoai hop le");
+            }
+            if (khachHang.getDiemTichLuy() < khuyenMai.getDiemToiThieu()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Khach hang chua du diem de dung ma khuyen mai");
+            }
+        }
 
         hoaDon.setKhuyenMai(khuyenMai);
-        hoaDon.setGiamGia(Math.min(Math.max(giamGia, 0), tongTien));
+        hoaDon.setGiamGia(khuyenMai.tinhTienGiam(tongTien));
     }
 
     private double tinhThanhTien(HoaDon hoaDon) {
@@ -202,7 +214,9 @@ public class OrderServiceImpl implements OrderService {
                             HttpStatus.NOT_FOUND, "Khong tim thay khuyen mai"));
         }
         if (req.getMaKhuyenMai() != null && !req.getMaKhuyenMai().isBlank()) {
-            return khuyenMaiRepo.findByTenKhuyenMaiIgnoreCase(req.getMaKhuyenMai().trim())
+            String maKhuyenMai = req.getMaKhuyenMai().trim();
+            return khuyenMaiRepo.findByMaKhuyenMaiIgnoreCase(maKhuyenMai)
+                    .or(() -> khuyenMaiRepo.findByTenKhuyenMaiIgnoreCase(maKhuyenMai))
                     .orElseThrow(() -> new ResponseStatusException(
                             HttpStatus.NOT_FOUND, "Khong tim thay ma khuyen mai"));
         }

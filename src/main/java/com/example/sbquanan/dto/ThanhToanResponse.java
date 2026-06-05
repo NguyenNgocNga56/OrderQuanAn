@@ -14,6 +14,7 @@ public class ThanhToanResponse {
     private double tongTien;
     private double giamGia;
     private double soTien;
+    private int diemTru;
     private int diemCong;
     private LocalDateTime thoiGian;
 }
