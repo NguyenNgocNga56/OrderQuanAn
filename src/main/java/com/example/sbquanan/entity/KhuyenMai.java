@@ -63,10 +63,15 @@ public class KhuyenMai {
     }
 
     public double tinhTienGiam(double tongTien) {
-        double tienGiam = switch (loaiKhuyenMai) {
-            case PHAN_TRAM -> tongTien * giaTri / 100;
-            case GIAM_TIEN_MAT -> giaTri;
-        };
+        double tienGiam = 0;
+        switch (loaiKhuyenMai) {
+            case PHAN_TRAM:
+                tienGiam = tongTien * giaTri / 100;
+                break;
+            case GIAM_TIEN_MAT:
+                tienGiam = giaTri;
+                break;
+        }
         return Math.min(Math.max(tienGiam, 0), tongTien);
     }
 }

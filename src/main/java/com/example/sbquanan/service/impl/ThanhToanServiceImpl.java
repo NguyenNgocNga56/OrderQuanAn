@@ -48,13 +48,24 @@ public class ThanhToanServiceImpl implements ThanhToanService {
 
         // CHECK TRẠNG THÁI — chỉ cho thanh toán khi DA_PHUC_VU
         if (trangThai != TrangThaiDonHang.DA_PHUC_VU) {
-            String msg = switch (trangThai) {
-                case DA_HUY       -> "Không thể thanh toán — đơn hàng đã bị hủy.";
-                case CHO_XAC_NHAN -> "Không thể thanh toán — đơn hàng chưa được xác nhận.";
-                case DANG_NAU     -> "Không thể thanh toán — đơn hàng đang được chuẩn bị.";
-                case HOAN_THANH   -> "Đơn hàng này đã hoàn thành trước đó.";
-                default           -> "Trạng thái đơn hàng không hợp lệ để thanh toán: " + trangThai;
-            };
+            String msg;
+            switch (trangThai) {
+                case DA_HUY:
+                    msg = "Không thể thanh toán — đơn hàng đã bị hủy.";
+                    break;
+                case CHO_XAC_NHAN:
+                    msg = "Không thể thanh toán — đơn hàng chưa được xác nhận.";
+                    break;
+                case DANG_NAU:
+                    msg = "Không thể thanh toán — đơn hàng đang được chuẩn bị.";
+                    break;
+                case HOAN_THANH:
+                    msg = "Đơn hàng này đã hoàn thành trước đó.";
+                    break;
+                default:
+                    msg = "Trạng thái đơn hàng không hợp lệ để thanh toán: " + trangThai;
+                    break;
+            }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, msg);
         }
 

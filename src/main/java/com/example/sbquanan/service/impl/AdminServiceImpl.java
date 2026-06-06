@@ -130,15 +130,24 @@ public class AdminServiceImpl implements AdminService {
 
     private void validateChuyenTrangThai(TrangThaiDonHang hienTai,
                                           TrangThaiDonHang moi) {
-        boolean hopLe = switch (hienTai) {
-            case CHO_XAC_NHAN -> moi == TrangThaiDonHang.DANG_NAU
-                                  || moi == TrangThaiDonHang.DA_HUY;
-            case DANG_NAU     -> moi == TrangThaiDonHang.DA_PHUC_VU
-                                  || moi == TrangThaiDonHang.DA_HUY;
-            case DA_PHUC_VU   -> moi == TrangThaiDonHang.HOAN_THANH
-                                  || moi == TrangThaiDonHang.DA_HUY;
-            default           -> false;
-        };
+        boolean hopLe;
+        switch (hienTai) {
+            case CHO_XAC_NHAN:
+                hopLe = moi == TrangThaiDonHang.DANG_NAU
+                        || moi == TrangThaiDonHang.DA_HUY;
+                break;
+            case DANG_NAU:
+                hopLe = moi == TrangThaiDonHang.DA_PHUC_VU
+                        || moi == TrangThaiDonHang.DA_HUY;
+                break;
+            case DA_PHUC_VU:
+                hopLe = moi == TrangThaiDonHang.HOAN_THANH
+                        || moi == TrangThaiDonHang.DA_HUY;
+                break;
+            default:
+                hopLe = false;
+                break;
+        }
         if (!hopLe) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Khong the chuyen tu " + hienTai + " sang " + moi

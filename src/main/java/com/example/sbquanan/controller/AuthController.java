@@ -35,7 +35,7 @@ public class AuthController {
 
         NhanVien nhanVien = nhanVienRepository.findByEmail(email).orElse(null);
 
-        if (nhanVien == null || !passwordEncoder.matches(password, nhanVien.getPassword())) {
+        if (nhanVien == null || !password.equals(nhanVien.getPassword())) {
             return ResponseEntity.status(401)
                     .body(ApiResponse.error("Email hoặc mật khẩu không đúng"));
         }
