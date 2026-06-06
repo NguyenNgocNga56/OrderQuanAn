@@ -1,5 +1,6 @@
 package com.example.sbquanan.entity;
 
+import com.example.sbquanan.enums.TrangThaiDonHang;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,7 @@ public class DonHang {
     @Column(name = "DonHangID")
     private Long donHangID;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "TrangThai", length = 50)
     private String trangThai = "Chờ xử lý";
 

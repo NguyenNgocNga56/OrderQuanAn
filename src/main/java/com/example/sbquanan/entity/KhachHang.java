@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class KhachHang extends ConNguoi {
+
     @Column(name = "DiemTichLuy")
     private int diemTichLuy = 0;
 

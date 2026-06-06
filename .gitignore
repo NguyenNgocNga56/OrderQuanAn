@@ -1,0 +1,87 @@
+# =====================================================
+# .gitignore — OrderQuanAn
+# Dat file nay o root project (cung cho voi pom.xml)
+# =====================================================
+
+# ==================== CREDENTIALS ====================
+# QUAN TRONG: khong bao gio commit file nay
+.env
+*.env
+
+# ==================== BUILD OUTPUT ====================
+target/
+build/
+out/
+/out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# ==================== COMPILED FILES ====================
+*.class
+*.jar
+*.war
+*.ear
+
+# ==================== INTELLIJ IDEA ====================
+.idea/
+*.iml
+*.iws
+*.ipr
+cmake-build-*/
+.navigation/
+
+# ==================== ECLIPSE / STS ====================
+.metadata/
+.classpath
+.project
+.settings/
+.springBeans
+.sts4-cache
+.apt_generated
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+# ==================== VS CODE ====================
+.vscode/
+.history/
+*.code-workspace
+
+# ==================== MAVEN ====================
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# ==================== LOGS ====================
+*.log
+/logs/
+spring-run.log
+spring-run.err.log
+
+# ==================== OS ====================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+
+# ==================== CONFIG CA NHAN ====================
+src/resources/database.properties
+src/main/resources/database.properties
+# application.properties chi uncomment neu moi nguoi tu giu config DB rieng

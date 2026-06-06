@@ -44,7 +44,8 @@ public class MonAnServiceImpl implements MonAnService {
                     existing.setMenu(updated.getMenu());
                     return repository.save(existing);
                 })
-                .orElseThrow(() -> new ResourceNotFoundException("Món ăn không tồn tại với id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Món ăn không tồn tại với id: " + id));
     }
 
     @Override

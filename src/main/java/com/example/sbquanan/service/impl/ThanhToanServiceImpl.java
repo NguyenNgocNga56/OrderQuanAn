@@ -6,6 +6,7 @@ import com.example.sbquanan.entity.HoaDon;
 import com.example.sbquanan.entity.KhachHang;
 import com.example.sbquanan.entity.ThanhToan;
 import com.example.sbquanan.enums.PhuongThucThanhToan;
+import com.example.sbquanan.enums.TrangThaiDonHang;
 import com.example.sbquanan.enums.TrangThaiThanhToan;
 import com.example.sbquanan.exception.ResourceNotFoundException;
 import com.example.sbquanan.repository.HoaDonRepository;
@@ -26,14 +27,9 @@ import java.util.Optional;
 @Transactional
 public class ThanhToanServiceImpl implements ThanhToanService {
 
-    @Autowired
-    private ThanhToanRepository repository;
-
-    @Autowired
-    private HoaDonRepository hoaDonRepository;
-
-    @Autowired
-    private KhachHangRepository khachHangRepository;
+    @Autowired private ThanhToanRepository repository;
+    @Autowired private HoaDonRepository    hoaDonRepository;
+    @Autowired private KhachHangRepository khachHangRepository;
 
     @Override
     public List<ThanhToan> getAll() { return repository.findAll(); }
@@ -44,24 +40,46 @@ public class ThanhToanServiceImpl implements ThanhToanService {
     @Override
     public ThanhToanResponse thanhToanDonHang(Long donHangID, ThanhToanRequest request) {
         HoaDon hoaDon = hoaDonRepository.findByDonHang_DonHangID(donHangID)
-                .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay hoa don cho don hang #" + donHangID));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Không tìm thấy hóa đơn cho đơn hàng #" + donHangID));
 
-        if (repository.existsByHoaDon_HoaDonIDAndTrangThai(hoaDon.getHoaDonID(), TrangThaiThanhToan.THANH_CONG)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Don hang nay da thanh toan.");
+        TrangThaiDonHang trangThai = hoaDon.getDonHang().getTrangThai();
+
+        // CHECK TRẠNG THÁI — chỉ cho thanh toán khi DA_PHUC_VU
+        if (trangThai != TrangThaiDonHang.DA_PHUC_VU) {
+            String msg = switch (trangThai) {
+                case DA_HUY       -> "Không thể thanh toán — đơn hàng đã bị hủy.";
+                case CHO_XAC_NHAN -> "Không thể thanh toán — đơn hàng chưa được xác nhận.";
+                case DANG_NAU     -> "Không thể thanh toán — đơn hàng đang được chuẩn bị.";
+                case HOAN_THANH   -> "Đơn hàng này đã hoàn thành trước đó.";
+                default           -> "Trạng thái đơn hàng không hợp lệ để thanh toán: " + trangThai;
+            };
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, msg);
+        }
+
+        // CHECK đã thanh toán thành công chưa
+        if (repository.existsByHoaDon_HoaDonIDAndTrangThai(
+                hoaDon.getHoaDonID(), TrangThaiThanhToan.THANH_CONG)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Đơn hàng này đã được thanh toán.");
         }
 
         PhuongThucThanhToan phuongThuc = request != null ? request.getPhuongThuc() : null;
         if (phuongThuc == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vui long chon phuong thuc thanh toan.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Vui lòng chọn phương thức thanh toán.");
         }
 
         double soTienPhaiTra = tinhSoTienPhaiTra(hoaDon);
         double soTien = request.getSoTien() != null ? request.getSoTien() : soTienPhaiTra;
+
         if (soTien <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "So tien thanh toan phai lon hon 0.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Số tiền thanh toán phải lớn hơn 0.");
         }
         if (Double.compare(soTien, soTienPhaiTra) != 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "So tien thanh toan khong khop voi hoa don.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Số tiền thanh toán không khớp với hóa đơn.");
         }
 
         ThanhToan thanhToan = new ThanhToan();

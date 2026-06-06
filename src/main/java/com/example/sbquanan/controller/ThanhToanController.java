@@ -5,6 +5,7 @@ import com.example.sbquanan.dto.ThanhToanRequest;
 import com.example.sbquanan.dto.ThanhToanResponse;
 import com.example.sbquanan.entity.ThanhToan;
 import com.example.sbquanan.service.ThanhToanService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import java.util.List;
 @RequestMapping("/api/thanhtoan")
 @CrossOrigin(origins = "*")
 public class ThanhToanController {
+
     @Autowired private ThanhToanService service;
 
     @GetMapping
@@ -30,9 +32,12 @@ public class ThanhToanController {
     }
 
     @PostMapping("/donhang/{donHangID}")
-    public ApiResponse<ThanhToanResponse> thanhToanDonHang(@PathVariable Long donHangID,
-                                                           @RequestBody ThanhToanRequest request) {
-        return ApiResponse.success(service.thanhToanDonHang(donHangID, request), "Thanh toan thanh cong");
+    public ApiResponse<ThanhToanResponse> thanhToanDonHang(
+            @PathVariable Long donHangID,
+            @Valid @RequestBody ThanhToanRequest request) { // ★ thêm @Valid
+        return ApiResponse.success(
+                service.thanhToanDonHang(donHangID, request),
+                "Thanh toan thanh cong");
     }
 
     @PostMapping
@@ -41,7 +46,9 @@ public class ThanhToanController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<ThanhToan>> update(@PathVariable Long id, @RequestBody ThanhToan thanhToan) {
+    public ResponseEntity<ApiResponse<ThanhToan>> update(
+            @PathVariable Long id,
+            @RequestBody ThanhToan thanhToan) {
         try {
             return ResponseEntity.ok(ApiResponse.success(service.update(id, thanhToan), "Cập nhật thành công"));
         } catch (RuntimeException e) {

@@ -21,12 +21,13 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/monan")
 public class MonAnController {
+
     @Autowired private MonAnRepository repository;
     @Autowired private MenuRepository menuRepository;
 
     @GetMapping("")
     @Transactional(readOnly = true)
-    public List<MonAnDTO> getAll() {
+    public List<MonAnDTO> getAll() {return monAnService.getAllDoAn().stream()
         return repository.findAllDoAn().stream()
                 .map(MonAnDTO::from)
                 .collect(Collectors.toList());

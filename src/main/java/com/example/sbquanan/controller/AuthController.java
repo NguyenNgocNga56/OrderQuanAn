@@ -1,9 +1,12 @@
 package com.example.sbquanan.controller;
 
+import com.example.sbquanan.dto.ApiResponse;
 import com.example.sbquanan.entity.NhanVien;
 import com.example.sbquanan.repository.NhanVienRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.Normalizer;
@@ -15,41 +18,39 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
     @Autowired
     private NhanVienRepository nhanVienRepository;
 
     private static final ConcurrentHashMap<String, Long> tokenStore = new ConcurrentHashMap<>();
+    private final NhanVienRepository nhanVienRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final ConcurrentHashMap<String, String> tokenStore;
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> body) {
-        Map<String, Object> response = new HashMap<>();
+    public ResponseEntity<ApiResponse<Map<String, Object>>> login(
+            @RequestBody Map<String, String> body) {
 
-        String email = body.get("email") != null ? body.get("email").trim() : null;
-        String password = body.get("password") != null ? body.get("password").trim() : null;
+        String email    = body.get("email");
+        String password = body.get("password");
 
-        if (email == null || password == null || email.isBlank() || password.isBlank()) {
-            response.put("success", false);
-            response.put("message", "Vui long nhap day du email va mat khau.");
-            return ResponseEntity.badRequest().body(response);
+        if (email == null || password == null) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("Email và mật khẩu không được để trống"));
         }
 
-        Optional<NhanVien> optNhanVien = nhanVienRepository.findByEmailIgnoreCase(email);
-        if (optNhanVien.isEmpty()) {
-            response.put("success", false);
-            response.put("message", "Email hoac mat khau khong dung.");
-            return ResponseEntity.status(401).body(response);
-        }
+        NhanVien nhanVien = nhanVienRepository.findByEmail(email).orElse(null);
 
-        NhanVien nhanVien = optNhanVien.get();
-        if (!password.equals(nhanVien.getPassword() != null ? nhanVien.getPassword().trim() : null)) {
-            response.put("success", false);
-            response.put("message", "Email hoac mat khau khong dung.");
-            return ResponseEntity.status(401).body(response);
+        if (nhanVien == null || !passwordEncoder.matches(password, nhanVien.getPassword())) {
+            return ResponseEntity.status(401)
+                    .body(ApiResponse.error("Email hoặc mật khẩu không đúng"));
         }
 
         if (!nhanVien.isTrangThai()) {
+            return ResponseEntity.status(403)
+                    .body(ApiResponse.error("Tài khoản đã bị vô hiệu hóa"));
             response.put("success", false);
             response.put("message", "Tai khoan da bi vo hieu hoa.");
             return ResponseEntity.status(403).body(response);
@@ -62,8 +63,15 @@ public class AuthController {
         }
 
         String token = UUID.randomUUID().toString();
+        tokenStore.put(token, email);
         tokenStore.put(token, nhanVien.getId());
 
+        return ResponseEntity.ok(ApiResponse.success(Map.of(
+            "token",  token,
+            "email",  nhanVien.getEmail(),
+            "hoTen",  nhanVien.getHoTen(),
+            "chucVu", nhanVien.getChucVu() != null ? nhanVien.getChucVu() : ""
+        )));
         response.put("success", true);
         response.put("message", "Dang nhap thanh cong.");
         response.put("token", token);
@@ -74,6 +82,8 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<String>> logout(
+            @RequestHeader(value = "Authorization", required = false) String header) {
     public ResponseEntity<Map<String, Object>> logout(@RequestHeader(value = "Authorization", required = false) String authHeader) {
         Map<String, Object> response = new HashMap<>();
 
@@ -87,6 +97,10 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+        if (header != null && header.startsWith("Bearer ")) {
+            tokenStore.remove(header.substring(7));
+        }
+        return ResponseEntity.ok(ApiResponse.success("Đăng xuất thành công"));
     public static boolean isValidToken(String token) {
         return token != null && tokenStore.containsKey(token);
     }
