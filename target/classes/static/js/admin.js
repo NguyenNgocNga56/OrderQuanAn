@@ -1,23 +1,29 @@
-// Check admin session before showing the page.
+// KIỂM TRA SESSION KHI VÀO TRANG ADMIN
 (function() {
     const token = sessionStorage.getItem('adminToken');
     if (!token) {
+        // Chưa đăng nhập → về trang chủ
         window.location.href = '/index.html';
     }
 })();
 
+// HIỂN THỊ TÊN ADMIN
 window.addEventListener('DOMContentLoaded', function() {
     const name = sessionStorage.getItem('adminName') || 'Admin';
     const el = document.getElementById('adminName');
     if (el) el.textContent = name;
 
+    // Load thống kê
     loadStats();
     setupQuickLinks();
 });
 
+// LOAD THỐNG KÊ TỪ API
 async function loadStats() {
     const token = sessionStorage.getItem('adminToken');
     const headers = { 'Authorization': 'Bearer ' + token };
+
+    // Đếm số bàn, khách hàng, nhân viên từ API có sẵn
     const apis = [
         { url: '/api/ban', id: 'statBan', count: rows => rows.filter(isServingTable).length },
         { url: '/orders', id: 'statDonHang', count: rows => rows.filter(isTodayOrder).length },
@@ -56,23 +62,25 @@ function isTodayOrder(order) {
         && orderDate.getDate() === today.getDate();
 }
 
+// ĐĂNG XUẤT
 function logout() {
-    if (confirm('Ban co chac muon dang xuat khong?')) {
+    if (confirm('Bạn có chắc muốn đăng xuất không?')) {
         sessionStorage.removeItem('adminToken');
         sessionStorage.removeItem('adminName');
         window.location.href = '/index.html';
     }
 }
 
+// QUAN LY NHANH
 const quickManagers = {
-    '/api/ban': { title: 'Quan ly ban', sub: 'Danh sach ban hien co' },
-    '/api/monan': { title: 'Quan ly mon an', sub: 'Xem, them va xoa mon trong menu', monAn: true },
-    '/api/donhang': { title: 'Quan ly don hang', sub: 'Danh sach don hang', apiUrl: '/orders' },
-    '/api/hoadon': { title: 'Quan ly hoa don', sub: 'Danh sach hoa don' },
-    '/api/khachhang': { title: 'Quan ly khach hang', sub: 'Danh sach khach hang thanh vien' },
-    '/api/nhanvien': { title: 'Quan ly nhan vien', sub: 'Danh sach nhan vien' },
-    '/api/khuyenmai': { title: 'Quan ly khuyen mai', sub: 'Danh sach chuong trinh uu dai' },
-    '/api/thanhtoan': { title: 'Quan ly thanh toan', sub: 'Lich su giao dich' }
+    '/api/ban': { title: 'Quản lý bàn', sub: 'Danh sách bàn hiện có' },
+    '/api/monan': { title: 'Quản lý món ăn', sub: 'Xem, thêm và xóa món trong menu', monAn: true },
+    '/api/donhang': { title: 'Quản lý đơn hàng', sub: 'Danh sách đơn hàng' },
+    '/api/hoadon': { title: 'Quản lý hóa đơn', sub: 'Danh sách hóa đơn' },
+    '/api/khachhang': { title: 'Quản lý khách hàng', sub: 'Danh sách khách hàng thành viên' },
+    '/api/nhanvien': { title: 'Quản lý nhân viên', sub: 'Danh sách nhân viên' },
+    '/api/khuyenmai': { title: 'Quản lý khuyến mãi', sub: 'Danh sách chương trình ưu đãi' },
+    '/api/thanhtoan': { title: 'Quản lý thanh toán', sub: 'Lịch sử giao dịch' }
 };
 
 function setupQuickLinks() {
@@ -115,18 +123,18 @@ async function loadMenuOptions() {
         const menus = unwrapApiData(await fetch('/api/menu').then(r => r.json()));
         select.innerHTML = menus.map(m => `<option value="${m.menuID}">${escapeHtml(m.tenMenu || 'Menu')}</option>`).join('');
     } catch {
-        select.innerHTML = '<option value="">Khong tai duoc menu</option>';
+        select.innerHTML = '<option value="">Không tải được menu</option>';
     }
 }
 
 async function loadMonAnAdmin() {
     const content = document.getElementById('managerContent');
-    content.innerHTML = '<div class="admin-loading">Dang tai mon an...</div>';
+    content.innerHTML = '<div class="admin-loading">Đang tải món ăn...</div>';
 
     try {
-        const mons = unwrapApiData(await fetch('/api/monan').then(r => r.json()));
-        if (!Array.isArray(mons) || !mons.length) {
-            content.innerHTML = '<div class="admin-empty">Chua co mon an nao.</div>';
+        const mons = await fetch('/api/monan').then(r => r.json());
+        if (!mons.length) {
+            content.innerHTML = '<div class="admin-empty">Chưa có món ăn nào.</div>';
             return;
         }
 
@@ -135,9 +143,9 @@ async function loadMonAnAdmin() {
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Mon an</th>
-                        <th>Gia</th>
-                        <th>Trang thai</th>
+                        <th>Món ăn</th>
+                        <th>Giá</th>
+                        <th>Trạng thái</th>
                         <th>Menu</th>
                         <th></th>
                     </tr>
@@ -153,13 +161,13 @@ async function loadMonAnAdmin() {
                             <td>${fmtVNDAdmin(mon.gia || 0)}</td>
                             <td>${escapeHtml(mon.trangThai || '')}</td>
                             <td>${escapeHtml(mon.menu?.tenMenu || '')}</td>
-                            <td><button class="admin-danger" onclick="xoaMonAnAdmin(${mon.monID})">Xoa</button></td>
+                            <td><button class="admin-danger" onclick="xoaMonAnAdmin(${mon.monID})">Xóa</button></td>
                         </tr>
                     `).join('')}
                 </tbody>
             </table>`;
     } catch {
-        content.innerHTML = '<div class="admin-empty">Khong tai duoc danh sach mon an.</div>';
+        content.innerHTML = '<div class="admin-empty">Không tải được danh sách món ăn.</div>';
     }
 }
 
@@ -177,7 +185,7 @@ async function themMonAnAdmin() {
     };
 
     if (!payload.tenMon || !payload.gia || !payload.menuID) {
-        alert('Vui long nhap ten mon, gia va menu.');
+        alert('Vui lòng nhập tên món, giá và menu.');
         return;
     }
 
@@ -197,31 +205,31 @@ async function themMonAnAdmin() {
         await loadMonAnAdmin();
         await loadStats();
     } catch {
-        alert('Khong them duoc mon an. Kiem tra du lieu hoac server.');
+        alert('Không thêm được món ăn. Kiểm tra dữ liệu hoặc server.');
     }
 }
 
 async function xoaMonAnAdmin(id) {
-    if (!confirm('Ban co chac muon xoa mon nay khong?')) return;
+    if (!confirm('Bạn có chắc muốn xóa món này không?')) return;
     try {
         const res = await fetch(`/api/monan/${id}`, { method: 'DELETE' });
         if (!res.ok) throw new Error();
         await loadMonAnAdmin();
         await loadStats();
     } catch {
-        alert('Khong xoa duoc mon nay. Co the mon da nam trong don hang.');
+        alert('Không xóa được món này. Có thể món đã nằm trong đơn hàng.');
     }
 }
 
 async function loadGenericManager(api) {
     const content = document.getElementById('managerContent');
-    content.innerHTML = '<div class="admin-loading">Dang tai du lieu...</div>';
+    content.innerHTML = '<div class="admin-loading">Đang tải dữ liệu...</div>';
 
     try {
         const data = unwrapApiData(await fetch(api).then(r => r.json()));
         const rows = Array.isArray(data) ? data : [data].filter(Boolean);
         if (!rows.length) {
-            content.innerHTML = '<div class="admin-empty">Chua co du lieu.</div>';
+            content.innerHTML = '<div class="admin-empty">Chưa có dữ liệu.</div>';
             return;
         }
 
@@ -234,7 +242,7 @@ async function loadGenericManager(api) {
                 </tbody>
             </table>`;
     } catch {
-        content.innerHTML = '<div class="admin-empty">Khong tai duoc du lieu.</div>';
+        content.innerHTML = '<div class="admin-empty">Không tải được dữ liệu.</div>';
     }
 }
 

@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
+
 import java.util.List;
 
 @Data
@@ -13,11 +14,10 @@ public class OrderRequest {
 
     @NotNull(message = "BanId không được để trống")
     private Integer banId;
-    private Integer khachHangId;   // nullable – khách vãng lai
-    private Integer nhanVienId;    // nullable
-    private String sdtKhachHang;   // nullable - dung cho gio hang khach
-    private Long khuyenMaiId;      // nullable - UI moi chon tu danh sach khuyen mai
-    private String maKhuyenMai;    // nullable - tuong thich neu FE gui ten/ma khuyen mai
+
+    private Integer khachHangId;    // nullable – khách vãng lai
+
+    private Integer nhanVienId;     // nullable
 
     @Pattern(regexp = "^0[0-9]{9}$", message = "Số điện thoại không hợp lệ (VD: 0912345678)")
     private String sdtKhachHang;    // nullable - dùng cho giỏ hàng khách

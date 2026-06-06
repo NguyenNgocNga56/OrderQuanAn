@@ -20,7 +20,7 @@ public class DonHang {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "TrangThai", length = 50)
-    private String trangThai = "Chờ xử lý";
+    private TrangThaiDonHang trangThai = TrangThaiDonHang.CHO_XAC_NHAN;
 
     @Column(name = "TongTien")
     private double tongTien;
@@ -35,10 +35,6 @@ public class DonHang {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "NhanVienID")
     private NhanVien nhanVien;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "BanID")
-    private Ban ban;
 
     @OneToMany(mappedBy = "donHang", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ChiTietDonHang> chiTietDonHangs = new ArrayList<>();

@@ -8,51 +8,47 @@ import com.example.sbquanan.entity.MonAn;
 import com.example.sbquanan.enums.SizeDoUong;
 import com.example.sbquanan.enums.TrangThaiMonAn;
 import com.example.sbquanan.repository.MenuRepository;
-import com.example.sbquanan.repository.MonAnRepository;
+import com.example.sbquanan.service.MonAnService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-@CrossOrigin("*") // Cho phép web lấy dữ liệu
+
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/monan")
 public class MonAnController {
 
-    @Autowired private MonAnRepository repository;
-    @Autowired private MenuRepository menuRepository;
+    @Autowired private MonAnService monAnService;   // ★ dùng Service, không dùng Repository trực tiếp
+    @Autowired private MenuRepository menuRepository; // chỉ dùng để lookup Menu khi tạo mới
 
     @GetMapping("")
-    @Transactional(readOnly = true)
-    public List<MonAnDTO> getAll() {return monAnService.getAllDoAn().stream()
-        return repository.findAllDoAn().stream()
+    public List<MonAnDTO> getAll() {
+        return monAnService.getAllDoAn().stream()
                 .map(MonAnDTO::from)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/douong")
-    @Transactional(readOnly = true)
     public List<MonAnDTO> getDoUong() {
-        return repository.findAllDoUong().stream()
+        return monAnService.getAllDoUong().stream()
                 .map(MonAnDTO::from)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    @Transactional(readOnly = true)
     public ResponseEntity<MonAnDTO> getById(@PathVariable Long id) {
-        return repository.findById(id)
+        return monAnService.getById(id)
                 .map(m -> ResponseEntity.ok(MonAnDTO.from(m)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/menu/{menuId}")
-    @Transactional(readOnly = true)
     public List<MonAnDTO> getByMenu(@PathVariable Long menuId) {
-        return repository.findByMenu_MenuID(menuId).stream()
+        return monAnService.getByMenu(menuId).stream()
                 .map(MonAnDTO::from)
                 .collect(Collectors.toList());
     }
@@ -60,12 +56,12 @@ public class MonAnController {
     @PostMapping("")
     public MonAn create(@RequestBody Map<String, Object> payload) {
         String tenMon = asString(payload.get("tenMon"));
-        double gia = asDouble(payload.get("gia"));
-        Long menuID = asLong(payload.get("menuID"));
+        double gia    = asDouble(payload.get("gia"));
+        Long menuID   = asLong(payload.get("menuID"));
 
         if (tenMon.isBlank()) throw new IllegalArgumentException("Ten mon khong duoc de trong");
-        if (gia <= 0) throw new IllegalArgumentException("Gia mon phai lon hon 0");
-        if (menuID == null) throw new IllegalArgumentException("Menu khong hop le");
+        if (gia <= 0)         throw new IllegalArgumentException("Gia mon phai lon hon 0");
+        if (menuID == null)   throw new IllegalArgumentException("Menu khong hop le");
 
         Menu menu = menuRepository.findById(menuID)
                 .orElseThrow(() -> new IllegalArgumentException("Menu khong ton tai"));
@@ -88,8 +84,21 @@ public class MonAnController {
         monAn.setMoTa(asString(payload.get("moTa")));
         monAn.setHinhAnh(asString(payload.get("hinhAnh")));
         monAn.setTrangThai(parseTrangThai(asString(payload.get("trangThai"))));
-        return repository.save(monAn);
+
+        return monAnService.create(monAn); // ★ gọi qua Service
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        return monAnService.getById(id)
+                .map(m -> {
+                    monAnService.delete(id);
+                    return ResponseEntity.noContent().<Void>build();
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // ─── Helpers ─────────────────────────────────────────────────────────────
 
     private String asString(Object value) {
         return value == null ? "" : String.valueOf(value).trim();
@@ -115,12 +124,5 @@ public class MonAnController {
     private SizeDoUong parseSize(String value) {
         if (value.isBlank()) return SizeDoUong.M;
         return SizeDoUong.valueOf(value.toUpperCase());
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        if (!repository.existsById(id)) return ResponseEntity.notFound().build();
-        repository.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 }

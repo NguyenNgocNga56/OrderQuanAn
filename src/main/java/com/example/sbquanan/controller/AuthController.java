@@ -1,15 +1,12 @@
 package com.example.sbquanan.controller;
 
-import com.example.sbquanan.dto.ApiResponse;
 import com.example.sbquanan.entity.NhanVien;
 import com.example.sbquanan.repository.NhanVienRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.Normalizer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -18,62 +15,62 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
 public class AuthController {
-
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
     @Autowired
     private NhanVienRepository nhanVienRepository;
 
+    // Lưu token tạm thời trong bộ nhớ (có thể dùng Redis hoặc DB sau này)
     private static final ConcurrentHashMap<String, Long> tokenStore = new ConcurrentHashMap<>();
-    private final NhanVienRepository nhanVienRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final ConcurrentHashMap<String, String> tokenStore;
 
+    /**
+     * POST /api/auth/login
+     * Body: { "email": "...", "password": "..." }
+     */
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> login(
-            @RequestBody Map<String, String> body) {
+    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> body) {
+        Map<String, Object> response = new HashMap<>();
 
         String email    = body.get("email");
         String password = body.get("password");
 
-        if (email == null || password == null) {
-            return ResponseEntity.badRequest()
-                    .body(ApiResponse.error("Email và mật khẩu không được để trống"));
+        if (email == null || password == null || email.isBlank() || password.isBlank()) {
+            response.put("success", false);
+            response.put("message", "Vui lòng nhập đầy đủ email và mật khẩu.");
+            return ResponseEntity.badRequest().body(response);
         }
 
-        NhanVien nhanVien = nhanVienRepository.findByEmail(email).orElse(null);
+        // Tìm nhân viên theo email
+        Optional<NhanVien> optNhanVien = nhanVienRepository.findByEmail(email);
 
-        if (nhanVien == null || !passwordEncoder.matches(password, nhanVien.getPassword())) {
-            return ResponseEntity.status(401)
-                    .body(ApiResponse.error("Email hoặc mật khẩu không đúng"));
+        if (optNhanVien.isEmpty()) {
+            response.put("success", false);
+            response.put("message", "Email hoặc mật khẩu không đúng.");
+            return ResponseEntity.status(401).body(response);
         }
 
+        NhanVien nhanVien = optNhanVien.get();
+
+        // Kiểm tra mật khẩu
+        if (!encoder.matches(password, nhanVien.getPassword())) {
+            response.put("success", false);
+            response.put("message", "Email hoặc mật khẩu không đúng.");
+            return ResponseEntity.status(401).body(response);
+        }
+
+        // Kiểm tra trạng thái tài khoản
         if (!nhanVien.isTrangThai()) {
-            return ResponseEntity.status(403)
-                    .body(ApiResponse.error("Tài khoản đã bị vô hiệu hóa"));
             response.put("success", false);
-            response.put("message", "Tai khoan da bi vo hieu hoa.");
+            response.put("message", "Tài khoản đã bị vô hiệu hóa.");
             return ResponseEntity.status(403).body(response);
         }
 
-        if (!isAdminRole(nhanVien.getChucVu())) {
-            response.put("success", false);
-            response.put("message", "Tai khoan nay khong co quyen quan tri.");
-            return ResponseEntity.status(403).body(response);
-        }
-
+        // Tạo token đơn giản
         String token = UUID.randomUUID().toString();
-        tokenStore.put(token, email);
         tokenStore.put(token, nhanVien.getId());
 
-        return ResponseEntity.ok(ApiResponse.success(Map.of(
-            "token",  token,
-            "email",  nhanVien.getEmail(),
-            "hoTen",  nhanVien.getHoTen(),
-            "chucVu", nhanVien.getChucVu() != null ? nhanVien.getChucVu() : ""
-        )));
         response.put("success", true);
-        response.put("message", "Dang nhap thanh cong.");
+        response.put("message", "Đăng nhập thành công.");
         response.put("token", token);
         response.put("hoTen", nhanVien.getHoTen());
         response.put("chucVu", nhanVien.getChucVu());
@@ -81,9 +78,11 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * POST /api/auth/logout
+     * Header: Authorization: Bearer <token>
+     */
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<String>> logout(
-            @RequestHeader(value = "Authorization", required = false) String header) {
     public ResponseEntity<Map<String, Object>> logout(@RequestHeader(value = "Authorization", required = false) String authHeader) {
         Map<String, Object> response = new HashMap<>();
 
@@ -93,29 +92,12 @@ public class AuthController {
         }
 
         response.put("success", true);
-        response.put("message", "Dang xuat thanh cong.");
+        response.put("message", "Đăng xuất thành công.");
         return ResponseEntity.ok(response);
     }
 
-        if (header != null && header.startsWith("Bearer ")) {
-            tokenStore.remove(header.substring(7));
-        }
-        return ResponseEntity.ok(ApiResponse.success("Đăng xuất thành công"));
+    /** Kiểm tra token có hợp lệ không */
     public static boolean isValidToken(String token) {
         return token != null && tokenStore.containsKey(token);
-    }
-
-    private boolean isAdminRole(String chucVu) {
-        if (chucVu == null) return false;
-        String role = Normalizer.normalize(chucVu.trim(), Normalizer.Form.NFD)
-                .replaceAll("\\p{M}", "")
-                .replace('Đ', 'D')
-                .replace('đ', 'd')
-                .toUpperCase();
-        return role.equals("ADMIN")
-                || role.equals("QUAN_LY")
-                || role.equals("QUAN LY")
-                || role.equals("CHU QUAN")
-                || role.equals("CHU_QUAN");
     }
 }

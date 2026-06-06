@@ -16,9 +16,9 @@ import java.util.List;
 public interface DonHangRepository extends JpaRepository<DonHang, Long> {
 
     @Query("SELECT d FROM DonHang d " +
-           "LEFT JOIN FETCH d.khachHang " +
-           "LEFT JOIN FETCH d.nhanVien " +
-           "ORDER BY d.ngayDat DESC")
+            "LEFT JOIN FETCH d.khachHang " +
+            "LEFT JOIN FETCH d.nhanVien " +
+            "ORDER BY d.ngayDat DESC")
     List<DonHang> findAllWithDetails();
 
     @Query("SELECT d FROM DonHang d WHERE d.ngayDat BETWEEN :from AND :to")
@@ -27,10 +27,10 @@ public interface DonHangRepository extends JpaRepository<DonHang, Long> {
             @Param("to")   LocalDateTime to);
 
     @Query("SELECT d FROM DonHang d " +
-           "LEFT JOIN FETCH d.khachHang k " +
-           "WHERE (:sdt IS NULL OR k.sdt = :sdt) " +
-           "AND (:ngay IS NULL OR CAST(d.ngayDat AS date) = CAST(:ngay AS date)) " +
-           "ORDER BY d.ngayDat DESC")
+            "LEFT JOIN FETCH d.khachHang k " +
+            "WHERE (:sdt IS NULL OR k.sdt = :sdt) " +
+            "AND (:ngay IS NULL OR CAST(d.ngayDat AS date) = CAST(:ngay AS date)) " +
+            "ORDER BY d.ngayDat DESC")
     List<DonHang> searchDonHang(
             @Param("sdt")  String sdt,
             @Param("ngay") LocalDateTime ngay);
@@ -40,7 +40,7 @@ public interface DonHangRepository extends JpaRepository<DonHang, Long> {
     Page<DonHang> findAllByOrderByNgayDatDesc(Pageable pageable);
 
     @Query("SELECT COALESCE(SUM(hd.thanhTien), 0) FROM HoaDon hd " +
-           "WHERE hd.donHang.trangThai = com.example.sbquanan.enums.TrangThaiDonHang.HOAN_THANH " +
-           "AND hd.donHang.ngayDat >= :startOfDay")
+            "WHERE hd.donHang.trangThai = com.example.sbquanan.enums.TrangThaiDonHang.HOAN_THANH " +
+            "AND hd.donHang.ngayDat >= :startOfDay")
     double doanhThuTuNgay(@Param("startOfDay") LocalDateTime startOfDay);
 }

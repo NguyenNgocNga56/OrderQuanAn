@@ -135,7 +135,7 @@ public class OrderServiceImpl implements OrderService {
         OrderResponse res = new OrderResponse();
 
         // SỬA: giữ nguyên Long, không ép sang Integer
-        res.setDonHangID(dh.getDonHangID());
+        res.setDonHangID(Math.toIntExact(dh.getDonHangID()));
 
         hoaDonRepo.findByDonHang_DonHangID(dh.getDonHangID())
                 .ifPresent(hoaDon -> {
@@ -209,4 +209,3 @@ public class OrderServiceImpl implements OrderService {
         return null;
     }
 }
-
