@@ -88,30 +88,33 @@ async function loadKhuyenMai() {
     const grid = document.getElementById('kmGrid');
     if (!grid) return;
     try {
-        const kms = await fetch('/api/khuyenmai').then(r => r.json());
+        const res  = await fetch('/api/khuyenmai').then(r => r.json());
+        // Unwrap ApiResponse giống admin.js
+        const kms  = (res && res.data) ? res.data : (Array.isArray(res) ? res : []);
+
         if (!kms.length) {
             grid.innerHTML = '<p style="text-align:center;color:var(--text-muted);">Hiện chưa có khuyến mãi nào.</p>';
             return;
         }
         grid.innerHTML = kms.map(km => {
             const label = km.loaiKhuyenMai === 'PHAN_TRAM'
-                ? `Giảm ${km.giaTriKhuyenMai}%`
-                : `Giảm ${fmtVND(km.giaTriKhuyenMai)}`;
-            const now = new Date();
+                ? `Giảm ${km.giaTri}%`
+                : `Giảm ${fmtVND(km.giaTri)}`;
+            const now    = new Date();
             const hetHan = km.ngayKetThuc ? new Date(km.ngayKetThuc) : null;
-            const con = !hetHan || hetHan >= now;
+            const con    = !hetHan || hetHan >= now;
             return `
             <div class="km-card ${con ? '' : 'km-expired'}">
                 <div class="km-badge">${label}</div>
                 <div class="km-title">${km.tenKhuyenMai || 'Ưu đãi đặc biệt'}</div>
                 <div class="km-desc">${km.moTa || ''}</div>
                 <div class="km-deadline">
-                    ${hetHan ? ` HSD: ${hetHan.toLocaleDateString('vi-VN')}` : ' Không giới hạn'}
+                    ${hetHan ? `HSD: ${hetHan.toLocaleDateString('vi-VN')}` : 'Không giới hạn'}
                 </div>
-                <div class="km-status ${con ? 'km-con' : 'km-het'}">${con ? 'Còn hiệu lực' : ' Đã hết hạn'}</div>
+                <div class="km-status ${con ? 'km-con' : 'km-het'}">${con ? 'Còn hiệu lực' : 'Đã hết hạn'}</div>
             </div>`;
         }).join('');
-    } catch {
+    } catch (e) {
         grid.innerHTML = '<p style="text-align:center;color:var(--text-muted);">Không tải được khuyến mãi.</p>';
     }
 }

@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @Table(name = "NhanVien")
 @AttributeOverrides({
         @AttributeOverride(name = "id", column = @Column(name = "NhanVienID")),
-        @AttributeOverride(name = "hoTen", column = @Column(name = "TenNhanVien", nullable = false, length = 100))
 })
 @Data
 @EqualsAndHashCode(callSuper = true)
