@@ -5,7 +5,6 @@ import com.example.sbquanan.entity.NhanVien;
 import com.example.sbquanan.repository.NhanVienRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -18,7 +17,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AuthController {
 
     private final NhanVienRepository nhanVienRepository;
-    private final PasswordEncoder passwordEncoder;
     private final ConcurrentHashMap<String, String> tokenStore;
 
     @PostMapping("/login")
@@ -28,7 +26,7 @@ public class AuthController {
         String email    = body.get("email");
         String password = body.get("password");
 
-        if (email == null || password == null) {
+        if (email == null || password == null || email.isBlank() || password.isBlank()) {
             return ResponseEntity.badRequest()
                     .body(ApiResponse.error("Email và mật khẩu không được để trống"));
         }
@@ -49,10 +47,10 @@ public class AuthController {
         tokenStore.put(token, email);
 
         return ResponseEntity.ok(ApiResponse.success(Map.of(
-            "token",  token,
-            "email",  nhanVien.getEmail(),
-            "hoTen",  nhanVien.getHoTen(),
-            "chucVu", nhanVien.getChucVu() != null ? nhanVien.getChucVu() : ""
+                "token",  token,
+                "email",  nhanVien.getEmail(),
+                "hoTen",  nhanVien.getHoTen(),
+                "chucVu", nhanVien.getChucVu() != null ? nhanVien.getChucVu() : ""
         )));
     }
 
