@@ -1,6 +1,5 @@
 package com.example.sbquanan.entity;
 
-import com.example.sbquanan.enums.TrangThaiBan;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,10 +14,21 @@ public class Ban {
     @Column(name = "BanID")
     private Long banID;
 
-    @Column(name = "SoBan", nullable = false)
-    private int soBan;
+    @Column(name = "TenBan", nullable = false, length = 50)
+    private String tenBan;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "TrangThai", length = 20)
-    private TrangThaiBan trangThai = TrangThaiBan.TRONG;
+    @Column(name = "ViTri", length = 100)
+    private String viTri;
+
+    @Column(name = "SoChoNgoi", nullable = false)
+    private int soChoNgoi;
+
+    @Column(name = "TrangThai", length = 30)
+    private String trangThai = "Trống";
+
+    @Column(name = "LoaiBan", length = 50)
+    private String loaiBan = "Bàn thường";
+
+    @Column(name = "GhiChu", length = 100)
+    private String ghiChu;
 }

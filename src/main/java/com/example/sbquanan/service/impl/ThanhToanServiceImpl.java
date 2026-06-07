@@ -118,8 +118,14 @@ public class ThanhToanServiceImpl implements ThanhToanService {
                     existing.setTrangThai(updated.getTrangThai());
                     return repository.save(existing);
                 })
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Thanh toán không tồn tại với id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Thanh toán không tồn tại với id: " + id));
+    }
+
+    @Override
+    public void delete(Long id) {
+        if (!repository.existsById(id))
+            throw new ResourceNotFoundException("Thanh toán không tồn tại với id: " + id);
+        repository.deleteById(id);
     }
 
     private double tinhSoTienPhaiTra(HoaDon hoaDon) {
@@ -172,4 +178,3 @@ public class ThanhToanServiceImpl implements ThanhToanService {
 
     private record CapNhatDiemResult(int diemTru, int diemCong) {}
 }
- 

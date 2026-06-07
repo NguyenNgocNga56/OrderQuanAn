@@ -28,18 +28,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                    "/api/auth/**",
-                    "/api/migrate/**",
-                    "/menu/**",
-                    "/css/**", "/js/**", "/images/**"
-                ).permitAll()
-                .requestMatchers("/api/admin/**").authenticated()
-                .anyRequest().permitAll()
-            )
-            .addFilterBefore(tokenAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/api/migrate/**",
+                                "/menu/**",
+                                "/css/**", "/js/**", "/images/**"
+                        ).permitAll()
+                        .requestMatchers("/api/admin/**").authenticated()
+                        .anyRequest().permitAll()
+                )
+                .addFilterBefore(tokenAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

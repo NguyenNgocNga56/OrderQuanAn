@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class OrderServiceImpl implements OrderService {
+public class OrderServiceImpl extends OrderService {
 
     @Autowired private DonHangRepository        donHangRepo;
     @Autowired private ChiTietDonHangRepository chiTietRepo;
@@ -138,7 +138,7 @@ public class OrderServiceImpl implements OrderService {
         OrderResponse res = new OrderResponse();
 
         // SỬA: giữ nguyên Long, không ép sang Integer
-        res.setDonHangID(dh.getDonHangID());
+        res.setDonHangID(Math.toIntExact(dh.getDonHangID()));
 
         hoaDonRepo.findByDonHang_DonHangID(dh.getDonHangID())
                 .ifPresent(hoaDon -> {
@@ -223,4 +223,3 @@ public class OrderServiceImpl implements OrderService {
         return null;
     }
 }
-

@@ -82,7 +82,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public DashboardDTO.DonHangDTO capNhatTrangThai(Long donHangID,
-                                                     TrangThaiDonHang trangThaiMoi) {
+                                                    TrangThaiDonHang trangThaiMoi) {
         DonHang donHang = donHangRepo.findById(donHangID)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Khong tim thay don hang #" + donHangID));
@@ -129,35 +129,26 @@ public class AdminServiceImpl implements AdminService {
 
 
     private void validateChuyenTrangThai(TrangThaiDonHang hienTai,
-                                          TrangThaiDonHang moi) {
-        boolean hopLe;
-        switch (hienTai) {
-            case CHO_XAC_NHAN:
-                hopLe = moi == TrangThaiDonHang.DANG_NAU
-                        || moi == TrangThaiDonHang.DA_HUY;
-                break;
-            case DANG_NAU:
-                hopLe = moi == TrangThaiDonHang.DA_PHUC_VU
-                        || moi == TrangThaiDonHang.DA_HUY;
-                break;
-            case DA_PHUC_VU:
-                hopLe = moi == TrangThaiDonHang.HOAN_THANH
-                        || moi == TrangThaiDonHang.DA_HUY;
-                break;
-            default:
-                hopLe = false;
-                break;
-        }
+                                         TrangThaiDonHang moi) {
+        boolean hopLe = switch (hienTai) {
+            case CHO_XAC_NHAN -> moi == TrangThaiDonHang.DANG_NAU
+                    || moi == TrangThaiDonHang.DA_HUY;
+            case DANG_NAU     -> moi == TrangThaiDonHang.DA_PHUC_VU
+                    || moi == TrangThaiDonHang.DA_HUY;
+            case DA_PHUC_VU   -> moi == TrangThaiDonHang.HOAN_THANH
+                    || moi == TrangThaiDonHang.DA_HUY;
+            default           -> false;
+        };
         if (!hopLe) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Khong the chuyen tu " + hienTai + " sang " + moi
-                    + ". Flow hop le: CHO_XAC_NHAN -> DANG_NAU -> DA_PHUC_VU -> HOAN_THANH / DA_HUY");
+                            + ". Flow hop le: CHO_XAC_NHAN -> DANG_NAU -> DA_PHUC_VU -> HOAN_THANH / DA_HUY");
         }
     }
 
     private DashboardDTO.DonHangDTO toDonHangDTO(DonHang dh,
-                                                   List<ChiTietDonHang> chiTiets,
-                                                   HoaDon hoaDon) {
+                                                 List<ChiTietDonHang> chiTiets,
+                                                 HoaDon hoaDon) {
         DashboardDTO.DonHangDTO dto = new DashboardDTO.DonHangDTO();
         dto.setDonHangID(dh.getDonHangID());
         dto.setTrangThai(dh.getTrangThai().name());
