@@ -70,10 +70,9 @@ async function handleLogin(event) {
         const data = await response.json();
 
         if (response.ok && data.success) {
-            setLoginMsg(' Đăng nhập thành công!', 'success');
-            // Lưu token/session
-            if (data.token) sessionStorage.setItem('adminToken', data.token);
-            if (data.hoTen) sessionStorage.setItem('adminName', data.hoTen);
+            setLoginMsg('Đăng nhập thành công!', 'success');
+            sessionStorage.setItem('adminToken', data.data.token);
+            sessionStorage.setItem('adminName', data.data.hoTen);
             setTimeout(() => {
                 window.location.href = '/admin.html';
             }, 800);

@@ -212,12 +212,19 @@ GO
 -- de hash BCrypt, xong xoa MigrateController.java
 INSERT INTO NhanVien (TenNhanVien, SDT, DiaChi, Email, ChucVu, Luong, TrangThai, Password)
 VALUES
-    (N'Nguyen Ngoc Nga',  '0901111111', N'HCM', 'nga@gmail.com',       N'QUAN_LY',       15000000, 1, '12345'),
-    (N'Tran Thao Nuong',  '0902222222', N'HCM', 'nuong@gmail.com',     N'KY_THUAT_VIEN', 12000000, 1, '12345'),
-    (N'Pham Ngoc Tu',     '0903333333', N'HCM', 'ngoctus@gmail.com',   N'KY_THUAT_VIEN', 12000000, 1, '12345'),
-    (N'Tran Minh Tu',     '0904444444', N'HCM', 'minhtu94@gmail.com',  N'NGUOI_DUNG',     9000000, 1, '12345'),
-    (N'Nguyen Van Admin', '0905555555', N'HCM', 'admin@example.com',   N'QUAN_LY',       10000000, 1, '123456'),
-    (N'Nguyen Thi Huong', '0909999999', N'HCM', 'chuquan@example.com', N'QUAN_LY',       25000000, 1, '123456');
+    (N'Nguyen Ngoc Nga',      '0901111111', N'HCM', 'nga@gmail.com',         N'QUAN_LY',      15000000, 1, '12345'),
+    (N'Nguyen Thi Huong',     '0909999999', N'HCM', 'chuquan@example.com',   N'QUAN_LY',      25000000, 1, '123456'),
+    (N'Pham Van Chef',        '0907777777', N'HCM', 'chef1@gmail.com',        N'DAU_BEP',      18000000, 1, '12345'),
+    (N'Le Thi Kim Chi',       '0908888888', N'HCM', 'chef2@gmail.com',        N'DAU_BEP',      17000000, 1, '12345'),
+    (N'Tran Van Phu',         '0911112222', N'HCM', 'phubep1@gmail.com',      N'PHU_BEP',      11000000, 1, '12345'),
+    (N'Hoang Minh Tam',       '0911113333', N'HCM', 'phubep2@gmail.com',      N'PHU_BEP',      10500000, 1, '12345'),
+    (N'Nguyen Thi Phuc Vu',   '0912223344', N'HCM', 'phucvu1@gmail.com',      N'PHUC_VU',       8500000, 1, '12345'),
+    (N'Le Van An',            '0912224455', N'HCM', 'phucvu2@gmail.com',      N'PHUC_VU',       8200000, 1, '12345'),
+    (N'Tran Thi Mai',         '0912225566', N'HCM', 'phucvu3@gmail.com',      N'PHUC_VU',       8000000, 1, '12345'),
+    (N'Tran Thao Nuong',      '0902222222', N'HCM', 'nuong@gmail.com',        N'KY_THUAT_VIEN', 12000000, 1, '12345'),
+    (N'Pham Ngoc Tu',         '0903333333', N'HCM', 'ngoctus@gmail.com',      N'KY_THUAT_VIEN', 12000000, 1, '12345'),
+    (N'Tran Minh Tu',         '0904444444', N'HCM', 'minhtu94@gmail.com',     N'NGUOI_DUNG',     9000000, 1, '12345'),
+    (N'Nguyen Van Admin',     '0905555555', N'HCM', 'admin@example.com',      N'QUAN_LY',      10000000, 1, '123456');
 GO
 
 -- KHACH HANG
