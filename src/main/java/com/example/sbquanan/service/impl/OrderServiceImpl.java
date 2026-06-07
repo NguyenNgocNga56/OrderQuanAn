@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class OrderServiceImpl implements OrderService {
+public class OrderServiceImpl extends OrderService {
 
     @Autowired private DonHangRepository        donHangRepo;
     @Autowired private ChiTietDonHangRepository chiTietRepo;

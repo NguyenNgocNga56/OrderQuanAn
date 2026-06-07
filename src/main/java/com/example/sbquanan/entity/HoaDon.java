@@ -1,6 +1,7 @@
 package com.example.sbquanan.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
@@ -15,10 +16,12 @@ public class HoaDon {
     @Column(name = "HoaDonID")
     private Long hoaDonID;
 
+    @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "DonHangID", nullable = false)
     private DonHang donHang;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "KhuyenMaiID")
     private KhuyenMai khuyenMai;

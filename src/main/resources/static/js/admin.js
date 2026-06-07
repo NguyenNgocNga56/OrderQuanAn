@@ -22,8 +22,6 @@ window.addEventListener('DOMContentLoaded', function() {
 async function loadStats() {
     const token = sessionStorage.getItem('adminToken');
     const headers = { 'Authorization': 'Bearer ' + token };
-
-    // Đếm số bàn, khách hàng, nhân viên từ API có sẵn
     const apis = [
         { url: '/api/ban', id: 'statBan', count: rows => rows.filter(isServingTable).length },
         { url: '/orders', id: 'statDonHang', count: rows => rows.filter(isTodayOrder).length },
@@ -46,11 +44,7 @@ async function loadStats() {
 }
 
 function isServingTable(ban) {
-    const status = removeVietnameseMarks(String(ban.trangThai || '')).toLowerCase();
-    return status.includes('dang dung')
-        || status.includes('dang phuc vu')
-        || status.includes('co khach')
-        || status.includes('co_khach');
+    return String(ban.trangThai || '').toUpperCase() === 'CO_KHACH';
 }
 
 function isTodayOrder(order) {
@@ -73,14 +67,14 @@ function logout() {
 
 // QUAN LY NHANH
 const quickManagers = {
-    '/api/ban': { title: 'Quản lý bàn', sub: 'Danh sách bàn hiện có' },
-    '/api/monan': { title: 'Quản lý món ăn', sub: 'Xem, thêm và xóa món trong menu', monAn: true },
-    '/api/donhang': { title: 'Quản lý đơn hàng', sub: 'Danh sách đơn hàng' },
-    '/api/hoadon': { title: 'Quản lý hóa đơn', sub: 'Danh sách hóa đơn' },
-    '/api/khachhang': { title: 'Quản lý khách hàng', sub: 'Danh sách khách hàng thành viên' },
-    '/api/nhanvien': { title: 'Quản lý nhân viên', sub: 'Danh sách nhân viên' },
-    '/api/khuyenmai': { title: 'Quản lý khuyến mãi', sub: 'Danh sách chương trình ưu đãi' },
-    '/api/thanhtoan': { title: 'Quản lý thanh toán', sub: 'Lịch sử giao dịch' }
+    '/api/ban': { title: 'Quan ly ban', sub: 'Danh sach ban hien co' },
+    '/api/monan': { title: 'Quan ly mon an', sub: 'Xem, them va xoa mon trong menu', monAn: true },
+    '/api/donhang': { title: 'Quan ly don hang', sub: 'Danh sach don hang', apiUrl: '/orders' },
+    '/api/hoadon': { title: 'Quan ly hoa don', sub: 'Danh sach hoa don' },
+    '/api/khachhang': { title: 'Quan ly khach hang', sub: 'Danh sach khach hang thanh vien' },
+    '/api/nhanvien': { title: 'Quan ly nhan vien', sub: 'Danh sach nhan vien' },
+    '/api/khuyenmai': { title: 'Quan ly khuyen mai', sub: 'Danh sach chuong trinh uu dai' },
+    '/api/thanhtoan': { title: 'Quan ly thanh toan', sub: 'Lich su giao dich' }
 };
 
 function setupQuickLinks() {

@@ -2,6 +2,7 @@ package com.example.sbquanan.entity;
 
 import com.example.sbquanan.enums.PhuongThucThanhToan;
 import com.example.sbquanan.enums.TrangThaiThanhToan;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,7 @@ public class ThanhToan {
     @Column(name = "ThanhToanID")
     private Long thanhToanID;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "HoaDonID", nullable = false)
     private HoaDon hoaDon;
