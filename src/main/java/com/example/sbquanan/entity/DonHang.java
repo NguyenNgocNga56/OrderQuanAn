@@ -36,6 +36,10 @@ public class DonHang {
     @JoinColumn(name = "NhanVienID")
     private NhanVien nhanVien;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "BanID")
+    private Ban ban;
+
     @OneToMany(mappedBy = "donHang", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ChiTietDonHang> chiTietDonHangs = new ArrayList<>();
 

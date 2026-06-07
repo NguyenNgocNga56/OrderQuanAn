@@ -4,6 +4,7 @@ import com.example.sbquanan.dto.ThanhToanRequest;
 import com.example.sbquanan.dto.ThanhToanResponse;
 import com.example.sbquanan.entity.HoaDon;
 import com.example.sbquanan.entity.KhachHang;
+import com.example.sbquanan.entity.KhuyenMai;
 import com.example.sbquanan.entity.ThanhToan;
 import com.example.sbquanan.enums.PhuongThucThanhToan;
 import com.example.sbquanan.enums.TrangThaiDonHang;
@@ -47,13 +48,24 @@ public class ThanhToanServiceImpl implements ThanhToanService {
 
         // CHECK TRẠNG THÁI — chỉ cho thanh toán khi DA_PHUC_VU
         if (trangThai != TrangThaiDonHang.DA_PHUC_VU) {
-            String msg = switch (trangThai) {
-                case DA_HUY       -> "Không thể thanh toán — đơn hàng đã bị hủy.";
-                case CHO_XAC_NHAN -> "Không thể thanh toán — đơn hàng chưa được xác nhận.";
-                case DANG_NAU     -> "Không thể thanh toán — đơn hàng đang được chuẩn bị.";
-                case HOAN_THANH   -> "Đơn hàng này đã hoàn thành trước đó.";
-                default           -> "Trạng thái đơn hàng không hợp lệ để thanh toán: " + trangThai;
-            };
+            String msg;
+            switch (trangThai) {
+                case DA_HUY:
+                    msg = "Không thể thanh toán — đơn hàng đã bị hủy.";
+                    break;
+                case CHO_XAC_NHAN:
+                    msg = "Không thể thanh toán — đơn hàng chưa được xác nhận.";
+                    break;
+                case DANG_NAU:
+                    msg = "Không thể thanh toán — đơn hàng đang được chuẩn bị.";
+                    break;
+                case HOAN_THANH:
+                    msg = "Đơn hàng này đã hoàn thành trước đó.";
+                    break;
+                default:
+                    msg = "Trạng thái đơn hàng không hợp lệ để thanh toán: " + trangThai;
+                    break;
+            }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, msg);
         }
 
@@ -89,9 +101,9 @@ public class ThanhToanServiceImpl implements ThanhToanService {
         thanhToan.setTrangThai(TrangThaiThanhToan.THANH_CONG);
         thanhToan.setThoiGian(LocalDateTime.now());
 
+        CapNhatDiemResult diemResult = capNhatDiemSauThanhToan(hoaDon, soTienPhaiTra);
         ThanhToan saved = repository.save(thanhToan);
-        int diemCong = congDiemSauThanhToan(hoaDon, soTienPhaiTra);
-        return toResponse(saved, soTienPhaiTra, diemCong);
+        return toResponse(saved, soTienPhaiTra, diemResult);
     }
 
     @Override
@@ -106,8 +118,14 @@ public class ThanhToanServiceImpl implements ThanhToanService {
                     existing.setTrangThai(updated.getTrangThai());
                     return repository.save(existing);
                 })
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Thanh toán không tồn tại với id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Thanh toán không tồn tại với id: " + id));
+    }
+
+    @Override
+    public void delete(Long id) {
+        if (!repository.existsById(id))
+            throw new ResourceNotFoundException("Thanh toán không tồn tại với id: " + id);
+        repository.deleteById(id);
     }
 
     private double tinhSoTienPhaiTra(HoaDon hoaDon) {
@@ -116,20 +134,32 @@ public class ThanhToanServiceImpl implements ThanhToanService {
         return Math.max(hoaDon.getTongTien() - hoaDon.getGiamGia(), 0);
     }
 
-    private int congDiemSauThanhToan(HoaDon hoaDon, double soTienPhaiTra) {
+    private CapNhatDiemResult capNhatDiemSauThanhToan(HoaDon hoaDon, double soTienPhaiTra) {
         KhachHang khachHang = hoaDon.getDonHang().getKhachHang();
-        if (khachHang == null) return 0;
+        if (khachHang == null) return new CapNhatDiemResult(0, 0);
 
+        int diemTru = tinhDiemTru(hoaDon, khachHang);
         int diemCong = (int) (soTienPhaiTra / 10000);
-        if (diemCong <= 0) return 0;
 
-        khachHang.setDiemTichLuy(khachHang.getDiemTichLuy() + diemCong);
+        khachHang.setDiemTichLuy(khachHang.getDiemTichLuy() - diemTru + Math.max(diemCong, 0));
         khachHang.capNhatHangKhachHang();
         khachHangRepository.save(khachHang);
-        return diemCong;
+        return new CapNhatDiemResult(diemTru, Math.max(diemCong, 0));
     }
 
-    private ThanhToanResponse toResponse(ThanhToan thanhToan, double soTienPhaiTra, int diemCong) {
+    private int tinhDiemTru(HoaDon hoaDon, KhachHang khachHang) {
+        KhuyenMai khuyenMai = hoaDon.getKhuyenMai();
+        if (khuyenMai == null || khuyenMai.getDiemToiThieu() <= 0) return 0;
+
+        int diemTru = khuyenMai.getDiemToiThieu();
+        if (khachHang.getDiemTichLuy() < diemTru) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Khach hang khong con du diem de dung ma khuyen mai");
+        }
+        return diemTru;
+    }
+
+    private ThanhToanResponse toResponse(ThanhToan thanhToan, double soTienPhaiTra, CapNhatDiemResult diemResult) {
         HoaDon hoaDon = thanhToan.getHoaDon();
         ThanhToanResponse response = new ThanhToanResponse();
         response.setThanhToanID(thanhToan.getThanhToanID());
@@ -140,9 +170,11 @@ public class ThanhToanServiceImpl implements ThanhToanService {
         response.setTongTien(hoaDon.getTongTien());
         response.setGiamGia(hoaDon.getGiamGia());
         response.setSoTien(soTienPhaiTra);
-        response.setDiemCong(diemCong);
+        response.setDiemTru(diemResult.diemTru());
+        response.setDiemCong(diemResult.diemCong());
         response.setThoiGian(thanhToan.getThoiGian());
         return response;
     }
+
+    private record CapNhatDiemResult(int diemTru, int diemCong) {}
 }
- 

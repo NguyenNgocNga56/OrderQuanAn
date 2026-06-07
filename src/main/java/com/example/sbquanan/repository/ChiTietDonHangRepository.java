@@ -16,4 +16,5 @@ public interface ChiTietDonHangRepository extends JpaRepository<ChiTietDonHang, 
 
     @Query("SELECT ct FROM ChiTietDonHang ct WHERE ct.donHang.donHangID IN :ids")
     List<ChiTietDonHang> findByDonHangIDIn(@Param("ids") List<Long> ids);
+    List<ChiTietDonHang> findByDonHang_DonHangIDIn(List<Long> ids);
 }

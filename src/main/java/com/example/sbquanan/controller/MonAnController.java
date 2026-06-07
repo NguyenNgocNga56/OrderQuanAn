@@ -12,60 +12,60 @@ import com.example.sbquanan.service.MonAnService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
- 
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
- 
+
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/api/monan")
 public class MonAnController {
- 
+
     @Autowired private MonAnService monAnService;   // ★ dùng Service, không dùng Repository trực tiếp
     @Autowired private MenuRepository menuRepository; // chỉ dùng để lookup Menu khi tạo mới
- 
+
     @GetMapping("")
     public List<MonAnDTO> getAll() {
         return monAnService.getAllDoAn().stream()
                 .map(MonAnDTO::from)
                 .collect(Collectors.toList());
     }
- 
+
     @GetMapping("/douong")
     public List<MonAnDTO> getDoUong() {
         return monAnService.getAllDoUong().stream()
                 .map(MonAnDTO::from)
                 .collect(Collectors.toList());
     }
- 
+
     @GetMapping("/{id}")
     public ResponseEntity<MonAnDTO> getById(@PathVariable Long id) {
         return monAnService.getById(id)
                 .map(m -> ResponseEntity.ok(MonAnDTO.from(m)))
                 .orElse(ResponseEntity.notFound().build());
     }
- 
+
     @GetMapping("/menu/{menuId}")
     public List<MonAnDTO> getByMenu(@PathVariable Long menuId) {
         return monAnService.getByMenu(menuId).stream()
                 .map(MonAnDTO::from)
                 .collect(Collectors.toList());
     }
- 
+
     @PostMapping("")
     public MonAn create(@RequestBody Map<String, Object> payload) {
         String tenMon = asString(payload.get("tenMon"));
         double gia    = asDouble(payload.get("gia"));
         Long menuID   = asLong(payload.get("menuID"));
- 
+
         if (tenMon.isBlank()) throw new IllegalArgumentException("Ten mon khong duoc de trong");
         if (gia <= 0)         throw new IllegalArgumentException("Gia mon phai lon hon 0");
         if (menuID == null)   throw new IllegalArgumentException("Menu khong hop le");
- 
+
         Menu menu = menuRepository.findById(menuID)
                 .orElseThrow(() -> new IllegalArgumentException("Menu khong ton tai"));
- 
+
         String phanLoai = asString(payload.get("phanLoai"));
         MonAn monAn;
         if ("douong".equalsIgnoreCase(phanLoai)) {
@@ -77,17 +77,17 @@ public class MonAnController {
             doAn.setDonViTinh(asString(payload.get("loai")));
             monAn = doAn;
         }
- 
+
         monAn.setTenMon(tenMon);
         monAn.setGia(gia);
         monAn.setMenu(menu);
         monAn.setMoTa(asString(payload.get("moTa")));
         monAn.setHinhAnh(asString(payload.get("hinhAnh")));
         monAn.setTrangThai(parseTrangThai(asString(payload.get("trangThai"))));
- 
+
         return monAnService.create(monAn); // ★ gọi qua Service
     }
- 
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         return monAnService.getById(id)
@@ -97,30 +97,30 @@ public class MonAnController {
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
- 
+
     // ─── Helpers ─────────────────────────────────────────────────────────────
- 
+
     private String asString(Object value) {
         return value == null ? "" : String.valueOf(value).trim();
     }
- 
+
     private Long asLong(Object value) {
         String text = asString(value);
         if (text.isBlank()) return null;
         return Long.valueOf(text);
     }
- 
+
     private double asDouble(Object value) {
         String text = asString(value);
         if (text.isBlank()) return 0;
         return Double.parseDouble(text);
     }
- 
+
     private TrangThaiMonAn parseTrangThai(String value) {
         if (value.isBlank()) return TrangThaiMonAn.CON_HANG;
         return TrangThaiMonAn.valueOf(value);
     }
- 
+
     private SizeDoUong parseSize(String value) {
         if (value.isBlank()) return SizeDoUong.M;
         return SizeDoUong.valueOf(value.toUpperCase());
