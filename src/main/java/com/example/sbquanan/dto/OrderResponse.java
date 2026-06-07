@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 public class OrderResponse {
 
-    private Integer donHangID;
+	private Long donHangID;
     private Long hoaDonID;
     private String  trangThai;
     private double  tongTien;

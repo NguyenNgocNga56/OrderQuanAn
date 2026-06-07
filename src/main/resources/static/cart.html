@@ -357,20 +357,16 @@
         if (!items.length) { alert('Giỏ hàng trống!'); return; }
 
         const sdtNhap = document.getElementById('inputSdt').value.trim();
-        // Nếu có nhập SĐT nhưng chưa tra cứu (hoặc đã đổi sau tra cứu) → tự động tra cứu trước
-        if (sdtNhap && !_khachHangId) {
-            await traCuuKhach();
-            // Sau khi tra cứu: nếu vẫn không tìm thấy → _khachHangId vẫn null → block
-            if (document.getElementById('inputSdt').value.trim() && !_khachHangId) {
-                alert('Số điện thoại không tìm thấy trong hệ thống.\nVui lòng kiểm tra lại hoặc xoá SĐT để đặt không tích điểm.');
-                return;
-            }
+        if (sdtNhap && !/^0[0-9]{9}$/.test(sdtNhap)) {
+            alert('Số điện thoại không hợp lệ. Vui lòng nhập đúng 10 số, bắt đầu bằng 0.');
+            return;
         }
 
         const phuongThuc = document.getElementById('selPhuongThuc')?.value || 'TIEN_MAT';
 
         const payload = {
-            khachHangId: _khachHangId || null,
+            khachHangId: null,
+            sdtKhachHang: sdtNhap || null,
             nhanVienId:  null,
             khuyenMaiId: _kmId || null,
             items: items.map(i => ({ monId: i.monID, soLuong: i.qty }))

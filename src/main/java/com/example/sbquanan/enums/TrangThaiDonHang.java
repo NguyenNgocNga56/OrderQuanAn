@@ -2,8 +2,8 @@ package com.example.sbquanan.enums;
 
 public enum TrangThaiDonHang {
     CHO_XAC_NHAN("Chờ xác nhận"),
-    DANG_XU_LY("Đang xử lý"),
-    DANG_GIAO("Đang giao"),
+    DANG_NAU("Đang nấu"),
+    DA_PHUC_VU("Đã phục vụ"),
     HOAN_THANH("Hoàn thành"),
     DA_HUY("Đã hủy");
 

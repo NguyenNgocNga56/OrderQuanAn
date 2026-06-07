@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "MonAn")
+
+
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "PhanLoai", discriminatorType = DiscriminatorType.STRING)
 @Data

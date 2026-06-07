@@ -12,5 +12,4 @@ public interface ThanhToanService {
     ThanhToanResponse thanhToanDonHang(Long donHangID, ThanhToanRequest request);
     ThanhToan create(ThanhToan entity);
     ThanhToan update(Long id, ThanhToan updated);
-    void delete(Long id);
 }

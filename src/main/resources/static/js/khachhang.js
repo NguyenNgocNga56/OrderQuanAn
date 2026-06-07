@@ -88,15 +88,16 @@ async function loadKhuyenMai() {
     const grid = document.getElementById('kmGrid');
     if (!grid) return;
     try {
-        const kms = await fetch('/api/khuyenmai').then(r => r.json());
+        const res = await fetch('/api/khuyenmai').then(r => r.json());
+        const kms = Array.isArray(res) ? res : (res.data || []);
         if (!kms.length) {
             grid.innerHTML = '<p style="text-align:center;color:var(--text-muted);">Hiện chưa có khuyến mãi nào.</p>';
             return;
         }
         grid.innerHTML = kms.map(km => {
             const label = km.loaiKhuyenMai === 'PHAN_TRAM'
-                ? `Giảm ${km.giaTriKhuyenMai}%`
-                : `Giảm ${fmtVND(km.giaTriKhuyenMai)}`;
+                ? `Giảm ${km.giaTri}%`
+                : `Giảm ${fmtVND(km.giaTri)}`;
             const now = new Date();
             const hetHan = km.ngayKetThuc ? new Date(km.ngayKetThuc) : null;
             const con = !hetHan || hetHan >= now;

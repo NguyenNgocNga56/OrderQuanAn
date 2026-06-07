@@ -1,18 +1,55 @@
-### IntelliJ IDEA ###
+# =====================================================
+# .gitignore — OrderQuanAn
+# Dat file nay o root project (cung cho voi pom.xml)
+# =====================================================
+
+# ==================== CREDENTIALS ====================
+# QUAN TRONG: khong bao gio commit file nay
+.env
+*.env
+
+# ==================== BUILD OUTPUT ====================
+target/
+build/
 out/
+/out/
 !**/src/main/**/out/
 !**/src/test/**/out/
-.kotlin
+!**/src/main/**/build/
+!**/src/test/**/build/
 
-### Eclipse ###
-sHELP.md
-target/
+# ==================== COMPILED FILES ====================
 *.class
 *.jar
 *.war
 *.ear
-*.zip
-*.tar.gz
+
+# ==================== INTELLIJ IDEA ====================
+.idea/
+*.iml
+*.iws
+*.ipr
+cmake-build-*/
+.navigation/
+
+# ==================== ECLIPSE / STS ====================
+.metadata/
+.classpath
+.project
+.settings/
+.springBeans
+.sts4-cache
+.apt_generated
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+# ==================== VS CODE ====================
+.vscode/
+.history/
+*.code-workspace
+
+# ==================== MAVEN ====================
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
@@ -23,76 +60,13 @@ buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
 
-### INTELLIJ IDEA ###
-.idea/
-*.iws
-*.iml
-*.ipr
-out/
-/out/
-cmake-build-*/
-.navigation/
+# ==================== LOGS ====================
+*.log
+/logs/
+spring-run.log
+spring-run.err.log
 
-### ECLIPSE ###
-.metadata/
-bin/
-tmp/
-*.tmp
-*.bak
-*.swp
-*~.nib
-local.properties
-.settings/
-### STS ###
->>>>>>> origin/NguyenNgocNga
-.apt_generated
-.classpath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### VS CODE ###
-.vscode/
-.history/
-*.code-workspace
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
-
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-### NETBEANS ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-
-### VS Code ###
-.vscode/
-
-### Mac OS ###
-.DS_Store
-
-# Giấu file cấu hình db
-src/resources/database.properties
-
-#ẩn các file này vì nó là mấy file cấu hình riêng trong intelij
-.idea/
-out/
-*.iml
-*.class
-
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### OPERATING SYSTEM (Tránh conflict file ẩn của Windows/Mac) ###
+# ==================== OS ====================
 .DS_Store
 .DS_Store?
 ._*
@@ -101,11 +75,13 @@ build/
 ehthumbs.db
 Thumbs.db
 desktop.ini
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
 
-### CONFIG & DATABASE (Giấu file cấu hình cá nhân) ###
+# ==================== CONFIG CA NHAN ====================
+src/resources/database.properties
 src/main/resources/database.properties
-# application.properties # Nếu bạn muốn mỗi người tự giữ config DB riêng thì bỏ comment dòng này
-
-### LOGS ###
-*.log
-/logs/
+# application.properties chi uncomment neu moi nguoi tu giu config DB rieng

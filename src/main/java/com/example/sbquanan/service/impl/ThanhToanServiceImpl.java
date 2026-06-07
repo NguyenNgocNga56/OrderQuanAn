@@ -4,8 +4,10 @@ import com.example.sbquanan.dto.ThanhToanRequest;
 import com.example.sbquanan.dto.ThanhToanResponse;
 import com.example.sbquanan.entity.HoaDon;
 import com.example.sbquanan.entity.KhachHang;
+import com.example.sbquanan.entity.KhuyenMai;
 import com.example.sbquanan.entity.ThanhToan;
 import com.example.sbquanan.enums.PhuongThucThanhToan;
+import com.example.sbquanan.enums.TrangThaiDonHang;
 import com.example.sbquanan.enums.TrangThaiThanhToan;
 import com.example.sbquanan.exception.ResourceNotFoundException;
 import com.example.sbquanan.repository.HoaDonRepository;
@@ -26,14 +28,9 @@ import java.util.Optional;
 @Transactional
 public class ThanhToanServiceImpl implements ThanhToanService {
 
-    @Autowired
-    private ThanhToanRepository repository;
-
-    @Autowired
-    private HoaDonRepository hoaDonRepository;
-
-    @Autowired
-    private KhachHangRepository khachHangRepository;
+    @Autowired private ThanhToanRepository repository;
+    @Autowired private HoaDonRepository    hoaDonRepository;
+    @Autowired private KhachHangRepository khachHangRepository;
 
     @Override
     public List<ThanhToan> getAll() { return repository.findAll(); }
@@ -44,24 +41,57 @@ public class ThanhToanServiceImpl implements ThanhToanService {
     @Override
     public ThanhToanResponse thanhToanDonHang(Long donHangID, ThanhToanRequest request) {
         HoaDon hoaDon = hoaDonRepository.findByDonHang_DonHangID(donHangID)
-                .orElseThrow(() -> new ResourceNotFoundException("Khong tim thay hoa don cho don hang #" + donHangID));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Không tìm thấy hóa đơn cho đơn hàng #" + donHangID));
 
-        if (repository.existsByHoaDon_HoaDonIDAndTrangThai(hoaDon.getHoaDonID(), TrangThaiThanhToan.THANH_CONG)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Don hang nay da thanh toan.");
+        TrangThaiDonHang trangThai = hoaDon.getDonHang().getTrangThai();
+
+        // CHECK TRẠNG THÁI — chỉ cho thanh toán khi DA_PHUC_VU
+        if (trangThai != TrangThaiDonHang.DA_PHUC_VU) {
+            String msg;
+            switch (trangThai) {
+                case DA_HUY:
+                    msg = "Không thể thanh toán — đơn hàng đã bị hủy.";
+                    break;
+                case CHO_XAC_NHAN:
+                    msg = "Không thể thanh toán — đơn hàng chưa được xác nhận.";
+                    break;
+                case DANG_NAU:
+                    msg = "Không thể thanh toán — đơn hàng đang được chuẩn bị.";
+                    break;
+                case HOAN_THANH:
+                    msg = "Đơn hàng này đã hoàn thành trước đó.";
+                    break;
+                default:
+                    msg = "Trạng thái đơn hàng không hợp lệ để thanh toán: " + trangThai;
+                    break;
+            }
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, msg);
+        }
+
+        // CHECK đã thanh toán thành công chưa
+        if (repository.existsByHoaDon_HoaDonIDAndTrangThai(
+                hoaDon.getHoaDonID(), TrangThaiThanhToan.THANH_CONG)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Đơn hàng này đã được thanh toán.");
         }
 
         PhuongThucThanhToan phuongThuc = request != null ? request.getPhuongThuc() : null;
         if (phuongThuc == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vui long chon phuong thuc thanh toan.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Vui lòng chọn phương thức thanh toán.");
         }
 
         double soTienPhaiTra = tinhSoTienPhaiTra(hoaDon);
         double soTien = request.getSoTien() != null ? request.getSoTien() : soTienPhaiTra;
+
         if (soTien <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "So tien thanh toan phai lon hon 0.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Số tiền thanh toán phải lớn hơn 0.");
         }
         if (Double.compare(soTien, soTienPhaiTra) != 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "So tien thanh toan khong khop voi hoa don.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Số tiền thanh toán không khớp với hóa đơn.");
         }
 
         ThanhToan thanhToan = new ThanhToan();
@@ -71,9 +101,9 @@ public class ThanhToanServiceImpl implements ThanhToanService {
         thanhToan.setTrangThai(TrangThaiThanhToan.THANH_CONG);
         thanhToan.setThoiGian(LocalDateTime.now());
 
+        CapNhatDiemResult diemResult = capNhatDiemSauThanhToan(hoaDon, soTienPhaiTra);
         ThanhToan saved = repository.save(thanhToan);
-        int diemCong = congDiemSauThanhToan(hoaDon, soTienPhaiTra);
-        return toResponse(saved, soTienPhaiTra, diemCong);
+        return toResponse(saved, soTienPhaiTra, diemResult);
     }
 
     @Override
@@ -88,14 +118,8 @@ public class ThanhToanServiceImpl implements ThanhToanService {
                     existing.setTrangThai(updated.getTrangThai());
                     return repository.save(existing);
                 })
-                .orElseThrow(() -> new ResourceNotFoundException("Thanh toán không tồn tại với id: " + id));
-    }
-
-    @Override
-    public void delete(Long id) {
-        if (!repository.existsById(id))
-            throw new ResourceNotFoundException("Thanh toán không tồn tại với id: " + id);
-        repository.deleteById(id);
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Thanh toán không tồn tại với id: " + id));
     }
 
     private double tinhSoTienPhaiTra(HoaDon hoaDon) {
@@ -104,20 +128,32 @@ public class ThanhToanServiceImpl implements ThanhToanService {
         return Math.max(hoaDon.getTongTien() - hoaDon.getGiamGia(), 0);
     }
 
-    private int congDiemSauThanhToan(HoaDon hoaDon, double soTienPhaiTra) {
+    private CapNhatDiemResult capNhatDiemSauThanhToan(HoaDon hoaDon, double soTienPhaiTra) {
         KhachHang khachHang = hoaDon.getDonHang().getKhachHang();
-        if (khachHang == null) return 0;
+        if (khachHang == null) return new CapNhatDiemResult(0, 0);
 
+        int diemTru = tinhDiemTru(hoaDon, khachHang);
         int diemCong = (int) (soTienPhaiTra / 10000);
-        if (diemCong <= 0) return 0;
 
-        khachHang.setDiemTichLuy(khachHang.getDiemTichLuy() + diemCong);
+        khachHang.setDiemTichLuy(khachHang.getDiemTichLuy() - diemTru + Math.max(diemCong, 0));
         khachHang.capNhatHangKhachHang();
         khachHangRepository.save(khachHang);
-        return diemCong;
+        return new CapNhatDiemResult(diemTru, Math.max(diemCong, 0));
     }
 
-    private ThanhToanResponse toResponse(ThanhToan thanhToan, double soTienPhaiTra, int diemCong) {
+    private int tinhDiemTru(HoaDon hoaDon, KhachHang khachHang) {
+        KhuyenMai khuyenMai = hoaDon.getKhuyenMai();
+        if (khuyenMai == null || khuyenMai.getDiemToiThieu() <= 0) return 0;
+
+        int diemTru = khuyenMai.getDiemToiThieu();
+        if (khachHang.getDiemTichLuy() < diemTru) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Khach hang khong con du diem de dung ma khuyen mai");
+        }
+        return diemTru;
+    }
+
+    private ThanhToanResponse toResponse(ThanhToan thanhToan, double soTienPhaiTra, CapNhatDiemResult diemResult) {
         HoaDon hoaDon = thanhToan.getHoaDon();
         ThanhToanResponse response = new ThanhToanResponse();
         response.setThanhToanID(thanhToan.getThanhToanID());
@@ -128,8 +164,12 @@ public class ThanhToanServiceImpl implements ThanhToanService {
         response.setTongTien(hoaDon.getTongTien());
         response.setGiamGia(hoaDon.getGiamGia());
         response.setSoTien(soTienPhaiTra);
-        response.setDiemCong(diemCong);
+        response.setDiemTru(diemResult.diemTru());
+        response.setDiemCong(diemResult.diemCong());
         response.setThoiGian(thanhToan.getThoiGian());
         return response;
     }
+
+    private record CapNhatDiemResult(int diemTru, int diemCong) {}
 }
+ 
