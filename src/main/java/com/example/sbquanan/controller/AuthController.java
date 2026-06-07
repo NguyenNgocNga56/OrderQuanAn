@@ -1,13 +1,12 @@
 package com.example.sbquanan.controller;
 
+import com.example.sbquanan.dto.ApiResponse;
 import com.example.sbquanan.entity.NhanVien;
 import com.example.sbquanan.repository.NhanVienRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -15,88 +14,73 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-    @Autowired
-    private NhanVienRepository nhanVienRepository;
 
-    // Lưu token tạm thời trong bộ nhớ (có thể dùng Redis hoặc DB sau này)
+    private final NhanVienRepository nhanVienRepository;
+
+    // Của Ngà: Đổi thành static và lưu Token -> NhanVien ID (Long)
     private static final ConcurrentHashMap<String, Long> tokenStore = new ConcurrentHashMap<>();
 
-    /**
-     * POST /api/auth/login
-     * Body: { "email": "...", "password": "..." }
-     */
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> body) {
-        Map<String, Object> response = new HashMap<>();
+    public ResponseEntity<ApiResponse<Map<String, Object>>> login(
+            @RequestBody Map<String, String> body) {
 
         String email    = body.get("email");
         String password = body.get("password");
 
+        // Của Ngà: Thêm check isBlank() chặt chẽ hơn
         if (email == null || password == null || email.isBlank() || password.isBlank()) {
-            response.put("success", false);
-            response.put("message", "Vui lòng nhập đầy đủ email và mật khẩu.");
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error("Vui lòng nhập đầy đủ email và mật khẩu."));
         }
 
-        // Tìm nhân viên theo email
+        // Của Ngà: Dùng Optional truy vấn DB
         Optional<NhanVien> optNhanVien = nhanVienRepository.findByEmail(email);
 
         if (optNhanVien.isEmpty()) {
-            response.put("success", false);
-            response.put("message", "Email hoặc mật khẩu không đúng.");
-            return ResponseEntity.status(401).body(response);
+            return ResponseEntity.status(401)
+                    .body(ApiResponse.error("Email hoặc mật khẩu không đúng."));
         }
 
         NhanVien nhanVien = optNhanVien.get();
 
-        // Kiểm tra mật khẩu
-        if (!encoder.matches(password, nhanVien.getPassword())) {
-            response.put("success", false);
-            response.put("message", "Email hoặc mật khẩu không đúng.");
-            return ResponseEntity.status(401).body(response);
+        // CỦA BẠN: So sánh mật khẩu trực tiếp (Plain-text), không BCrypt
+        if (!password.equals(nhanVien.getPassword())) {
+            return ResponseEntity.status(401)
+                    .body(ApiResponse.error("Email hoặc mật khẩu không đúng."));
         }
 
-        // Kiểm tra trạng thái tài khoản
         if (!nhanVien.isTrangThai()) {
-            response.put("success", false);
-            response.put("message", "Tài khoản đã bị vô hiệu hóa.");
-            return ResponseEntity.status(403).body(response);
+            return ResponseEntity.status(403)
+                    .body(ApiResponse.error("Tài khoản đã bị vô hiệu hóa."));
         }
 
-        // Tạo token đơn giản
         String token = UUID.randomUUID().toString();
+        // Của Ngà: Lưu ID nhân viên vào tokenStore thay vì lưu email
         tokenStore.put(token, nhanVien.getId());
 
-        response.put("success", true);
-        response.put("message", "Đăng nhập thành công.");
-        response.put("token", token);
-        response.put("hoTen", nhanVien.getHoTen());
-        response.put("chucVu", nhanVien.getChucVu());
-
-        return ResponseEntity.ok(response);
+        // Của bạn: Giữ nguyên format ApiResponse
+        return ResponseEntity.ok(ApiResponse.success(Map.of(
+                "token",  token,
+                "email",  nhanVien.getEmail(),
+                "hoTen",  nhanVien.getHoTen(),
+                "chucVu", nhanVien.getChucVu() != null ? nhanVien.getChucVu() : ""
+        )));
     }
 
-    /**
-     * POST /api/auth/logout
-     * Header: Authorization: Bearer <token>
-     */
     @PostMapping("/logout")
-    public ResponseEntity<Map<String, Object>> logout(@RequestHeader(value = "Authorization", required = false) String authHeader) {
-        Map<String, Object> response = new HashMap<>();
+    public ResponseEntity<ApiResponse<String>> logout(
+            @RequestHeader(value = "Authorization", required = false) String header) {
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
+        if (header != null && header.startsWith("Bearer ")) {
+            String token = header.substring(7);
             tokenStore.remove(token);
         }
-
-        response.put("success", true);
-        response.put("message", "Đăng xuất thành công.");
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.success("Đăng xuất thành công."));
     }
 
-    /** Kiểm tra token có hợp lệ không */
+    // Của Ngà: Hàm check token tĩnh cho các Filter gọi vào
     public static boolean isValidToken(String token) {
         return token != null && tokenStore.containsKey(token);
     }

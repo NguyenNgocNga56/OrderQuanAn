@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface KhuyenMaiRepository extends JpaRepository<KhuyenMai, Long> {
     Optional<KhuyenMai> findByTenKhuyenMaiIgnoreCase(String tenKhuyenMai);
+    Optional<KhuyenMai> findByMaKhuyenMaiIgnoreCase(String maKhuyenMai);
 }

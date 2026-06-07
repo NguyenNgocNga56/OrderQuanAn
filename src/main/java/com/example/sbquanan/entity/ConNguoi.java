@@ -17,7 +17,7 @@ public abstract class ConNguoi {
     private Long id;
 
     @NotBlank(message = "Họ tên không được để trống")
-    @Column(name = "HoTen", nullable = false, length = 100)
+    @Column(name = "TenNhanVien", nullable = false, length = 100)
     private String hoTen;
 
     @Pattern(regexp = "^0[0-9]{9}$", message = "Số điện thoại không hợp lệ (VD: 0912345678)")

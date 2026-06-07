@@ -82,14 +82,20 @@ function renderCartPanel() {
             </div>
         </div>`).join('');
 }
-
+function parseLocalDateTime(val) {
+    if (!val) return null;
+    if (Array.isArray(val)) {
+        // [year, month, day, hour, min, sec] — month trong JS bắt đầu từ 0
+        return new Date(val[0], val[1] - 1, val[2], val[3] || 0, val[4] || 0, val[5] || 0);
+    }
+    return new Date(val); // fallback nếu là string ISO
+}
 // LOAD KHUYẾN MÃI
 async function loadKhuyenMai() {
     const grid = document.getElementById('kmGrid');
     if (!grid) return;
     try {
-        const res  = await fetch('/api/khuyenmai').then(r => r.json());
-        // Unwrap ApiResponse giống admin.js
+        const res = await fetch('/api/khuyenmai/hien-thi').then(r => r.json());
         const kms  = (res && res.data) ? res.data : (Array.isArray(res) ? res : []);
 
         if (!kms.length) {
@@ -101,8 +107,7 @@ async function loadKhuyenMai() {
                 ? `Giảm ${km.giaTri}%`
                 : `Giảm ${fmtVND(km.giaTri)}`;
             const now    = new Date();
-            const hetHan = km.ngayKetThuc ? new Date(km.ngayKetThuc) : null;
-            const con    = !hetHan || hetHan >= now;
+            const hetHan = parseLocalDateTime(km.ngayKetThuc);            const con    = !hetHan || hetHan >= now;
             return `
             <div class="km-card ${con ? '' : 'km-expired'}">
                 <div class="km-badge">${label}</div>
