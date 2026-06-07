@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
+    <script src="https://unpkg.com/i18next@23.7.6/i18next.min.js"></script>
 </head>
 <body>
 
@@ -18,13 +19,27 @@
             <span class="logo-text">QuanAn<strong>67</strong></span>
         </div>
         <nav class="nav">
-            <a href="#gioi-thieu">Giới thiệu</a>
-            <a href="#tinh-nang">Tính năng</a>
-            <a href="#lien-he">Liên hệ</a>
-            <a href="/khachhang.html" class="btn-ghost" style="padding:10px 20px;font-size:0.9rem;">
+            <a href="#gioi-thieu" data-i18n="nav.intro">Giới thiệu</a>
+            <a href="#tinh-nang" data-i18n="nav.features">Tính năng</a>
+            <a href="#lien-he" data-i18n="nav.contact">Liên hệ</a>
+            <a href="/khachhang.html" class="btn-ghost" data-i18n="nav.customer" style="padding:10px 20px;font-size:0.9rem;">
                 Khách hàng
             </a>
-            <button class="btn-login" onclick="openLoginModal()">
+            <div class="lang-switcher">
+                <button class="lang-btn" onclick="switchLang('vi', this)" title="Tiếng Việt">
+                    <img src="https://flagcdn.com/w20/vn.png" alt="VIE">
+                    <span>VIE</span>
+                </button>
+                <button class="lang-btn" onclick="switchLang('en', this)" title="English">
+                    <img src="https://flagcdn.com/w20/gb.png" alt="ENG">
+                    <span>ENG</span>
+                </button>
+                <button class="lang-btn" onclick="switchLang('ja', this)" title="日本語">
+                    <img src="https://flagcdn.com/w20/jp.png" alt="JPN">
+                    <span>JPN</span>
+                </button>
+            </div>
+            <button class="btn-login" onclick="openLoginModal()" data-i18n="nav.admin.login">
                 Đăng nhập Admin
             </button>
         </nav>
@@ -35,12 +50,12 @@
 <section class="hero">
     <div class="hero-bg"></div>
     <div class="hero-content">
-        <p class="hero-label">Hệ thống quản lý nhà hàng</p>
-        <h1 class="hero-title">Quán ăn<br><span class="highlight">tiện lợi & hiệu quả</span></h1>
-        <p class="hero-desc">Quản lý bàn, đơn hàng, hóa đơn, nhân viên và khuyến mãi — tất cả trong một nền tảng duy nhất.</p>
+        <p class="hero-label" data-i18n="hero.label">Hệ thống quản lý nhà hàng</p>
+        <h1 class="hero-title" data-i18n="hero.title">Quán ăn tiện lợi & hiệu quả</h1>
+        <p class="hero-desc" data-i18n="hero.desc">Quản lý bàn, đơn hàng, hóa đơn, nhân viên và khuyến mãi — tất cả trong một nền tảng duy nhất.</p>
         <div class="hero-actions">
-            <button class="btn-primary" onclick="openLoginModal()">Vào trang quản trị</button>
-            <a href="#tinh-nang" class="btn-ghost">Xem tính năng</a>
+            <button class="btn-primary" onclick="openLoginModal()" data-i18n="hero.btn.admin">Vào trang quản trị</button>
+            <a href="#tinh-nang" class="btn-ghost" data-i18n="hero.btn.features">Xem tính năng</a>
         </div>
     </div>
     <div class="hero-visual fv-wrap" id="heroVisual">
@@ -49,9 +64,9 @@
         <div class="fv-ring fv-ring-inner"></div>
 
         <!-- Info cards thay thế card-float cũ -->
-        <div class="fv-card fv-card-1"><span class="fv-dot"></span>Thực đơn 10+ món</div>
-        <div class="fv-card fv-card-2"><span class="fv-dot"></span>Đặt món online</div>
-        <div class="fv-card fv-card-3"><span class="fv-dot"></span>Phục vụ tận tâm</div>
+        <div class="fv-card fv-card-1"><span class="fv-dot"></span><span data-i18n="fv.card1">Thực đơn 10+ món</span></div>
+        <div class="fv-card fv-card-2"><span class="fv-dot"></span><span data-i18n="fv.card2">Đặt bàn online</span></div>
+        <div class="fv-card fv-card-3"><span class="fv-dot"></span><span data-i18n="fv.card3">Giao hàng tận nơi</span></div>
 
         <!-- Ảnh chính giữa -->
         <div class="fv-center" id="fvCenter">
@@ -69,38 +84,38 @@
 <!-- TÍNH NĂNG -->
 <section class="features" id="tinh-nang">
     <div class="section-inner">
-        <h2 class="section-title">Tính năng nổi bật</h2>
-        <p class="section-sub">Mọi thứ bạn cần để vận hành quán ăn chuyên nghiệp</p>
+        <h2 class="section-title" data-i18n="features.title">Tính năng nổi bật</h2>
+        <p class="section-sub" data-i18n="features.sub">Mọi thứ bạn cần để vận hành quán ăn chuyên nghiệp</p>
         <div class="feature-grid">
             <div class="feature-card">
                 <div class="feature-icon"></div>
-                <h3>Quản lý bàn</h3>
-                <p>Theo dõi trạng thái từng bàn theo thời gian thực: trống, đang dùng, đã đặt trước.</p>
+                <h3 data-i18n="feat1.title">Quản lý bàn</h3>
+                <p data-i18n="feat6.desc">Theo dõi trạng thái từng bàn theo thời gian thực: trống, đang dùng, đã đặt trước.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon"> </div>
-                <h3>Đơn hàng & Menu</h3>
-                <p>Tạo và cập nhật đơn hàng nhanh chóng, quản lý thực đơn món ăn, đồ uống linh hoạt.</p>
+                <h3 data-i18n="feat1.title">Đơn hàng & Menu</h3>
+                <p data-i18n="feat6.desc">Tạo và cập nhật đơn hàng nhanh chóng, quản lý thực đơn món ăn, đồ uống linh hoạt.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon"></div>
-                <h3>Hóa đơn & Thanh toán</h3>
-                <p>Xuất hóa đơn tự động, hỗ trợ nhiều phương thức thanh toán: tiền mặt, chuyển khoản.</p>
+                <h3 data-i18n="feat1.title">Hóa đơn & Thanh toán</h3>
+                <p data-i18n="feat6.desc">Xuất hóa đơn tự động, hỗ trợ nhiều phương thức thanh toán: tiền mặt, chuyển khoản.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon"></div>
-                <h3>Quản lý nhân viên</h3>
-                <p>Phân ca làm việc, quản lý thông tin và lương nhân viên dễ dàng.</p>
+                <h3 data-i18n="feat1.title">Quản lý nhân viên</h3>
+                <p data-i18n="feat6.desc">Phân ca làm việc, quản lý thông tin và lương nhân viên dễ dàng.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon"></div>
-                <h3>Khuyến mãi</h3>
-                <p>Tạo và áp dụng chương trình khuyến mãi theo phần trăm hoặc giảm giá trực tiếp.</p>
+                <h3 data-i18n="feat1.title">Khuyến mãi</h3>
+                <p data-i18n="feat6.desc">Tạo và áp dụng chương trình khuyến mãi theo phần trăm hoặc giảm giá trực tiếp.</p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon"></div>
-                <h3>Khách hàng thân thiết</h3>
-                <p>Lưu thông tin khách hàng, phân loại và chăm sóc khách hàng VIP.</p>
+                <h3 data-i18n="feat1.title">Khách hàng thân thiết</h3>
+                <p data-i18n="feat6.desc">Lưu thông tin khách hàng, phân loại và chăm sóc khách hàng VIP.</p>
             </div>
         </div>
     </div>
@@ -108,7 +123,7 @@
 
 <!-- FOOTER -->
 <footer class="footer" id="lien-he">
-    <p>© 2026 QuanAn67 — Hệ thống quản lý nhà hàng</p>
+    <p data-i18n="footer.copy">© 2026 QuanAn67 — Hệ thống quản lý nhà hàng</p>
 </footer>
 
 <!-- MODAL ĐĂNG NHẬP -->
@@ -117,16 +132,16 @@
         <button class="modal-close" onclick="closeLoginModal()">✕</button>
         <div class="modal-header">
             <div class="modal-icon"></div>
-            <h2>Đăng nhập Admin</h2>
-            <p>Nhập tài khoản quản trị viên</p>
+            <h2 data-i18n="modal.login.title">Đăng nhập Admin</h2>
+            <p data-i18n="modal.login.sub">Nhập tài khoản quản trị viên</p>
         </div>
         <form class="login-form" onsubmit="handleLogin(event)">
             <div class="form-group">
-                <label>Email</label>
+                <label data-i18n="modal.login.email">Email</label>
                 <input type="email" id="loginEmail" placeholder="admin@example.com" required autocomplete="off">
             </div>
             <div class="form-group">
-                <label>Mật khẩu</label>
+                <label data-i18n="modal.login.password">Mật khẩu</label>
                 <div class="password-wrap">
                     <input type="password" id="loginPassword" placeholder="••••••••" required>
                     <button type="button" class="toggle-pw" onclick="togglePassword()">👁</button>
@@ -134,12 +149,13 @@
             </div>
             <div class="form-msg" id="loginMsg"></div>
             <button type="submit" class="btn-submit" id="submitBtn">
-                <span>Đăng nhập</span>
+                <span data-i18n="modal.login.btn">Đăng nhập</span>
             </button>
         </form>
     </div>
 </div>
-
+<script src="https://unpkg.com/i18next@23.7.6/i18next.min.js"></script>
+<script src="/js/lang.js"></script>
 <script src="/js/main.js"></script>
 </body>
 </html>
