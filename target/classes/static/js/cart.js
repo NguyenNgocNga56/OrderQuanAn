@@ -5,15 +5,15 @@ let _khachHangId  = null;   // ID khách tìm được qua SĐT
 let _sdtDaNhap    = false;  // true nếu nhập SĐT nhưng không tìm thấy → block đặt
 let _giamGia      = 0;      // số tiền giảm (đã tính)
 let _kmId         = null;   // ID khuyến mãi đang chọn
-let _allKm        = [];     // danh sách KM tải từ API
 let _loaiDon      = 'TAI_CHO'; // loại đơn: 'TAI_CHO' hoặc 'MANG_VE'
+let _sdtDebounce  = null;   // debounce timer cho input SĐT
 
 // ============================================================
 // INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
     renderCartPage();
-    loadKhuyenMaiSelect();
+    loadKhuyenMaiTheoSdt(null); // load KM không cần SĐT lúc đầu
     loadBanList();
     chonLoaiDon('TAI_CHO'); // mặc định Tại chỗ
 });
@@ -29,26 +29,20 @@ function chonLoaiDon(loai) {
     const groupChonBan = document.getElementById('groupChonBan');
 
     if (loai === 'TAI_CHO') {
-        // Nút Tại chỗ: active
         btnTaiCho.style.background    = 'var(--accent)';
         btnTaiCho.style.color         = '#fff';
         btnTaiCho.style.borderColor   = 'var(--accent)';
-        // Nút Mang về: inactive
         btnMangVe.style.background    = 'var(--surface2)';
         btnMangVe.style.color         = 'var(--text)';
         btnMangVe.style.borderColor   = 'var(--border)';
-        // Hiện phần chọn bàn
         groupChonBan.style.display    = '';
     } else {
-        // Nút Mang về: active
         btnMangVe.style.background    = 'var(--accent)';
         btnMangVe.style.color         = '#fff';
         btnMangVe.style.borderColor   = 'var(--accent)';
-        // Nút Tại chỗ: inactive
         btnTaiCho.style.background    = 'var(--surface2)';
         btnTaiCho.style.color         = 'var(--text)';
         btnTaiCho.style.borderColor   = 'var(--border)';
-        // Ẩn phần chọn bàn
         groupChonBan.style.display    = 'none';
     }
 }
@@ -136,72 +130,115 @@ function renderCartPage() {
 }
 
 // ============================================================
-// TRA CỨU KHÁCH HÀNG THEO SĐT
+// SĐT INPUT → AUTO CHECK (DEBOUNCE 600ms)
 // ============================================================
-function resetKhachHang() {
+function onSdtInput() {
+    // Reset trạng thái khách hàng ngay khi gõ
     _khachHangId = null;
     _sdtDaNhap   = false;
     document.getElementById('khachInfo').style.display     = 'none';
     document.getElementById('khachNotFound').style.display = 'none';
-    applyKhuyenMai();
+
+    // Reset KM về trống trong khi chờ
+    clearTimeout(_sdtDebounce);
+
+    const sdt = document.getElementById('inputSdt').value.trim();
+
+    // Nếu rỗng → load KM không cần SĐT
+    if (!sdt) {
+        applyKhuyenMai();   // reset giảm giá
+        loadKhuyenMaiTheoSdt(null);
+        return;
+    }
+
+    // Chờ 600ms sau khi ngừng gõ rồi mới check
+    _sdtDebounce = setTimeout(() => autoCheckSdt(sdt), 600);
 }
 
-async function traCuuKhach() {
-    const sdt = document.getElementById('inputSdt').value.trim();
-    if (!sdt) return;
+async function autoCheckSdt(sdt) {
+    // Chỉ xử lý khi đủ 10 số hợp lệ
+    const valid = /^0[0-9]{9}$/.test(sdt);
 
-    const btnTC = document.getElementById('btnTraCuu');
-    btnTC.textContent = '...';
-    btnTC.disabled    = true;
+    const spinner = document.getElementById('sdtSpinner');
+    spinner.style.display = 'inline';
 
     try {
-        const res = await fetch(`/api/khachhang/sdt/${encodeURIComponent(sdt)}`);
-        if (!res.ok) throw new Error('not found');
-        const kh = await res.json();
+        // 1. Tra cứu thông tin khách hàng
+        if (valid) {
+            try {
+                const res = await fetch(`/api/khachhang/sdt/${encodeURIComponent(sdt)}`);
+                if (res.ok) {
+                    const resp = await res.json();
+                    // API trả về ApiResponse wrapper { success, message, data: {...} }
+                    const kh = resp.data ?? resp;
+                    _khachHangId = kh.id ?? kh.khachHangID;
+                    _sdtDaNhap   = false;
 
-        _khachHangId = kh.id;
-        _sdtDaNhap   = false;
+                    const hangMap = { DONG:'🥉 Đồng', BAC:'🥈 Bạc', VANG:'🥇 Vàng', KIM_CUONG:'💎 Kim Cương', THUONG:'👤 Thường', THANH_VIEN:'⭐ Thành viên', VIP:'💎 VIP' };
+                    const giam    = { DONG:0, THUONG:0, BAC:5, THANH_VIEN:5, VANG:10, VIP:10, KIM_CUONG:15 }[kh.loaiKhachHang] || 0;
 
-        const hangMap = { DONG:'🥉 Đồng', BAC:'🥈 Bạc', VANG:'🥇 Vàng', KIM_CUONG:'💎 Kim Cương', THUONG:'👤 Thường', THANH_VIEN:'⭐ Thành viên', VIP:'💎 VIP' };
-        const giam    = { DONG:0, THUONG:0, BAC:5, THANH_VIEN:5, VANG:10, VIP:10, KIM_CUONG:15 }[kh.loaiKhachHang] || 0;
+                    document.getElementById('khachHang').textContent  = hangMap[kh.loaiKhachHang] || '👤';
+                    document.getElementById('khachTen').textContent   = kh.hoTen + ` — ${kh.diemTichLuy || 0} điểm`;
+                    document.getElementById('khachLoai').textContent  = giam > 0 ? `Ưu đãi thành viên: -${giam}% mỗi đơn` : 'Hạng Đồng – tích điểm để lên hạng';
+                    document.getElementById('khachInfo').style.display     = 'block';
+                    document.getElementById('khachNotFound').style.display = 'none';
+                } else {
+                    _khachHangId = null;
+                    _sdtDaNhap   = true;
+                    document.getElementById('khachInfo').style.display     = 'none';
+                    document.getElementById('khachNotFound').style.display = 'block';
+                }
+            } catch {
+                // bỏ qua lỗi tra cứu, vẫn tiếp tục load KM
+            }
+        }
 
-        document.getElementById('khachHang').textContent  = hangMap[kh.loaiKhachHang] || '👤';
-        document.getElementById('khachTen').textContent   = kh.hoTen + ` — ${kh.diemTichLuy || 0} điểm`;
-        document.getElementById('khachLoai').textContent  = giam > 0 ? `Ưu đãi thành viên: -${giam}% mỗi đơn` : 'Hạng Đồng – tích điểm để lên hạng';
-        document.getElementById('khachInfo').style.display     = 'block';
-        document.getElementById('khachNotFound').style.display = 'none';
+        // 2. Load KM khả dụng theo SĐT (gọi API kha-dung)
+        await loadKhuyenMaiTheoSdt(valid ? sdt : null);
 
-    } catch {
-        _khachHangId = null;
-        _sdtDaNhap   = true;
-        document.getElementById('khachInfo').style.display     = 'none';
-        document.getElementById('khachNotFound').style.display = 'block';
     } finally {
-        btnTC.textContent = 'Tra cứu';
-        btnTC.disabled    = false;
-        applyKhuyenMai();
+        spinner.style.display = 'none';
     }
 }
 
 // ============================================================
-// LOAD KHUYẾN MÃI VÀO SELECT
+// LOAD KHUYẾN MÃI KHẢ DỤNG THEO SĐT + TỔNG TIỀN
 // ============================================================
-async function loadKhuyenMaiSelect() {
+async function loadKhuyenMaiTheoSdt(sdt) {
+    const sel     = document.getElementById('selKhuyenMai');
+    const badge   = document.getElementById('kmLoadingBadge');
+    const subtotal = Cart.total();
+
+    if (badge) badge.style.display = 'inline';
+
+    // Ghi nhớ lựa chọn hiện tại (nếu có)
+    const prevKmId = sel.value;
+
+    // Reset select
+    sel.innerHTML = '<option value="">-- Không dùng khuyến mãi --</option>';
+    _kmId    = null;
+    _giamGia = 0;
+    updateTotal();
+
     try {
-        const res  = await fetch('/api/khuyenmai');
+        let url = `/api/khuyenmai/kha-dung?tongTien=${subtotal}`;
+        if (sdt) url += `&sdt=${encodeURIComponent(sdt)}`;
+
+        const res  = await fetch(url);
         const body = await res.json();
-        _allKm = Array.isArray(body) ? body : (body.data || []);
+        const kmList = Array.isArray(body) ? body : (body.data || []);
 
-        const sel = document.getElementById('selKhuyenMai');
-        const now = new Date();
+        if (kmList.length === 0 && sdt) {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.disabled = true;
+            opt.textContent = '— Không có khuyến mãi khả dụng —';
+            sel.appendChild(opt);
+        }
 
-        _allKm.forEach(km => {
-            const hetHan = km.ngayKetThuc ? new Date(km.ngayKetThuc) : null;
-            const hopLe  = !hetHan || hetHan >= now;
-            if (!hopLe) return;
-
-            const gia  = km.giaTri ?? km.giaTriKhuyenMai ?? 0;
-            const loai = km.loaiKhuyenMai;
+        kmList.forEach(km => {
+            const gia   = km.giaTri ?? km.giaTriKhuyenMai ?? 0;
+            const loai  = km.loaiKhuyenMai;
             const label = loai === 'PHAN_TRAM' ? `Giảm ${gia}%` : `Giảm ${fmtVND(gia)}`;
             const o = document.createElement('option');
             o.value        = km.khuyenMaiID;
@@ -210,8 +247,20 @@ async function loadKhuyenMaiSelect() {
             o.textContent  = `${km.tenKhuyenMai || 'Ưu đãi'} — ${label}`;
             sel.appendChild(o);
         });
-    } catch {
-        // không tải được KM thì để trống, không block đặt hàng
+
+        // Khôi phục lựa chọn cũ nếu còn tồn tại
+        if (prevKmId) {
+            const stillExists = [...sel.options].some(o => o.value === prevKmId);
+            if (stillExists) {
+                sel.value = prevKmId;
+            }
+        }
+
+    } catch (e) {
+        console.warn('Không tải được KM:', e);
+    } finally {
+        if (badge) badge.style.display = 'none';
+        applyKhuyenMai();
     }
 }
 
@@ -321,7 +370,15 @@ async function datMon() {
 
         Cart.clear();
         _giamGia = 0; _kmId = null; _khachHangId = null; _sdtDaNhap = false;
+
+        // Reset input SĐT và KM
+        const sdtInput = document.getElementById('inputSdt');
+        if (sdtInput) sdtInput.value = '';
+        document.getElementById('khachInfo').style.display     = 'none';
+        document.getElementById('khachNotFound').style.display = 'none';
+
         renderCartPage();
+        loadKhuyenMaiTheoSdt(null); // reset danh sách KM
         renderSuccess(order, payment.data);
         openModal('successModal');
     } catch (e) {

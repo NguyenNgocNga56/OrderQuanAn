@@ -299,6 +299,8 @@ function applyTranslations() {
         // placeholder thì dùng attr, còn lại innerHTML
         if (el.hasAttribute('placeholder')) {
             el.setAttribute('placeholder', translated);
+        } else if (el.querySelector('[id]')) {
+            // Bỏ qua nếu có phần tử con có id để tránh xóa mất chúng
         } else {
             el.innerHTML = translated;
         }
