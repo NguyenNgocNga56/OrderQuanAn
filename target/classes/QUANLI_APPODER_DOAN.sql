@@ -17,97 +17,97 @@ GO
 --  TAO BANG
 -- 1. MENU
 CREATE TABLE Menu (
-    MenuID      INT           IDENTITY(1,1) PRIMARY KEY,
-    TenMenu     NVARCHAR(50)  NOT NULL UNIQUE,
-    MoTa        NVARCHAR(255),
-    TrangThai   NVARCHAR(50)  DEFAULT N'ACTIVE'
+                      MenuID      INT           IDENTITY(1,1) PRIMARY KEY,
+                      TenMenu     NVARCHAR(50)  NOT NULL UNIQUE,
+                      MoTa        NVARCHAR(255),
+                      TrangThai   NVARCHAR(50)  DEFAULT N'ACTIVE'
                     CHECK (TrangThai IN (N'ACTIVE', N'INACTIVE')),
-    NgayTao     DATETIME      DEFAULT GETDATE(),
-    NgayCapNhat DATETIME      DEFAULT GETDATE()
+                      NgayTao     DATETIME      DEFAULT GETDATE(),
+                      NgayCapNhat DATETIME      DEFAULT GETDATE()
 );
 
 -- 2. BAN AN
 CREATE TABLE Ban (
-    BanID       INT           IDENTITY(1,1) PRIMARY KEY,
-    TenBan      NVARCHAR(50)  NOT NULL UNIQUE,
-    ViTri       NVARCHAR(100),
-    SoChoNgoi   INT           NOT NULL CHECK (SoChoNgoi >= 1),
-    TrangThai   NVARCHAR(30)  DEFAULT N'Trong',
-    LoaiBan     NVARCHAR(50)  DEFAULT N'Ban thuong',
-    GhiChu      NVARCHAR(100),
-    NgayTao     DATETIME      DEFAULT GETDATE(),
-    NgayCapNhat DATETIME      DEFAULT GETDATE()
+                     BanID       INT           IDENTITY(1,1) PRIMARY KEY,
+                     TenBan      NVARCHAR(50)  NOT NULL UNIQUE,
+                     ViTri       NVARCHAR(100),
+                     SoChoNgoi   INT           NOT NULL CHECK (SoChoNgoi >= 1),
+                     TrangThai   NVARCHAR(30)  DEFAULT N'Trong',
+                     LoaiBan     NVARCHAR(50)  DEFAULT N'Ban thuong',
+                     GhiChu      NVARCHAR(100),
+                     NgayTao     DATETIME      DEFAULT GETDATE(),
+                     NgayCapNhat DATETIME      DEFAULT GETDATE()
 );
 
 -- 3. MON AN
 -- SINGLE_TABLE inheritance: PhanLoai = DO_AN | DO_UONG
 CREATE TABLE MonAn (
-    MonID       INT            IDENTITY(1,1) PRIMARY KEY,
-    TenMon      NVARCHAR(100)  NOT NULL,
-    Gia         DECIMAL(10,2)  NOT NULL CHECK (Gia >= 0),
-    MoTa        NVARCHAR(500),
-    HinhAnh     NVARCHAR(255),
-    TrangThai   NVARCHAR(20)   NOT NULL DEFAULT N'CON_HANG'
+                       MonID       INT            IDENTITY(1,1) PRIMARY KEY,
+                       TenMon      NVARCHAR(100)  NOT NULL,
+                       Gia         DECIMAL(10,2)  NOT NULL CHECK (Gia >= 0),
+                       MoTa        NVARCHAR(500),
+                       HinhAnh     NVARCHAR(255),
+                       TrangThai   NVARCHAR(20)   NOT NULL DEFAULT N'CON_HANG'
                     CHECK (TrangThai IN (N'CON_HANG', N'HET_HANG', N'NGUNG_BAN')),
-    PhanLoai    NVARCHAR(20)   NOT NULL
+                       PhanLoai    NVARCHAR(20)   NOT NULL
                     CHECK (PhanLoai IN (N'DO_AN', N'DO_UONG')),
-    Loai        NVARCHAR(50),
-    Size        NVARCHAR(5)    NULL
+                       Loai        NVARCHAR(50),
+                       Size        NVARCHAR(5)    NULL
                     CHECK (Size IN (N'S', N'M', N'L') OR Size IS NULL),
-    DonViTinh   NVARCHAR(20)   DEFAULT N'Phan',
-    MenuID      INT            NOT NULL,
-    NgayTao     DATETIME       DEFAULT GETDATE(),
-    NgayCapNhat DATETIME       DEFAULT GETDATE(),
-    FOREIGN KEY (MenuID) REFERENCES Menu(MenuID)
+                       DonViTinh   NVARCHAR(20)   DEFAULT N'Phan',
+                       MenuID      INT            NOT NULL,
+                       NgayTao     DATETIME       DEFAULT GETDATE(),
+                       NgayCapNhat DATETIME       DEFAULT GETDATE(),
+                       FOREIGN KEY (MenuID) REFERENCES Menu(MenuID)
 );
 
 -- 4. KHACH HANG
 -- Java: @AttributeOverride hoTen -> TenKhach, LoaiKhachHang -> LoaiKhachHang
 CREATE TABLE KhachHang (
-    KhachHangID   INT           IDENTITY(1,1) PRIMARY KEY,
-    TenKhach      NVARCHAR(100) NOT NULL,
-    SDT           VARCHAR(15)   UNIQUE,
-    DiaChi        NVARCHAR(255),
-    Email         NVARCHAR(100),
-    DiemTichLuy   INT           DEFAULT 0 CHECK (DiemTichLuy >= 0),
-    LoaiKhachHang NVARCHAR(20)  DEFAULT N'DONG'
+                           KhachHangID   INT           IDENTITY(1,1) PRIMARY KEY,
+                           TenKhach      NVARCHAR(100) NOT NULL,
+                           SDT           VARCHAR(15)   UNIQUE,
+                           DiaChi        NVARCHAR(255),
+                           Email         NVARCHAR(100),
+                           DiemTichLuy   INT           DEFAULT 0 CHECK (DiemTichLuy >= 0),
+                           LoaiKhachHang NVARCHAR(20)  DEFAULT N'DONG'
                       CHECK (LoaiKhachHang IN (N'DONG', N'BAC', N'VANG', N'KIM_CUONG')),
-    NgayTao       DATETIME      DEFAULT GETDATE(),
-    NgayCapNhat   DATETIME      DEFAULT GETDATE()
+                           NgayTao       DATETIME      DEFAULT GETDATE(),
+                           NgayCapNhat   DATETIME      DEFAULT GETDATE()
 );
 
 -- 5. NHAN VIEN
 -- Java: @AttributeOverride hoTen -> TenNhanVien
 CREATE TABLE NhanVien (
-    NhanVienID  INT            IDENTITY(1,1) PRIMARY KEY,
-    TenNhanVien NVARCHAR(100)  NOT NULL,
-    SDT         VARCHAR(15)    UNIQUE,
-    DiaChi      NVARCHAR(255),
-    Email       NVARCHAR(100)  UNIQUE NOT NULL,
-    ChucVu      NVARCHAR(50)   NOT NULL,
-    Luong       DECIMAL(10,2)  CHECK (Luong >= 0),
-    TrangThai   BIT            DEFAULT 1,
-    Password    NVARCHAR(255)  NOT NULL,
-    NgayTao     DATETIME       DEFAULT GETDATE(),
-    NgayCapNhat DATETIME       DEFAULT GETDATE()
+                          NhanVienID  INT            IDENTITY(1,1) PRIMARY KEY,
+                          TenNhanVien NVARCHAR(100)  NOT NULL,
+                          SDT         VARCHAR(15)    UNIQUE,
+                          DiaChi      NVARCHAR(255),
+                          Email       NVARCHAR(100)  UNIQUE NOT NULL,
+                          ChucVu      NVARCHAR(50)   NOT NULL,
+                          Luong       DECIMAL(10,2)  CHECK (Luong >= 0),
+                          TrangThai   BIT            DEFAULT 1,
+                          Password    NVARCHAR(255)  NOT NULL,
+                          NgayTao     DATETIME       DEFAULT GETDATE(),
+                          NgayCapNhat DATETIME       DEFAULT GETDATE()
 );
 
 -- 6. CA LAM VIEC
 CREATE TABLE CaLamViec (
-    CaID       INT          IDENTITY(1,1) PRIMARY KEY,
-    TenCa      NVARCHAR(50) NOT NULL,
-    GioBatDau  TIME         NOT NULL,
-    GioKetThuc TIME         NOT NULL,
-    NgayTao    DATETIME     DEFAULT GETDATE()
+                           CaID       INT          IDENTITY(1,1) PRIMARY KEY,
+                           TenCa      NVARCHAR(50) NOT NULL,
+                           GioBatDau  TIME         NOT NULL,
+                           GioKetThuc TIME         NOT NULL,
+                           NgayTao    DATETIME     DEFAULT GETDATE()
 );
 
 -- 7. DON HANG
 -- TrangThai khop enum TrangThaiDonHang.java
 -- DEFAULT = CHO_XAC_NHAN khop Java entity default
 CREATE TABLE DonHang (
-    DonHangID   INT            IDENTITY(1,1) PRIMARY KEY,
-    NgayDat     DATETIME       DEFAULT GETDATE(),
-    TrangThai   NVARCHAR(50)   NOT NULL DEFAULT N'CHO_XAC_NHAN'
+                         DonHangID   INT            IDENTITY(1,1) PRIMARY KEY,
+                         NgayDat     DATETIME       DEFAULT GETDATE(),
+                         TrangThai   NVARCHAR(50)   NOT NULL DEFAULT N'CHO_XAC_NHAN'
                     CHECK (TrangThai IN (
                         N'CHO_XAC_NHAN',
                         N'DANG_NAU',
@@ -115,61 +115,63 @@ CREATE TABLE DonHang (
                         N'HOAN_THANH',
                         N'DA_HUY'
                     )),
-    TongTien    DECIMAL(10,2)  DEFAULT 0 CHECK (TongTien >= 0),
-    GhiChu      NVARCHAR(255),
-    KhachHangID INT            NULL,
-    NhanVienID  INT            NULL,
-    BanID       INT            NULL,
-    NgayCapNhat DATETIME       DEFAULT GETDATE(),
-    FOREIGN KEY (KhachHangID) REFERENCES KhachHang(KhachHangID),
-    FOREIGN KEY (NhanVienID)  REFERENCES NhanVien(NhanVienID),
-    FOREIGN KEY (BanID)       REFERENCES Ban(BanID)
+                         TongTien    DECIMAL(10,2)  DEFAULT 0 CHECK (TongTien >= 0),
+                         GhiChu      NVARCHAR(255),
+                         KhachHangID INT            NULL,
+                         NhanVienID  INT            NULL,
+                         BanID       INT            NULL,
+                         NgayCapNhat DATETIME       DEFAULT GETDATE(),
+                         FOREIGN KEY (KhachHangID) REFERENCES KhachHang(KhachHangID),
+                         FOREIGN KEY (NhanVienID)  REFERENCES NhanVien(NhanVienID),
+                         FOREIGN KEY (BanID)       REFERENCES Ban(BanID)
 );
 
 -- 8. CHI TIET DON HANG
 -- Java: DonGia -> giaBan, ThanhTien -> tongTien (computed, insertable=false)
 CREATE TABLE ChiTietDonHang (
-    CTDH_ID   INT            IDENTITY(1,1) PRIMARY KEY,
-    DonHangID INT            NOT NULL,
-    MonID     INT            NOT NULL,
-    SoLuong   INT            NOT NULL CHECK (SoLuong > 0),
-    DonGia    DECIMAL(10,2)  NOT NULL CHECK (DonGia >= 0),
-    ThanhTien AS (SoLuong * DonGia) PERSISTED,
-    GhiChu    NVARCHAR(100),
-    FOREIGN KEY (DonHangID) REFERENCES DonHang(DonHangID),
-    FOREIGN KEY (MonID)     REFERENCES MonAn(MonID)
+                                CTDH_ID   INT            IDENTITY(1,1) PRIMARY KEY,
+                                DonHangID INT            NOT NULL,
+                                MonID     INT            NOT NULL,
+                                SoLuong   INT            NOT NULL CHECK (SoLuong > 0),
+                                DonGia    DECIMAL(10,2)  NOT NULL CHECK (DonGia >= 0),
+                                ThanhTien AS (SoLuong * DonGia) PERSISTED,
+                                GhiChu    NVARCHAR(100),
+                                FOREIGN KEY (DonHangID) REFERENCES DonHang(DonHangID),
+                                FOREIGN KEY (MonID)     REFERENCES MonAn(MonID)
 );
 
 -- 9. KHUYEN MAI
 -- FIX: NgayBatDau/NgayKetThuc phai la DATETIME (khop LocalDateTime trong Java)
 -- FIX: LoaiKhuyenMai chi co PHAN_TRAM | GIAM_TIEN_MAT (xoa SO_TIEN)
 CREATE TABLE KhuyenMai (
-    KhuyenMaiID   INT            IDENTITY(1,1) PRIMARY KEY,
-    TenKhuyenMai  NVARCHAR(100)  NOT NULL,
-    MaKhuyenMai   VARCHAR(50)    NULL UNIQUE,
-    LoaiKhuyenMai NVARCHAR(20)   NOT NULL
+                           KhuyenMaiID   INT            IDENTITY(1,1) PRIMARY KEY,
+                           TenKhuyenMai  NVARCHAR(100)  NOT NULL,
+                           MaKhuyenMai   VARCHAR(50)    NULL UNIQUE,
+                           LoaiKhuyenMai NVARCHAR(20)   NOT NULL
                       CHECK (LoaiKhuyenMai IN (N'PHAN_TRAM', N'GIAM_TIEN_MAT')),
-    GiaTri        DECIMAL(10,2)  NOT NULL CHECK (GiaTri > 0),
-    DiemToiThieu  INT            DEFAULT 0 CHECK (DiemToiThieu >= 0),
-    TongTienToiThieu DECIMAL(10,2) DEFAULT 0 CHECK (TongTienToiThieu >= 0),
-    NgayBatDau    DATETIME       NOT NULL,
-    NgayKetThuc   DATETIME       NOT NULL,
-    TrangThai     BIT            DEFAULT 1,
-    MoTa          NVARCHAR(255),
-    CHECK (NgayKetThuc >= NgayBatDau)
+                           GiaTri        DECIMAL(10,2)  NOT NULL CHECK (GiaTri > 0),
+                           DiemToiThieu  INT            DEFAULT 0 CHECK (DiemToiThieu >= 0),
+                           TongTienToiThieu DECIMAL(10,2) DEFAULT 0 CHECK (TongTienToiThieu >= 0),
+                           LoaiKhachHangToiThieu NVARCHAR(20) NULL
+                                CHECK (LoaiKhachHangToiThieu IN (N'DONG', N'BAC', N'VANG', N'KIM_CUONG')),
+                           NgayBatDau    DATETIME       NOT NULL,
+                           NgayKetThuc   DATETIME       NOT NULL,
+                           TrangThai     BIT            DEFAULT 1,
+                           MoTa          NVARCHAR(255),
+                           CHECK (NgayKetThuc >= NgayBatDau)
 );
 
 -- 10. HOA DON
 CREATE TABLE HoaDon (
-    HoaDonID    INT            IDENTITY(1,1) PRIMARY KEY,
-    DonHangID   INT            UNIQUE NOT NULL,
-    NgayLap     DATETIME       DEFAULT GETDATE(),
-    TongTien    DECIMAL(10,2)  NOT NULL CHECK (TongTien >= 0),
-    GiamGia     DECIMAL(10,2)  DEFAULT 0 CHECK (GiamGia >= 0),
-    ThanhTien   AS (TongTien - GiamGia) PERSISTED,
-    KhuyenMaiID INT            NULL,
-    FOREIGN KEY (DonHangID)   REFERENCES DonHang(DonHangID),
-    FOREIGN KEY (KhuyenMaiID) REFERENCES KhuyenMai(KhuyenMaiID)
+                        HoaDonID    INT            IDENTITY(1,1) PRIMARY KEY,
+                        DonHangID   INT            UNIQUE NOT NULL,
+                        NgayLap     DATETIME       DEFAULT GETDATE(),
+                        TongTien    DECIMAL(10,2)  NOT NULL CHECK (TongTien >= 0),
+                        GiamGia     DECIMAL(10,2)  DEFAULT 0 CHECK (GiamGia >= 0),
+                        ThanhTien   AS (TongTien - GiamGia) PERSISTED,
+                        KhuyenMaiID INT            NULL,
+                        FOREIGN KEY (DonHangID)   REFERENCES DonHang(DonHangID),
+                        FOREIGN KEY (KhuyenMaiID) REFERENCES KhuyenMai(KhuyenMaiID)
 );
 
 -- 11. THANH TOAN
@@ -177,29 +179,29 @@ CREATE TABLE HoaDon (
 -- FIX: CHECK khop enum TrangThaiThanhToan.java
 -- FIX: PhuongThuc khop enum PhuongThucThanhToan.java
 CREATE TABLE ThanhToan (
-    ThanhToanID INT            IDENTITY(1,1) PRIMARY KEY,
-    HoaDonID    INT            NOT NULL,
-    PhuongThuc  NVARCHAR(50)   NOT NULL,
-    SoTien      DECIMAL(10,2)  NOT NULL CHECK (SoTien > 0),
-    ThoiGian    DATETIME       DEFAULT GETDATE(),
-    TrangThai   NVARCHAR(30)   DEFAULT N'CHO_XU_LY'
+                           ThanhToanID INT            IDENTITY(1,1) PRIMARY KEY,
+                           HoaDonID    INT            NOT NULL,
+                           PhuongThuc  NVARCHAR(50)   NOT NULL,
+                           SoTien      DECIMAL(10,2)  NOT NULL CHECK (SoTien > 0),
+                           ThoiGian    DATETIME       DEFAULT GETDATE(),
+                           TrangThai   NVARCHAR(30)   DEFAULT N'CHO_XU_LY'
                     CHECK (TrangThai IN (N'THANH_CONG', N'THAT_BAI', N'CHO_XU_LY')),
-    FOREIGN KEY (HoaDonID) REFERENCES HoaDon(HoaDonID)
+                           FOREIGN KEY (HoaDonID) REFERENCES HoaDon(HoaDonID)
 );
 
 -- 12. KET CA
 CREATE TABLE KetCa (
-    KetCaID         INT            IDENTITY(1,1) PRIMARY KEY,
-    CaID            INT            NOT NULL,
-    NhanVienID      INT            NOT NULL,
-    tgBatDau        DATETIME       NOT NULL,
-    tgKetThuc       DATETIME       NULL,
-    TongDoanhThu    DECIMAL(10,2)  DEFAULT 0,
-    TienMat         DECIMAL(10,2)  DEFAULT 0,
-    TienChuyenKhoan DECIMAL(10,2)  DEFAULT 0,
-    GhiChu          NVARCHAR(255),
-    FOREIGN KEY (CaID)       REFERENCES CaLamViec(CaID),
-    FOREIGN KEY (NhanVienID) REFERENCES NhanVien(NhanVienID)
+                       KetCaID         INT            IDENTITY(1,1) PRIMARY KEY,
+                       CaID            INT            NOT NULL,
+                       NhanVienID      INT            NOT NULL,
+                       tgBatDau        DATETIME       NOT NULL,
+                       tgKetThuc       DATETIME       NULL,
+                       TongDoanhThu    DECIMAL(10,2)  DEFAULT 0,
+                       TienMat         DECIMAL(10,2)  DEFAULT 0,
+                       TienChuyenKhoan DECIMAL(10,2)  DEFAULT 0,
+                       GhiChu          NVARCHAR(255),
+                       FOREIGN KEY (CaID)       REFERENCES CaLamViec(CaID),
+                       FOREIGN KEY (NhanVienID) REFERENCES NhanVien(NhanVienID)
 );
 GO
 
@@ -260,11 +262,13 @@ GO
 -- FIX: LoaiKhuyenMai chi PHAN_TRAM | GIAM_TIEN_MAT
 -- FIX: kieu DATETIME, NgayKetThuc = 2026 de con hieu luc khi demo
 -- FIX: xoa SO_TIEN
-INSERT INTO KhuyenMai (TenKhuyenMai, MaKhuyenMai, LoaiKhuyenMai, GiaTri, DiemToiThieu, TongTienToiThieu, NgayBatDau, NgayKetThuc, TrangThai, MoTa)
+INSERT INTO KhuyenMai (TenKhuyenMai, MaKhuyenMai, LoaiKhuyenMai, GiaTri, DiemToiThieu, TongTienToiThieu, LoaiKhachHangToiThieu, NgayBatDau, NgayKetThuc, TrangThai, MoTa)
 VALUES
-    (N'Giam 10% cuoi tuan',     'WEEKEND10', N'PHAN_TRAM',     10,    0,   0,      '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 10% cho don hang cuoi tuan'),
-    (N'Tang 50k don tren 300k', 'BILL300K',  N'GIAM_TIEN_MAT', 50000, 0,   300000, '2025-05-01 00:00:00', '2026-12-31 23:59:59', 1, N'Tang 50k cho don tu 300k'),
-    (N'Uu dai thanh vien Vang', 'VANG15',    N'PHAN_TRAM',     15,    500, 0,      '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 15% cho khach tu 500 diem');
+    (N'Giam 10% cuoi tuan',        'WEEKEND10', N'PHAN_TRAM',     10,    0,   0,      NULL,     '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 10% cho don hang cuoi tuan'),
+    (N'Tang 50k don tren 300k',    'BILL300K',  N'GIAM_TIEN_MAT', 50000, 0,   300000, NULL,     '2025-05-01 00:00:00', '2026-12-31 23:59:59', 1, N'Tang 50k cho don tu 300k'),
+    (N'Uu dai thanh vien Vang',    'VANG15',    N'PHAN_TRAM',     15,    500, 0,      N'VANG',  '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 15% cho khach tu 500 diem'),
+    (N'Giam 20% cho thanh vien',   'MEMBER20',  N'PHAN_TRAM',     20,    200, 185000, NULL,     '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 20% cho khach tu 200 diem, don toi thieu 185k'),
+    (N'Tang 30k khach than thiet', 'LOYAL30K',  N'GIAM_TIEN_MAT', 30000, 350, 250000, NULL,     '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 30k cho khach tu 350 diem, don toi thieu 250k');
 GO
 
 -- MENU
@@ -320,6 +324,7 @@ VALUES
 (N'DO_UONG', N'Nước suối',       15000,  N'Nước tinh khiết đóng chai, giúp cân bằng vị giác và giải khát.',                   N'/img/nuoc-suoi.jpg',  N'CON_HANG', N'Nuoc',   N'Chai', @doUong, NULL),
 (N'DO_UONG', N'Trà Trái Cây',    45000,  N'Trà kết hợp nhiều loại trái cây nhiệt đới, vị chua ngọt hài hoà, thơm mát.',      N'/img/tra-trai-cay-nhiet-doi.jpg', N'CON_HANG', N'Tra',   N'Ly', @doUong, NULL),
 (N'DO_UONG', N'Trà Sữa TT',      45000,  N'Trà đen pha cùng sữa và đường, hương vị béo nhẹ, thơm và dễ uống.',               N'/img/trasua.jpg',  N'CON_HANG', N'Tra',    N'Ly', @doUong, NULL)
+
 GO
 
 -- ============================================================

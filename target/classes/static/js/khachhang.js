@@ -27,10 +27,12 @@ function updateCartBadge() {
     if (b) b.textContent = Cart.count();
 }
 
+// FORMAT TIỀN
 function fmtVND(n) {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n || 0);
 }
 
+// MODAL
 function openModal(id) {
     document.getElementById(id).classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -43,6 +45,7 @@ function closeModalOut(event, id) {
     if (event.target === event.currentTarget) closeModal(id);
 }
 
+// CART PANEL (slide)
 function toggleCart() {
     const panel   = document.getElementById('cartPanel');
     const overlay = document.getElementById('cartOverlay');
@@ -132,6 +135,7 @@ function initScrollReveal() {
     });
 }
 
+// LOAD THỰC ĐƠN
 let currentTab = 'doan';
 
 function switchTab(tab, btn) {
@@ -367,6 +371,15 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCartBadge();
     loadKhuyenMai();
     loadMonAn('doan');
+	const _urlParams   = new URLSearchParams(window.location.search);
+	    const _banIdFromQR = _urlParams.get('banId');
+	    if (_banIdFromQR) {
+	        sessionStorage.setItem('banId', _banIdFromQR);
+	        const banner     = document.getElementById('banBanner');
+	        const bannerText = document.getElementById('banBannerText');
+	        if (banner) banner.style.display = 'block';
+	        if (bannerText) bannerText.textContent = 'Bàn #' + _banIdFromQR;
+	    }
 });
 
 // SCROLL REVEAL
