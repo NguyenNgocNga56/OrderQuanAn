@@ -7,7 +7,8 @@ import java.util.Optional;
 public interface KhachHangService {
     List<KhachHang> getAll();
     Optional<KhachHang> getById(Long id);
-    KhachHang create(KhachHang entity);
-    KhachHang update(Long id, KhachHang updated);
+    Optional<KhachHang> getBySdt(String sdt);
+    KhachHang create(KhachHang khachHang);
+    KhachHang update(Long id, KhachHang khachHang);
     void delete(Long id);
 }

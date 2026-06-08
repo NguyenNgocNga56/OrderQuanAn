@@ -101,8 +101,10 @@ public class ThanhToanServiceImpl implements ThanhToanService {
         thanhToan.setTrangThai(TrangThaiThanhToan.THANH_CONG);
         thanhToan.setThoiGian(LocalDateTime.now());
 
-        CapNhatDiemResult diemResult = capNhatDiemSauThanhToan(hoaDon, soTienPhaiTra);
+        // Lưu thanh toán trước, sau đó mới cập nhật điểm
+        // Tránh trường hợp save lỗi nhưng điểm đã bị trừ
         ThanhToan saved = repository.save(thanhToan);
+        CapNhatDiemResult diemResult = capNhatDiemSauThanhToan(hoaDon, soTienPhaiTra);
         return toResponse(saved, soTienPhaiTra, diemResult);
     }
 

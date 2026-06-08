@@ -146,9 +146,12 @@ CREATE TABLE ChiTietDonHang (
 CREATE TABLE KhuyenMai (
                            KhuyenMaiID   INT            IDENTITY(1,1) PRIMARY KEY,
                            TenKhuyenMai  NVARCHAR(100)  NOT NULL,
+                           MaKhuyenMai   VARCHAR(50)    NULL UNIQUE,
                            LoaiKhuyenMai NVARCHAR(20)   NOT NULL
                       CHECK (LoaiKhuyenMai IN (N'PHAN_TRAM', N'GIAM_TIEN_MAT')),
                            GiaTri        DECIMAL(10,2)  NOT NULL CHECK (GiaTri > 0),
+                           DiemToiThieu  INT            DEFAULT 0 CHECK (DiemToiThieu >= 0),
+                           TongTienToiThieu DECIMAL(10,2) DEFAULT 0 CHECK (TongTienToiThieu >= 0),
                            NgayBatDau    DATETIME       NOT NULL,
                            NgayKetThuc   DATETIME       NOT NULL,
                            TrangThai     BIT            DEFAULT 1,
@@ -209,12 +212,19 @@ GO
 -- de hash BCrypt, xong xoa MigrateController.java
 INSERT INTO NhanVien (TenNhanVien, SDT, DiaChi, Email, ChucVu, Luong, TrangThai, Password)
 VALUES
-    (N'Nguyen Ngoc Nga',  '0901111111', N'HCM', 'nga@gmail.com',       N'QUAN_LY',       15000000, 1, '12345'),
-    (N'Tran Thao Nuong',  '0902222222', N'HCM', 'nuong@gmail.com',     N'KY_THUAT_VIEN', 12000000, 1, '12345'),
-    (N'Pham Ngoc Tu',     '0903333333', N'HCM', 'ngoctus@gmail.com',   N'KY_THUAT_VIEN', 12000000, 1, '12345'),
-    (N'Tran Minh Tu',     '0904444444', N'HCM', 'minhtu94@gmail.com',  N'NGUOI_DUNG',     9000000, 1, '12345'),
-    (N'Nguyen Van Admin', '0905555555', N'HCM', 'admin@example.com',   N'QUAN_LY',       10000000, 1, '123456'),
-    (N'Nguyen Thi Huong', '0909999999', N'HCM', 'chuquan@example.com', N'QUAN_LY',       25000000, 1, '123456');
+    (N'Nguyen Ngoc Nga',      '0901111111', N'HCM', 'nga@gmail.com',         N'QUAN_LY',      15000000, 1, '12345'),
+    (N'Nguyen Thi Huong',     '0909999999', N'HCM', 'chuquan@example.com',   N'QUAN_LY',      25000000, 1, '123456'),
+    (N'Pham Van Chef',        '0907777777', N'HCM', 'chef1@gmail.com',        N'DAU_BEP',      18000000, 1, '12345'),
+    (N'Le Thi Kim Chi',       '0908888888', N'HCM', 'chef2@gmail.com',        N'DAU_BEP',      17000000, 1, '12345'),
+    (N'Tran Van Phu',         '0911112222', N'HCM', 'phubep1@gmail.com',      N'PHU_BEP',      11000000, 1, '12345'),
+    (N'Hoang Minh Tam',       '0911113333', N'HCM', 'phubep2@gmail.com',      N'PHU_BEP',      10500000, 1, '12345'),
+    (N'Nguyen Thi Phuc Vu',   '0912223344', N'HCM', 'phucvu1@gmail.com',      N'PHUC_VU',       8500000, 1, '12345'),
+    (N'Le Van An',            '0912224455', N'HCM', 'phucvu2@gmail.com',      N'PHUC_VU',       8200000, 1, '12345'),
+    (N'Tran Thi Mai',         '0912225566', N'HCM', 'phucvu3@gmail.com',      N'PHUC_VU',       8000000, 1, '12345'),
+    (N'Tran Thao Nuong',      '0902222222', N'HCM', 'nuong@gmail.com',        N'KY_THUAT_VIEN', 12000000, 1, '12345'),
+    (N'Pham Ngoc Tu',         '0903333333', N'HCM', 'ngoctus@gmail.com',      N'KY_THUAT_VIEN', 12000000, 1, '12345'),
+    (N'Tran Minh Tu',         '0904444444', N'HCM', 'minhtu94@gmail.com',     N'NGUOI_DUNG',     9000000, 1, '12345'),
+    (N'Nguyen Van Admin',     '0905555555', N'HCM', 'admin@example.com',      N'QUAN_LY',      10000000, 1, '123456');
 GO
 
 -- KHACH HANG
@@ -250,11 +260,11 @@ GO
 -- FIX: LoaiKhuyenMai chi PHAN_TRAM | GIAM_TIEN_MAT
 -- FIX: kieu DATETIME, NgayKetThuc = 2026 de con hieu luc khi demo
 -- FIX: xoa SO_TIEN
-INSERT INTO KhuyenMai (TenKhuyenMai, LoaiKhuyenMai, GiaTri, NgayBatDau, NgayKetThuc, TrangThai, MoTa)
+INSERT INTO KhuyenMai (TenKhuyenMai, MaKhuyenMai, LoaiKhuyenMai, GiaTri, DiemToiThieu, TongTienToiThieu, NgayBatDau, NgayKetThuc, TrangThai, MoTa)
 VALUES
-    (N'Giam 10% cuoi tuan',     N'PHAN_TRAM',     10,    '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 10% cho don hang cuoi tuan'),
-    (N'Tang 50k don tren 300k', N'GIAM_TIEN_MAT', 50000, '2025-05-01 00:00:00', '2026-12-31 23:59:59', 1, N'Tang 50k cho don tu 300k'),
-    (N'Uu dai thanh vien Vang', N'PHAN_TRAM',     15,    '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 15% cho hoi vien Vang');
+    (N'Giam 10% cuoi tuan',     'WEEKEND10', N'PHAN_TRAM',     10,    0,   0,      '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 10% cho don hang cuoi tuan'),
+    (N'Tang 50k don tren 300k', 'BILL300K',  N'GIAM_TIEN_MAT', 50000, 0,   300000, '2025-05-01 00:00:00', '2026-12-31 23:59:59', 1, N'Tang 50k cho don tu 300k'),
+    (N'Uu dai thanh vien Vang', 'VANG15',    N'PHAN_TRAM',     15,    500, 0,      '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 15% cho khach tu 500 diem');
 GO
 
 -- MENU

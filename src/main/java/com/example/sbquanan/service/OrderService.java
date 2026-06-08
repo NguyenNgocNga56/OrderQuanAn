@@ -167,16 +167,34 @@ public class OrderService {
             return;
         }
         if (!khuyenMai.hopLe()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ma khuyen mai da het han hoac chua ap dung");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Ma khuyen mai da het han hoac chua ap dung");
         }
 
-        double giamGia = switch (khuyenMai.getLoaiKhuyenMai()) {
-            case PHAN_TRAM -> tongTien * khuyenMai.getGiaTri() / 100;
-            case GIAM_TIEN_MAT -> khuyenMai.getGiaTri();
-        };
+        // Kiểm tra tổng tiền tối thiểu
+        if (tongTien < khuyenMai.getTongTienToiThieu()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Don hang chua dat tong tien toi thieu de dung ma khuyen mai nay. " +
+                            "Can toi thieu " + (long) khuyenMai.getTongTienToiThieu() + "d, " +
+                            "don hien tai " + (long) tongTien + "d.");
+        }
+
+        // Kiểm tra điểm tích lũy tối thiểu
+        if (khuyenMai.getDiemToiThieu() > 0) {
+            KhachHang khachHang = hoaDon.getDonHang().getKhachHang();
+            if (khachHang == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Ma khuyen mai nay yeu cau diem tich luy. Vui long nhap SDT khach hang.");
+            }
+            if (khachHang.getDiemTichLuy() < khuyenMai.getDiemToiThieu()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Khach hang chua du diem. Can " + khuyenMai.getDiemToiThieu() +
+                                " diem, hien co " + khachHang.getDiemTichLuy() + " diem.");
+            }
+        }
 
         hoaDon.setKhuyenMai(khuyenMai);
-        hoaDon.setGiamGia(Math.min(Math.max(giamGia, 0), tongTien));
+        hoaDon.setGiamGia(khuyenMai.tinhTienGiam(tongTien));
     }
 
     private double tinhThanhTien(HoaDon hoaDon) {
@@ -191,7 +209,9 @@ public class OrderService {
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Khong tim thay khuyen mai"));
         }
         if (req.getMaKhuyenMai() != null && !req.getMaKhuyenMai().isBlank()) {
-            return khuyenMaiRepo.findByTenKhuyenMaiIgnoreCase(req.getMaKhuyenMai().trim())
+            String ma = req.getMaKhuyenMai().trim();
+            return khuyenMaiRepo.findByMaKhuyenMaiIgnoreCase(ma)
+                    .or(() -> khuyenMaiRepo.findByTenKhuyenMaiIgnoreCase(ma))
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Khong tim thay ma khuyen mai"));
         }
         return null;
