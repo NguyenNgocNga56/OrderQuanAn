@@ -11,4 +11,5 @@ public interface BanService {
     void delete(Long id);
     Ban capNhatTrangThai(Long banId, String trangThaiMoi);
     List<Ban> getBanTheoTrangThai(String trangThai);
+    Ban toggleTrangThai(Long banId);  // ← THÊM DÒNG NÀY
 }

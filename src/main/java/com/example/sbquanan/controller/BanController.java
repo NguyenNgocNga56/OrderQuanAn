@@ -34,7 +34,7 @@ public class BanController {
 
     // PATCH /api/ban/{id}/trang-thai
     // Body: { "trangThai": "CO_KHACH" }
-    // Flow: TRONG -> CO_KHACH -> DEP_BAN -> TRONG
+    // Flow: TRONG <-> CO_KHACH (đã bỏ DEP_BAN)
     @PatchMapping("/{id}/trang-thai")
     public ApiResponse<Ban> capNhatTrangThai(
             @PathVariable Long id,
@@ -42,7 +42,17 @@ public class BanController {
         String trangThaiMoi = body.get("trangThai");
         return ApiResponse.success(
                 service.capNhatTrangThai(id, trangThaiMoi),
-                "Cap nhat trang thai ban thanh cong");
+                "Cập nhật trạng thái bàn thành công");
+    }
+
+    // ← THÊM ENDPOINT MỚI
+    // PATCH /api/ban/{id}/toggle-trang-thai
+    // Không cần body, tự đảo: TRONG -> CO_KHACH, CO_KHACH -> TRONG
+    @PatchMapping("/{id}/toggle-trang-thai")
+    public ApiResponse<Ban> toggleTrangThai(@PathVariable Long id) {
+        return ApiResponse.success(
+                service.toggleTrangThai(id),
+                "Đổi trạng thái bàn thành công");
     }
 
     @PostMapping
