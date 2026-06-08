@@ -153,6 +153,8 @@ async function openManager(api) {
 
     if (api === '/api/ban') {
         await loadBanManager();
+    } else if (api === '/api/khachhang') {
+        await loadKhachHangManager();
     } else if (config.monAn) {
         await loadMenuOptions();
         await loadMonAnAdmin();
@@ -165,7 +167,9 @@ async function openManager(api) {
     document.getElementById('adminManager').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// MANAGER BÀN (toggle + xóa)
+// ============================================================
+// MANAGER BÀN — CRUD đầy đủ
+// ============================================================
 async function loadBanManager() {
     const content = document.getElementById('managerContent');
     content.innerHTML = '<div class="admin-loading">Đang tải danh sách bàn...</div>';
@@ -173,48 +177,81 @@ async function loadBanManager() {
     try {
         const data = unwrapApiData(await fetch('/api/ban').then(r => r.json()));
         const rows = Array.isArray(data) ? data : [];
+        const admin = isAdmin();
+
+        // Form thêm bàn — chỉ ADMIN
+        const formHtml = admin ? `
+            <div id="banFormBox" style="background:var(--surface2,#f9f9f9);border:1px solid var(--border,#ddd);
+                        border-radius:10px;padding:16px;margin-bottom:20px;">
+                <h3 id="banFormTitle" style="margin:0 0 12px;font-size:1rem;">➕ Thêm bàn mới</h3>
+                <input type="hidden" id="banEditId">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+                    <input id="banTen"       placeholder="Tên bàn *"          style="${inputStyle}">
+                    <input id="banViTri"     placeholder="Vị trí"              style="${inputStyle}">
+                    <input id="banSoChoNgoi" placeholder="Sức chứa *" type="number" min="1" style="${inputStyle}">
+                    <input id="banLoaiBan"   placeholder="Loại bàn (VD: Ban VIP)" style="${inputStyle}">
+                    <input id="banGhiChu"    placeholder="Ghi chú"             style="${inputStyle}">
+                </div>
+                <div style="margin-top:12px;display:flex;gap:10px;">
+                    <button id="banSubmitBtn" onclick="submitBan()"
+                        style="padding:8px 24px;border-radius:8px;border:none;
+                               background:#8b0000;color:#fff;font-weight:700;cursor:pointer;font-size:0.9rem;">
+                        Thêm bàn
+                    </button>
+                    <button id="banCancelBtn" onclick="resetBanForm()" style="display:none;
+                        padding:8px 18px;border-radius:8px;border:1px solid #aaa;
+                        background:#fff;color:#333;font-weight:600;cursor:pointer;font-size:0.9rem;">
+                        Hủy
+                    </button>
+                </div>
+                <div id="banFormMsg" style="margin-top:8px;font-size:0.85rem;color:#c62828;display:none;"></div>
+            </div>` : '';
 
         if (!rows.length) {
-            content.innerHTML = '<div class="admin-empty">Chưa có bàn nào.</div>';
+            content.innerHTML = formHtml + '<div class="admin-empty">Chưa có bàn nào.</div>';
             return;
         }
 
-        const admin = isAdmin();
-
-        content.innerHTML = `
+        const tableHtml = `
             <table class="admin-table">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Tên bàn</th>
-                        <th>Vị trí</th>
-                        <th>Sức chứa</th>
-                        <th>Trạng thái</th>
-                        <th>Thao tác</th>
+                        <th>TÊN BÀN</th>
+                        <th>VỊ TRÍ</th>
+                        <th>SỨC CHỨA</th>
+                        <th>LOẠI BÀN</th>
+                        <th>TRẠNG THÁI</th>
+                        <th>THAO TÁC</th>
                     </tr>
                 </thead>
                 <tbody>
                     ${rows.map(ban => {
                         const laTrong = (ban.trangThai || '').toUpperCase() === 'TRONG';
                         const trangThaiLabel = laTrong
-                            ? '<span style="color:#2e7d32;font-weight:600;"> Trống</span>'
-                            : '<span style="color:#c62828;font-weight:600;"> Có khách</span>';
+                            ? '<span style="color:#2e7d32;font-weight:600;">Trống</span>'
+                            : '<span style="color:#c62828;font-weight:600;">Có khách</span>';
 
-                        // Nút toggle — cả ADMIN lẫn NHAN_VIEN đều thấy
                         const btnToggle = `
                             <button onclick="toggleBan(${ban.banID})"
-                                style="padding:5px 12px;border-radius:6px;border:none;cursor:pointer;
-                                       font-weight:600;margin-right:6px;color:white;
+                                style="padding:5px 10px;border-radius:6px;border:none;cursor:pointer;
+                                       font-weight:600;margin-right:4px;color:white;font-size:0.82rem;
                                        background:${laTrong ? '#43a047' : '#e53935'};">
-                                ${laTrong ? ' Đánh dấu có khách' : ' Trả bàn về trống'}
+                                ${laTrong ? 'Đánh dấu có khách' : 'Trả về trống'}
                             </button>`;
 
-                        // Nút Xóa — chỉ ADMIN
+                        const btnSua = admin ? `
+                            <button onclick="suaBan(${ban.banID},'${escapeHtml(ban.tenBan||'')}','${escapeHtml(ban.viTri||'')}',${ban.soChoNgoi},'${escapeHtml(ban.loaiBan||'')}','${escapeHtml(ban.ghiChu||'')}')"
+                                style="padding:5px 10px;border-radius:6px;border:none;cursor:pointer;
+                                       font-weight:600;margin-right:4px;background:#1565c0;color:white;font-size:0.82rem;">
+                                Sửa
+                            </button>` : '';
+
                         const btnXoa = admin ? `
                             <button onclick="xoaBan(${ban.banID})"
-                                style="padding:5px 12px;border-radius:6px;border:none;cursor:pointer;
-                                       font-weight:600;background:#b71c1c;color:white;">
-                                 Xóa
+                                style="padding:5px 10px;border-radius:6px;border:none;cursor:pointer;
+                                       font-weight:600;background:#b71c1c;color:white;font-size:0.82rem;">
+                                Xóa
                             </button>` : '';
 
                         return `
@@ -223,14 +260,75 @@ async function loadBanManager() {
                                 <td><strong>${escapeHtml(ban.tenBan || '')}</strong></td>
                                 <td>${escapeHtml(ban.viTri || '—')}</td>
                                 <td>${ban.soChoNgoi} chỗ</td>
+                                <td>${escapeHtml(ban.loaiBan || '—')}</td>
                                 <td>${trangThaiLabel}</td>
-                                <td>${btnToggle}${btnXoa}</td>
+                                <td>${btnToggle}${btnSua}${btnXoa}</td>
                             </tr>`;
                     }).join('')}
                 </tbody>
             </table>`;
+
+        content.innerHTML = formHtml + tableHtml;
     } catch {
         content.innerHTML = '<div class="admin-empty">Không tải được danh sách bàn.</div>';
+    }
+}
+
+function suaBan(id, ten, viTri, soChoNgoi, loaiBan, ghiChu) {
+    document.getElementById('banEditId').value     = id;
+    document.getElementById('banTen').value        = ten;
+    document.getElementById('banViTri').value      = viTri;
+    document.getElementById('banSoChoNgoi').value  = soChoNgoi;
+    document.getElementById('banLoaiBan').value    = loaiBan;
+    document.getElementById('banGhiChu').value     = ghiChu;
+    document.getElementById('banFormTitle').textContent = '✏️ Sửa bàn #' + id;
+    document.getElementById('banSubmitBtn').textContent = 'Cập nhật';
+    document.getElementById('banCancelBtn').style.display = 'inline-block';
+    document.getElementById('banFormBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function resetBanForm() {
+    ['banEditId','banTen','banViTri','banSoChoNgoi','banLoaiBan','banGhiChu'].forEach(id => {
+        document.getElementById(id).value = '';
+    });
+    document.getElementById('banFormTitle').textContent = '➕ Thêm bàn mới';
+    document.getElementById('banSubmitBtn').textContent = 'Thêm bàn';
+    document.getElementById('banCancelBtn').style.display = 'none';
+    document.getElementById('banFormMsg').style.display = 'none';
+}
+
+async function submitBan() {
+    if (!isAdmin()) { alert('Bạn không có quyền.'); return; }
+    const ten       = document.getElementById('banTen').value.trim();
+    const soChoNgoi = parseInt(document.getElementById('banSoChoNgoi').value || '0');
+    const msg       = document.getElementById('banFormMsg');
+
+    if (!ten)          { showFormMsg(msg, 'Vui lòng nhập tên bàn.'); return; }
+    if (soChoNgoi < 1) { showFormMsg(msg, 'Sức chứa phải >= 1.'); return; }
+
+    const editId = document.getElementById('banEditId').value;
+    const payload = {
+        tenBan:     ten,
+        viTri:      document.getElementById('banViTri').value.trim() || null,
+        soChoNgoi:  soChoNgoi,
+        loaiBan:    document.getElementById('banLoaiBan').value.trim() || 'Ban thuong',
+        ghiChu:     document.getElementById('banGhiChu').value.trim() || null
+    };
+
+    try {
+        const token = sessionStorage.getItem('adminToken');
+        const isEdit = !!editId;
+        const res = await fetch(isEdit ? `/api/ban/${editId}` : '/api/ban', {
+            method:  isEdit ? 'PUT' : 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body:    JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error(await res.text());
+        resetBanForm();
+        await loadBanManager();
+        await loadStats();
+    } catch (e) {
+        showFormMsg(msg, 'Lỗi: ' + (e.message || 'Không lưu được bàn.'));
     }
 }
 
@@ -579,7 +677,196 @@ async function loadGenericManager(api) {
 }
 
 
-// HELPERS
+// ============================================================
+// MANAGER KHÁCH HÀNG — CRUD đầy đủ
+// ============================================================
+async function loadKhachHangManager() {
+    const content = document.getElementById('managerContent');
+    content.innerHTML = '<div class="admin-loading">Đang tải danh sách khách hàng...</div>';
+
+    try {
+        const data = unwrapApiData(await fetch('/api/khachhang').then(r => r.json()));
+        const rows = Array.isArray(data) ? data : [];
+        const admin = isAdmin();
+
+        const hangBadge = {
+            'DONG':      { label: 'Đồng',      color: '#795548', bg: '#efebe9' },
+            'BAC':       { label: 'Bạc',        color: '#546e7a', bg: '#eceff1' },
+            'VANG':      { label: 'Vàng',       color: '#f57f17', bg: '#fff9c4' },
+            'KIM_CUONG': { label: 'Kim Cương',  color: '#1565c0', bg: '#e3f2fd' }
+        };
+
+        // Form thêm/sửa — chỉ ADMIN
+        const formHtml = admin ? `
+            <div id="khFormBox" style="background:var(--surface2,#f9f9f9);border:1px solid var(--border,#ddd);
+                        border-radius:10px;padding:16px;margin-bottom:20px;">
+                <h3 id="khFormTitle" style="margin:0 0 12px;font-size:1rem;">➕ Thêm khách hàng</h3>
+                <input type="hidden" id="khEditId">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+                    <input id="khHoTen"  placeholder="Họ tên *"                style="${inputStyle}">
+                    <input id="khSdt"    placeholder="Số điện thoại *"          style="${inputStyle}">
+                    <input id="khEmail"  placeholder="Email"                    style="${inputStyle}">
+                    <input id="khDiaChi" placeholder="Địa chỉ"                 style="${inputStyle}">
+                    <input id="khDiem"   placeholder="Điểm tích lũy" type="number" min="0" style="${inputStyle}">
+                </div>
+                <div style="margin-top:12px;display:flex;gap:10px;">
+                    <button id="khSubmitBtn" onclick="submitKhachHang()"
+                        style="padding:8px 24px;border-radius:8px;border:none;
+                               background:#8b0000;color:#fff;font-weight:700;cursor:pointer;font-size:0.9rem;">
+                        Thêm khách hàng
+                    </button>
+                    <button id="khCancelBtn" onclick="resetKhachHangForm()" style="display:none;
+                        padding:8px 18px;border-radius:8px;border:1px solid #aaa;
+                        background:#fff;color:#333;font-weight:600;cursor:pointer;font-size:0.9rem;">
+                        Hủy
+                    </button>
+                </div>
+                <div id="khFormMsg" style="margin-top:8px;font-size:0.85rem;color:#c62828;display:none;"></div>
+            </div>` : '';
+
+        if (!rows.length) {
+            content.innerHTML = formHtml + '<div class="admin-empty">Chưa có khách hàng nào.</div>';
+            return;
+        }
+
+        const tableHtml = `
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>HỌ TÊN</th>
+                        <th>SĐT</th>
+                        <th>EMAIL</th>
+                        <th>ĐIỂM TÍCH LŨY</th>
+                        <th>HẠNG</th>
+                        <th>THAO TÁC</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows.map(kh => {
+                        const hang = hangBadge[kh.loaiKhachHang] || hangBadge['DONG'];
+                        const badgeHtml = `<span style="padding:3px 10px;border-radius:12px;font-size:0.8rem;
+                            font-weight:700;background:${hang.bg};color:${hang.color};">${hang.label}</span>`;
+
+                        const btnSua = admin ? `
+                            <button onclick="suaKhachHang(${kh.id},'${escapeHtml(kh.hoTen||'')}','${escapeHtml(kh.sdt||'')}','${escapeHtml(kh.email||'')}','${escapeHtml(kh.diaChi||'')}',${kh.diemTichLuy||0})"
+                                style="padding:5px 10px;border-radius:6px;border:none;cursor:pointer;
+                                       font-weight:600;margin-right:4px;background:#1565c0;color:white;font-size:0.82rem;">
+                                Sửa
+                            </button>` : '';
+
+                        const btnXoa = admin ? `
+                            <button onclick="xoaKhachHang(${kh.id})"
+                                style="padding:5px 10px;border-radius:6px;border:none;cursor:pointer;
+                                       font-weight:600;background:#b71c1c;color:white;font-size:0.82rem;">
+                                Xóa
+                            </button>` : '';
+
+                        return `
+                            <tr id="kh-row-${kh.id}">
+                                <td>${kh.id}</td>
+                                <td><strong>${escapeHtml(kh.hoTen || '')}</strong></td>
+                                <td>${escapeHtml(kh.sdt || '—')}</td>
+                                <td>${escapeHtml(kh.email || '—')}</td>
+                                <td style="text-align:center;font-weight:700;">${kh.diemTichLuy ?? 0}</td>
+                                <td>${badgeHtml}</td>
+                                <td>${btnSua}${btnXoa}</td>
+                            </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>`;
+
+        content.innerHTML = formHtml + tableHtml;
+    } catch {
+        content.innerHTML = '<div class="admin-empty">Không tải được danh sách khách hàng.</div>';
+    }
+}
+
+function suaKhachHang(id, hoTen, sdt, email, diaChi, diem) {
+    document.getElementById('khEditId').value  = id;
+    document.getElementById('khHoTen').value   = hoTen;
+    document.getElementById('khSdt').value     = sdt;
+    document.getElementById('khEmail').value   = email;
+    document.getElementById('khDiaChi').value  = diaChi;
+    document.getElementById('khDiem').value    = diem;
+    document.getElementById('khFormTitle').textContent = '✏️ Sửa khách hàng #' + id;
+    document.getElementById('khSubmitBtn').textContent = 'Cập nhật';
+    document.getElementById('khCancelBtn').style.display = 'inline-block';
+    document.getElementById('khFormBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function resetKhachHangForm() {
+    ['khEditId','khHoTen','khSdt','khEmail','khDiaChi','khDiem'].forEach(id => {
+        document.getElementById(id).value = '';
+    });
+    document.getElementById('khFormTitle').textContent = '➕ Thêm khách hàng';
+    document.getElementById('khSubmitBtn').textContent = 'Thêm khách hàng';
+    document.getElementById('khCancelBtn').style.display = 'none';
+    document.getElementById('khFormMsg').style.display = 'none';
+}
+
+async function submitKhachHang() {
+    if (!isAdmin()) { alert('Bạn không có quyền.'); return; }
+    const hoTen = document.getElementById('khHoTen').value.trim();
+    const sdt   = document.getElementById('khSdt').value.trim();
+    const msg   = document.getElementById('khFormMsg');
+
+    if (!hoTen) { showFormMsg(msg, 'Vui lòng nhập họ tên.'); return; }
+    if (!sdt)   { showFormMsg(msg, 'Vui lòng nhập số điện thoại.'); return; }
+    if (!/^0[0-9]{9}$/.test(sdt)) { showFormMsg(msg, 'SĐT không hợp lệ (VD: 0912345678).'); return; }
+
+    const editId = document.getElementById('khEditId').value;
+    const payload = {
+        hoTen:        hoTen,
+        sdt:          sdt,
+        email:        document.getElementById('khEmail').value.trim() || null,
+        diaChi:       document.getElementById('khDiaChi').value.trim() || null,
+        diemTichLuy:  parseInt(document.getElementById('khDiem').value || '0')
+    };
+
+    try {
+        const token = sessionStorage.getItem('adminToken');
+        const isEdit = !!editId;
+        const res = await fetch(isEdit ? `/api/khachhang/${editId}` : '/api/khachhang', {
+            method:  isEdit ? 'PUT' : 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body:    JSON.stringify(payload)
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || 'Lỗi server');
+        }
+        resetKhachHangForm();
+        await loadKhachHangManager();
+        await loadStats();
+    } catch (e) {
+        showFormMsg(msg, 'Lỗi: ' + (e.message || 'Không lưu được.'));
+    }
+}
+
+async function xoaKhachHang(id) {
+    if (!isAdmin()) { alert('Bạn không có quyền xóa khách hàng.'); return; }
+    if (!confirm('Xóa khách hàng này? Dữ liệu đơn hàng liên quan có thể bị ảnh hưởng.')) return;
+    try {
+        const token = sessionStorage.getItem('adminToken');
+        const res = await fetch(`/api/khachhang/${id}`, {
+            method:  'DELETE',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (!res.ok) throw new Error();
+        await loadKhachHangManager();
+        await loadStats();
+    } catch {
+        alert('Không xóa được khách hàng này.');
+    }
+}
+
+// HELPER dùng chung cho form msg
+function showFormMsg(el, text) {
+    el.textContent = text;
+    el.style.display = 'block';
+}
+
 
 function fmtVNDAdmin(value) {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value || 0);

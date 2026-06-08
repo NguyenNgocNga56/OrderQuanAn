@@ -30,20 +30,26 @@ function chonLoaiDon(loai) {
     const groupChonBan = document.getElementById('groupChonBan');
 
     if (loai === 'TAI_CHO') {
+        // Nút Tại chỗ: active
         btnTaiCho.style.background    = 'var(--accent)';
         btnTaiCho.style.color         = '#fff';
         btnTaiCho.style.borderColor   = 'var(--accent)';
+        // Nút Mang về: inactive
         btnMangVe.style.background    = 'var(--surface2)';
         btnMangVe.style.color         = 'var(--text)';
         btnMangVe.style.borderColor   = 'var(--border)';
+        // Hiện phần chọn bàn
         groupChonBan.style.display    = '';
     } else {
+        // Nút Mang về: active
         btnMangVe.style.background    = 'var(--accent)';
         btnMangVe.style.color         = '#fff';
         btnMangVe.style.borderColor   = 'var(--accent)';
+        // Nút Tại chỗ: inactive
         btnTaiCho.style.background    = 'var(--surface2)';
         btnTaiCho.style.color         = 'var(--text)';
         btnTaiCho.style.borderColor   = 'var(--border)';
+        // Ẩn phần chọn bàn
         groupChonBan.style.display    = 'none';
     }
 }
@@ -82,7 +88,10 @@ async function loadBanList() {
         console.warn('Không tải được danh sách bàn:', e);
     }
 }
+
+// ============================================================
 // RENDER GIỎ HÀNG
+// ============================================================
 function renderCartPage() {
     const items     = Cart.getAll();
     const container = document.getElementById('cartPageItems');
@@ -135,7 +144,7 @@ function renderCartPage() {
         </table>
         <div style="margin-top:12px;">
             <button onclick="Cart.clear();renderCartPage();" style="background:none;border:1px solid var(--border);color:var(--text-muted);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:0.88rem;">
-                🗑 Xoá tất cả
+                 Xoá tất cả
             </button>
         </div>`;
 }
@@ -275,7 +284,9 @@ async function loadKhuyenMaiTheoSdt(sdt) {
     }
 }
 
+// ============================================================
 // ÁP DỤNG KHUYẾN MÃI → CẬP NHẬT TỔNG
+// ============================================================
 function applyKhuyenMai() {
     const sel      = document.getElementById('selKhuyenMai');
     const kmInfo   = document.getElementById('kmInfo');
@@ -318,7 +329,9 @@ function updateTotal() {
     document.getElementById('sumTotal').textContent = fmtVND(Math.max(0, subtotal - _giamGia));
 }
 
+// ============================================================
 // ĐẶT MÓN → POST /orders
+// ============================================================
 async function datMon() {
     const items = Cart.getAll();
     if (!items.length) { alert('Giỏ hàng trống!'); return; }
