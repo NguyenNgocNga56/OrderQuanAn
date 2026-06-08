@@ -6,6 +6,7 @@ import com.example.sbquanan.entity.HoaDon;
 import com.example.sbquanan.entity.KhachHang;
 import com.example.sbquanan.entity.KhuyenMai;
 import com.example.sbquanan.entity.ThanhToan;
+import com.example.sbquanan.enums.LoaiKhachHang;
 import com.example.sbquanan.enums.PhuongThucThanhToan;
 import com.example.sbquanan.enums.TrangThaiDonHang;
 import com.example.sbquanan.enums.TrangThaiThanhToan;
@@ -47,7 +48,7 @@ public class ThanhToanServiceImpl implements ThanhToanService {
         TrangThaiDonHang trangThai = hoaDon.getDonHang().getTrangThai();
 
         // CHECK TRẠNG THÁI — chỉ cho thanh toán khi DA_PHUC_VU
-        if (trangThai != TrangThaiDonHang.DA_PHUC_VU) {
+        /*if (trangThai != TrangThaiDonHang.DA_PHUC_VU) {
             String msg;
             switch (trangThai) {
                 case DA_HUY:
@@ -67,6 +68,14 @@ public class ThanhToanServiceImpl implements ThanhToanService {
                     break;
             }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, msg);
+        }*/
+        if (trangThai == TrangThaiDonHang.DA_HUY) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Không thể thanh toán — đơn hàng đã bị hủy.");
+        }
+        if (trangThai == TrangThaiDonHang.HOAN_THANH) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Đơn hàng này đã hoàn thành trước đó.");
         }
 
         // CHECK đã thanh toán thành công chưa
@@ -81,6 +90,48 @@ public class ThanhToanServiceImpl implements ThanhToanService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Vui lòng chọn phương thức thanh toán.");
         }
+
+        // ═══════════════════════════════════════════════════════════════
+        // VALIDATION MÃ KHUYẾN MÃI — backend guard, just in case FE bug
+        // ═══════════════════════════════════════════════════════════════
+        KhuyenMai khuyenMai = hoaDon.getKhuyenMai();
+        if (khuyenMai != null) {
+            KhachHang khachHang = hoaDon.getDonHang().getKhachHang();
+
+            // 1. Không nhập SDT nhưng chọn mã → chặn
+            if (khachHang == null || khachHang.getSdt() == null || khachHang.getSdt().isBlank()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Bạn cần nhập số điện thoại để sử dụng mã khuyến mãi.");
+            }
+
+            // 2. Có SDT nhưng không đủ điểm tích lũy
+            if (khuyenMai.getDiemToiThieu() > 0
+                    && khachHang.getDiemTichLuy() < khuyenMai.getDiemToiThieu()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        String.format("Không đủ điểm tích lũy để dùng mã này (cần %d điểm, hiện có %d điểm).",
+                                khuyenMai.getDiemToiThieu(), khachHang.getDiemTichLuy()));
+            }
+
+            // 3. Tổng tiền đơn hàng chưa đạt ngưỡng tối thiểu của mã
+            if (khuyenMai.getTongTienToiThieu() > 0
+                    && hoaDon.getTongTien() < khuyenMai.getTongTienToiThieu()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        String.format("Đơn hàng chưa đạt giá trị tối thiểu để dùng mã này (cần %.0f₫, hiện %.0f₫).",
+                                khuyenMai.getTongTienToiThieu(), hoaDon.getTongTien()));
+            }
+
+            // 4. Hạng khách hàng không đủ để dùng mã
+            if (khuyenMai.getLoaiKhachHangToiThieu() != null) {
+                LoaiKhachHang hangYeuCau = khuyenMai.getLoaiKhachHangToiThieu();
+                LoaiKhachHang hangHienTai = khachHang.getLoaiKhachHang();
+                if (hangHienTai.ordinal() < hangYeuCau.ordinal()) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            String.format("Mã này chỉ dành cho khách hạng %s trở lên (hạng hiện tại: %s).",
+                                    hangYeuCau, hangHienTai));
+                }
+            }
+        }
+        // ═══════════════════════════════════════════════════════════════
 
         double soTienPhaiTra = tinhSoTienPhaiTra(hoaDon);
         double soTien = request.getSoTien() != null ? request.getSoTien() : soTienPhaiTra;
@@ -101,8 +152,10 @@ public class ThanhToanServiceImpl implements ThanhToanService {
         thanhToan.setTrangThai(TrangThaiThanhToan.THANH_CONG);
         thanhToan.setThoiGian(LocalDateTime.now());
 
-        CapNhatDiemResult diemResult = capNhatDiemSauThanhToan(hoaDon, soTienPhaiTra);
+        // Lưu thanh toán trước, sau đó mới cập nhật điểm
+        // Tránh trường hợp save lỗi nhưng điểm đã bị trừ
         ThanhToan saved = repository.save(thanhToan);
+        CapNhatDiemResult diemResult = capNhatDiemSauThanhToan(hoaDon, soTienPhaiTra);
         return toResponse(saved, soTienPhaiTra, diemResult);
     }
 

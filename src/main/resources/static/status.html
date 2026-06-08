@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trạng thái đơn – QuanAn67</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #0d0d0d; color: #f0f0f0;
+            min-height: 100vh; padding: 1.5rem;
+        }
+        .header { text-align: center; margin-bottom: 2rem; }
+        .logo-text { font-size: 1.3rem; font-weight: 700; color: #fff; }
+        .logo-text strong { color: #c0392b; }
+        .don-info {
+            background: #1a1a1a; border-radius: 16px; padding: 1.25rem;
+            margin-bottom: 1.5rem; text-align: center;
+        }
+        .don-id { font-size: 0.85rem; color: #888; margin-bottom: 4px; }
+        .trang-thai-don {
+            display: inline-block; padding: 6px 20px; border-radius: 20px;
+            font-size: 14px; font-weight: 600; margin-top: 6px;
+        }
+        .tt-CHO_XAC_NHAN { background: #fff3e0; color: #e67e22; }
+        .tt-DANG_NAU     { background: #e3f2fd; color: #2196f3; }
+        .tt-DA_PHUC_VU   { background: #f3e5f5; color: #9c27b0; }
+        .tt-HOAN_THANH   { background: #e8f5e9; color: #27ae60; }
+        .tt-DA_HUY       { background: #ffebee; color: #e53935; }
+
+        .mon-list { display: flex; flex-direction: column; gap: 12px; }
+        .mon-card {
+            background: #1a1a1a; border-radius: 12px;
+            padding: 1rem 1.25rem;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .mon-info .ten { font-weight: 500; font-size: 15px; }
+        .mon-info .sl  { font-size: 13px; color: #888; margin-top: 2px; }
+        .mon-gia { font-weight: 600; color: #c0392b; }
+
+        .tong-tien {
+            background: #1a1a1a; border-radius: 16px;
+            padding: 1.25rem; margin-top: 1.5rem;
+        }
+        .tong-row {
+            display: flex; justify-content: space-between;
+            padding: 6px 0; font-size: 14px; color: #aaa;
+            border-bottom: 1px solid #2a2a2a;
+        }
+        .tong-row:last-child { border: none; color: #fff; font-weight: 600; font-size: 16px; }
+
+        .refresh-info { text-align: center; color: #555; font-size: 12px; margin-top: 1rem; }
+        .empty { text-align: center; padding: 3rem; color: #555; }
+
+        .btn-back {
+            display: block; width: 100%; padding: 14px;
+            background: #c0392b; color: #fff; border: none; border-radius: 12px;
+            font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 1.5rem;
+            text-decoration: none; text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="logo-text">QuanAn<strong>67</strong></div>
+</div>
+
+<div id="content">
+    <div class="empty">Đang tải thông tin đơn hàng...</div>
+</div>
+
+<script>
+function fmtVND(n) {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n || 0);
+}
+
+const TT_LABEL = {
+    CHO_XAC_NHAN: '⏳ Chờ xác nhận',
+    DANG_NAU:     '🍳 Đang nấu',
+    DA_PHUC_VU:   '🍽️ Đã phục vụ',
+    HOAN_THANH:   '✅ Hoàn thành',
+    DA_HUY:       '❌ Đã hủy'
+};
+
+const params    = new URLSearchParams(window.location.search);
+const donHangID = params.get('donHangId');
+let refreshTimer;
+
+async function loadDonHang() {
+    if (!donHangID) {
+        document.getElementById('content').innerHTML =
+            '<div class="empty">Không tìm thấy mã đơn hàng.<br><a href="/khachhang.html" style="color:#c0392b;">← Về trang menu</a></div>';
+        return;
+    }
+    try {
+        const res  = await fetch(`/orders/${donHangID}`);
+        if (!res.ok) throw new Error('not found');
+        const json = await res.json();
+        const dh   = json.data || json;
+        render(dh);
+    } catch(e) {
+        document.getElementById('content').innerHTML =
+            `<div class="empty">Không tìm thấy đơn #${donHangID}.<br><a href="/khachhang.html" style="color:#c0392b;">← Về trang menu</a></div>`;
+    }
+}
+
+function render(dh) {
+    const tt      = dh.trangThai || '';
+    const chiTiet = dh.chiTiet   || [];
+    const giamGia = dh.giamGia   || 0;
+    const tong    = dh.tongTien  || 0;
+    const thanh   = giamGia > 0 ? (tong - giamGia) : tong;
+
+    document.getElementById('content').innerHTML = `
+        <div class="don-info">
+            <div class="don-id">Đơn hàng #${dh.donHangID}</div>
+            ${dh.tenBan ? `<div style="font-size:14px;color:#aaa;">${dh.tenBan}</div>` : ''}
+            <span class="trang-thai-don tt-${tt}">
+                ${TT_LABEL[tt] || tt}
+            </span>
+        </div>
+
+        <div class="mon-list">
+            ${chiTiet.map(ct => `
+            <div class="mon-card">
+                <div class="mon-info">
+                    <div class="ten">${ct.tenMon || 'Món ăn'}</div>
+                    <div class="sl">x${ct.soLuong}</div>
+                </div>
+                <div class="mon-gia">${fmtVND(ct.thanhTien)}</div>
+            </div>`).join('')}
+        </div>
+
+        <div class="tong-tien">
+            <div class="tong-row"><span>Tạm tính</span><span>${fmtVND(tong)}</span></div>
+            ${giamGia > 0 ? `<div class="tong-row"><span>Giảm giá</span><span>-${fmtVND(giamGia)}</span></div>` : ''}
+            <div class="tong-row"><span>Thành tiền</span><span>${fmtVND(thanh)}</span></div>
+        </div>
+
+        <div class="refresh-info">Tự cập nhật sau <span id="countdown">10</span>s</div>
+        <a href="/khachhang.html" class="btn-back">← Về trang menu</a>
+    `;
+
+    startCountdown();
+}
+
+function startCountdown() {
+    clearInterval(refreshTimer);
+    let count = 10;
+    const el  = document.getElementById('countdown');
+    refreshTimer = setInterval(() => {
+        count--;
+        if (el) el.textContent = count;
+        if (count <= 0) {
+            clearInterval(refreshTimer);
+            loadDonHang();
+        }
+    }, 1000);
+}
+
+loadDonHang();
+</script>
+</body>
+</html>

@@ -12,9 +12,8 @@ import java.util.List;
 @Data
 public class OrderRequest {
 
-    @NotNull(message = "BanId không được để trống")
-    private Integer banId;
-
+	private Integer banId;
+	
     private Integer khachHangId;    // nullable – khách vãng lai
 
     private Integer nhanVienId;     // nullable

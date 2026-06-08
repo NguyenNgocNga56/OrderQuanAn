@@ -5,19 +5,20 @@ import com.example.sbquanan.dto.OrderResponse;
 import com.example.sbquanan.entity.*;
 import com.example.sbquanan.enums.TrangThaiDonHang;
 import com.example.sbquanan.repository.*;
+import com.example.sbquanan.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import com.example.sbquanan.service.OrderService;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class OrderServiceImpl extends OrderService {
+public class OrderServiceImpl implements OrderService {
 
     @Autowired private DonHangRepository        donHangRepo;
     @Autowired private ChiTietDonHangRepository chiTietRepo;
@@ -26,8 +27,8 @@ public class OrderServiceImpl extends OrderService {
     @Autowired private NhanVienRepository       nhanVienRepo;
     @Autowired private HoaDonRepository         hoaDonRepo;
     @Autowired private KhuyenMaiRepository      khuyenMaiRepo;
+    @Autowired private BanRepository            banRepo;
 
-    // POST /orders
     @Transactional
     public OrderResponse createOrder(OrderRequest req) {
 
@@ -41,12 +42,26 @@ public class OrderServiceImpl extends OrderService {
         donHang.setTrangThai(TrangThaiDonHang.CHO_XAC_NHAN);
         donHang.setNgayDat(LocalDateTime.now());
 
+        // Lookup Ban, set vao DonHang, tu dong chuyen trang thai ban
+        if (req.getBanId() != null) {
+            Ban ban = banRepo.findById(req.getBanId().longValue())
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            "Khong tim thay ban #" + req.getBanId()));
+            donHang.setBan(ban);
+            if ("TRONG".equals(ban.getTrangThai())) {
+                ban.setTrangThai("CO_KHACH");
+                banRepo.save(ban);
+            }
+        }
+
         KhachHang khachHang = null;
         String sdtKhachHang = req.getSdtKhachHang() != null ? req.getSdtKhachHang().trim() : null;
         if (sdtKhachHang != null && !sdtKhachHang.isBlank()) {
             khachHang = khachHangRepo.findBySdt(sdtKhachHang)
                     .orElseThrow(() -> new ResponseStatusException(
-                            HttpStatus.NOT_FOUND, "Khong tim thay khach hang voi so dien thoai: " + sdtKhachHang));
+                            HttpStatus.NOT_FOUND,
+                            "Khong tim thay khach hang voi so dien thoai: " + sdtKhachHang));
         } else if (req.getKhachHangId() != null) {
             khachHang = khachHangRepo.findById(req.getKhachHangId().longValue())
                     .orElseThrow(() -> new ResponseStatusException(
@@ -55,6 +70,7 @@ public class OrderServiceImpl extends OrderService {
         if (khachHang != null) {
             donHang.setKhachHang(khachHang);
         }
+
         if (req.getNhanVienId() != null) {
             NhanVien nv = nhanVienRepo.findById(req.getNhanVienId().longValue())
                     .orElseThrow(() -> new ResponseStatusException(
@@ -113,32 +129,27 @@ public class OrderServiceImpl extends OrderService {
         return response;
     }
 
-    // GET /orders
     @Transactional(readOnly = true)
     public List<OrderResponse> getAll() {
         return donHangRepo.findAll().stream()
                 .map(dh -> buildResponse(dh,
-                        chiTietRepo.findByDonHangID(dh.getDonHangID())))
+                        chiTietRepo.findByDonHang_DonHangID(dh.getDonHangID())))
                 .collect(Collectors.toList());
     }
 
-    // GET /orders/{id}
     @Transactional(readOnly = true)
     public OrderResponse getById(Long id) {
         DonHang dh = donHangRepo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Khong tim thay don hang #" + id));
-        List<ChiTietDonHang> ct = chiTietRepo.findByDonHangID(id);
+        List<ChiTietDonHang> ct = chiTietRepo.findByDonHang_DonHangID(id);
         return buildResponse(dh, ct);
     }
 
-    // =========== HELPER ===========
 
     private OrderResponse buildResponse(DonHang dh, List<ChiTietDonHang> chiTiets) {
         OrderResponse res = new OrderResponse();
-
-        // SỬA: giữ nguyên Long, không ép sang Integer
-        res.setDonHangID(Math.toIntExact(dh.getDonHangID()));
+        res.setDonHangID(dh.getDonHangID());
 
         hoaDonRepo.findByDonHang_DonHangID(dh.getDonHangID())
                 .ifPresent(hoaDon -> {
@@ -152,6 +163,7 @@ public class OrderServiceImpl extends OrderService {
         }
         res.setNgayDat(dh.getNgayDat());
 
+        if (dh.getBan() != null) res.setTenBan(dh.getBan().getTenBan());
         if (dh.getKhachHang() != null) res.setTenKhachHang(dh.getKhachHang().getHoTen());
         if (dh.getNhanVien()  != null) res.setTenNhanVien(dh.getNhanVien().getHoTen());
 
@@ -171,7 +183,8 @@ public class OrderServiceImpl extends OrderService {
         return res;
     }
 
-    private void apDungKhuyenMai(OrderRequest req, HoaDon hoaDon, double tongTien, KhachHang khachHang) {
+    private void apDungKhuyenMai(OrderRequest req, HoaDon hoaDon,
+                                  double tongTien, KhachHang khachHang) {
         KhuyenMai khuyenMai = timKhuyenMai(req);
 
         if (khuyenMai == null) {
@@ -214,9 +227,9 @@ public class OrderServiceImpl extends OrderService {
                             HttpStatus.NOT_FOUND, "Khong tim thay khuyen mai"));
         }
         if (req.getMaKhuyenMai() != null && !req.getMaKhuyenMai().isBlank()) {
-            String maKhuyenMai = req.getMaKhuyenMai().trim();
-            return khuyenMaiRepo.findByMaKhuyenMaiIgnoreCase(maKhuyenMai)
-                    .or(() -> khuyenMaiRepo.findByTenKhuyenMaiIgnoreCase(maKhuyenMai))
+            String ma = req.getMaKhuyenMai().trim();
+            return khuyenMaiRepo.findByMaKhuyenMaiIgnoreCase(ma)
+                    .or(() -> khuyenMaiRepo.findByTenKhuyenMaiIgnoreCase(ma))
                     .orElseThrow(() -> new ResponseStatusException(
                             HttpStatus.NOT_FOUND, "Khong tim thay ma khuyen mai"));
         }

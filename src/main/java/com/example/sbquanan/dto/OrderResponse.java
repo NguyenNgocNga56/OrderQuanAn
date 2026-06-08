@@ -4,20 +4,17 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * DTO trả về sau khi tạo đơn (POST /orders) hoặc GET /orders/{id}.
- * Không expose lazy entity để tránh vòng lặp JSON / LazyInitException.
- */
 @Data
 public class OrderResponse {
 
-    private Integer donHangID;
+    private Long donHangID;
     private Long hoaDonID;
-    private String  trangThai;
-    private double  tongTien;
-    private double  giamGia;
+    private String trangThai;
+    private double tongTien;
+    private double giamGia;
     private LocalDateTime ngayDat;
 
+    private String tenBan;
     private String tenKhachHang;
     private String tenNhanVien;
 

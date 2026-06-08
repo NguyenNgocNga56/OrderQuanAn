@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Nhân Viên</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+          font-family: 'Segoe UI', sans-serif;
+          background: #0f1117;
+          color: #e2e8f0;
+          min-height: 100vh;
+          padding: 24px;
+        }
+
+        h1 {
+          font-size: 1.3rem;
+          font-weight: 600;
+          color: #94a3b8;
+          margin-bottom: 20px;
+          letter-spacing: .05em;
+          text-transform: uppercase;
+        }
+
+        .layout { display: grid; grid-template-columns: 340px 1fr; gap: 20px; }
+
+        /* --- PANEL --- */
+        .panel {
+          background: #1e2130;
+          border: 1px solid #2d3348;
+          border-radius: 10px;
+          overflow: hidden;
+        }
+        .panel-header {
+          padding: 12px 16px;
+          background: #252840;
+          font-size: .75rem;
+          font-weight: 700;
+          letter-spacing: .08em;
+          text-transform: uppercase;
+          color: #64748b;
+          border-bottom: 1px solid #2d3348;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .panel-header .dot {
+          width: 7px; height: 7px;
+          border-radius: 50%;
+          background: #38bdf8;
+          box-shadow: 0 0 6px #38bdf8;
+        }
+
+        /* --- BASE URL --- */
+        .baseurl-row {
+          display: flex;
+          gap: 8px;
+          padding: 12px 16px;
+          border-bottom: 1px solid #2d3348;
+        }
+        .baseurl-row input {
+          flex: 1;
+          background: #0f1117;
+          border: 1px solid #2d3348;
+          border-radius: 6px;
+          padding: 7px 10px;
+          color: #e2e8f0;
+          font-size: .82rem;
+          font-family: monospace;
+        }
+        .baseurl-row input:focus { outline: none; border-color: #38bdf8; }
+
+        /* --- ACTION BUTTONS --- */
+        .actions {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          padding: 12px;
+        }
+        .btn-action {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 9px 12px;
+          border-radius: 7px;
+          border: none;
+          cursor: pointer;
+          font-size: .82rem;
+          font-weight: 500;
+          background: transparent;
+          color: #94a3b8;
+          transition: background .15s, color .15s;
+          text-align: left;
+        }
+        .btn-action:hover { background: #252840; color: #e2e8f0; }
+        .btn-action.active { background: #252840; color: #e2e8f0; }
+        .method-badge {
+          font-size: .68rem;
+          font-weight: 700;
+          padding: 2px 6px;
+          border-radius: 4px;
+          min-width: 44px;
+          text-align: center;
+          letter-spacing: .04em;
+        }
+        .get  { background: #134e4a; color: #34d399; }
+        .post { background: #1e3a5f; color: #60a5fa; }
+        .put  { background: #3b2f00; color: #fbbf24; }
+        .del  { background: #3b0f0f; color: #f87171; }
+
+        /* --- FORM AREA --- */
+        .form-area { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+
+        label { font-size: .75rem; color: #64748b; margin-bottom: 2px; display: block; }
+
+        input[type=text], input[type=number], input[type=password], input[type=email], select {
+          width: 100%;
+          background: #0f1117;
+          border: 1px solid #2d3348;
+          border-radius: 6px;
+          padding: 7px 10px;
+          color: #e2e8f0;
+          font-size: .83rem;
+        }
+        input:focus, select:focus { outline: none; border-color: #38bdf8; }
+
+        .field { display: flex; flex-direction: column; gap: 4px; }
+
+        .btn-send {
+          padding: 9px;
+          border-radius: 7px;
+          border: none;
+          background: #0ea5e9;
+          color: #fff;
+          font-weight: 700;
+          font-size: .83rem;
+          cursor: pointer;
+          letter-spacing: .04em;
+          transition: background .15s;
+          margin-top: 4px;
+        }
+        .btn-send:hover { background: #38bdf8; }
+        .btn-send:disabled { background: #2d3348; color: #475569; cursor: not-allowed; }
+
+        /* --- RESPONSE --- */
+        .response-panel { display: flex; flex-direction: column; }
+
+        .status-bar {
+          padding: 10px 16px;
+          font-size: .75rem;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          border-bottom: 1px solid #2d3348;
+        }
+        .status-code {
+          font-weight: 700;
+          font-size: .85rem;
+          padding: 2px 8px;
+          border-radius: 4px;
+        }
+        .s2xx { background: #134e4a; color: #34d399; }
+        .s4xx { background: #3b0f0f; color: #f87171; }
+        .s5xx { background: #3b2010; color: #fb923c; }
+
+        .response-body {
+          flex: 1;
+          padding: 14px 16px;
+          font-family: 'Consolas', monospace;
+          font-size: .8rem;
+          line-height: 1.6;
+          overflow: auto;
+          white-space: pre;
+          color: #94a3b8;
+          max-height: calc(100vh - 200px);
+        }
+
+        .response-body .key   { color: #60a5fa; }
+        .response-body .str   { color: #34d399; }
+        .response-body .num   { color: #fb923c; }
+        .response-body .bool  { color: #c084fc; }
+        .response-body .null  { color: #64748b; }
+
+        .placeholder {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 200px;
+          color: #334155;
+          font-size: .85rem;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .placeholder svg { opacity: .3; }
+
+        .divider {
+          font-size: .7rem;
+          color: #334155;
+          padding: 4px 12px;
+          letter-spacing: .06em;
+          text-transform: uppercase;
+        }
+
+        #loading {
+          display: none;
+          color: #38bdf8;
+          font-size: .78rem;
+          padding: 8px 16px;
+          animation: pulse 1s infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    </style>
+</head>
+<body>
+
+<h1>🔧 Test API — Nhân Viên</h1>
+
+<div class="layout">
+
+    <!-- LEFT: điều khiển -->
+    <div>
+        <div class="panel">
+            <div class="panel-header"><span class="dot"></span> Base URL</div>
+            <div class="baseurl-row">
+                <input id="baseUrl" type="text" value="http://localhost:8080" placeholder="http://localhost:8080">
+            </div>
+
+            <div class="actions">
+                <div class="divider">Danh sách</div>
+                <button class="btn-action" onclick="selectAction('getAll')">
+                    <span class="method-badge get">GET</span> /api/nhanvien
+                </button>
+                <button class="btn-action" onclick="selectAction('getById')">
+                    <span class="method-badge get">GET</span> /api/nhanvien/{id}
+                </button>
+
+                <div class="divider">Thêm / Sửa / Xóa</div>
+                <button class="btn-action" onclick="selectAction('create')">
+                    <span class="method-badge post">POST</span> /api/nhanvien
+                </button>
+                <button class="btn-action" onclick="selectAction('update')">
+                    <span class="method-badge put">PUT</span> /api/nhanvien/{id}
+                </button>
+                <button class="btn-action" onclick="selectAction('delete')">
+                    <span class="method-badge del">DEL</span> /api/nhanvien/{id}
+                </button>
+            </div>
+
+            <!-- FORM động -->
+            <div id="formArea" class="form-area" style="border-top:1px solid #2d3348; display:none;">
+                <div id="formFields"></div>
+                <button class="btn-send" id="btnSend" onclick="sendRequest()">Gửi request</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT: response -->
+    <div class="panel response-panel">
+        <div class="panel-header"><span class="dot"></span> Response</div>
+        <div class="status-bar" id="statusBar" style="display:none"></div>
+        <div id="loading">⏳ Đang gửi request...</div>
+        <div id="responseBody" class="response-body">
+            <div class="placeholder">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+                Chọn một endpoint để bắt đầu
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let currentAction = null;
+
+    const forms = {
+      getAll: [],
+      getById: [
+        { id: 'id', label: 'NhanVienID', type: 'number', placeholder: '1' }
+      ],
+      create: [
+        { id: 'hoTen',    label: 'Họ tên *',    type: 'text',     placeholder: 'Nguyễn Văn A' },
+        { id: 'email',    label: 'Email *',     type: 'email',    placeholder: 'nva@gmail.com' },
+        { id: 'password', label: 'Password *',  type: 'password', placeholder: '' },
+        { id: 'sdt',      label: 'SĐT',        type: 'text',     placeholder: '0901234567' },
+        { id: 'diaChi',   label: 'Địa chỉ',    type: 'text',     placeholder: '' },
+        { id: 'chucVu',   label: 'Chức vụ',    type: 'text',     placeholder: 'Nhân viên phục vụ' },
+        { id: 'luong',    label: 'Lương',       type: 'number',   placeholder: '5000000' },
+        { id: 'trangThai',label: 'Trạng thái', type: 'select',   options: [{v:'true',l:'Hoạt động'},{v:'false',l:'Vô hiệu'}] },
+      ],
+      update: [
+        { id: 'id',       label: 'NhanVienID *', type: 'number',  placeholder: '1' },
+        { id: 'hoTen',    label: 'Họ tên',      type: 'text',     placeholder: 'Nguyễn Văn A' },
+        { id: 'email',    label: 'Email',       type: 'email',    placeholder: '' },
+        { id: 'password', label: 'Password mới (để trống = giữ nguyên)', type: 'password', placeholder: '' },
+        { id: 'sdt',      label: 'SĐT',        type: 'text',     placeholder: '' },
+        { id: 'diaChi',   label: 'Địa chỉ',    type: 'text',     placeholder: '' },
+        { id: 'chucVu',   label: 'Chức vụ',    type: 'text',     placeholder: '' },
+        { id: 'luong',    label: 'Lương',       type: 'number',   placeholder: '' },
+        { id: 'trangThai',label: 'Trạng thái', type: 'select',   options: [{v:'true',l:'Hoạt động'},{v:'false',l:'Vô hiệu'}] },
+      ],
+      delete: [
+        { id: 'id', label: 'NhanVienID', type: 'number', placeholder: '1' }
+      ],
+    };
+
+    function selectAction(action) {
+      currentAction = action;
+      document.querySelectorAll('.btn-action').forEach(b => b.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+
+      const fields = forms[action];
+      const area = document.getElementById('formArea');
+      const container = document.getElementById('formFields');
+
+      if (fields.length === 0) {
+        area.style.display = 'flex';
+        container.innerHTML = '<p style="color:#475569;font-size:.8rem;">Không cần tham số</p>';
+      } else {
+        area.style.display = 'flex';
+        container.innerHTML = fields.map(f => {
+          if (f.type === 'select') {
+            const opts = f.options.map(o => `<option value="${o.v}">${o.l}</option>`).join('');
+            return `<div class="field"><label>${f.label}</label><select id="f_${f.id}">${opts}</select></div>`;
+          }
+          return `<div class="field"><label>${f.label}</label>
+            <input type="${f.type}" id="f_${f.id}" placeholder="${f.placeholder || ''}"></div>`;
+        }).join('');
+      }
+    }
+
+    function getVal(id) {
+      const el = document.getElementById('f_' + id);
+      return el ? el.value.trim() : '';
+    }
+
+    async function sendRequest() {
+      const base = document.getElementById('baseUrl').value.replace(/\/$/, '');
+      const btn = document.getElementById('btnSend');
+      btn.disabled = true;
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('statusBar').style.display = 'none';
+      document.getElementById('responseBody').innerHTML = '';
+
+      let url, method, body;
+
+      try {
+        switch (currentAction) {
+          case 'getAll':
+            url = `${base}/api/nhanvien`;
+            method = 'GET';
+            break;
+          case 'getById':
+            url = `${base}/api/nhanvien/${getVal('id')}`;
+            method = 'GET';
+            break;
+          case 'create':
+            url = `${base}/api/nhanvien`;
+            method = 'POST';
+            body = buildBody(['hoTen','email','password','sdt','diaChi','chucVu','luong','trangThai']);
+            break;
+          case 'update':
+            url = `${base}/api/nhanvien/${getVal('id')}`;
+            method = 'PUT';
+            body = buildBody(['hoTen','email','password','sdt','diaChi','chucVu','luong','trangThai']);
+            break;
+          case 'delete':
+            url = `${base}/api/nhanvien/${getVal('id')}`;
+            method = 'DELETE';
+            break;
+        }
+
+        const opts = { method, headers: { 'Content-Type': 'application/json' } };
+        if (body) opts.body = JSON.stringify(body);
+
+        const res = await fetch(url, opts);
+        const text = await res.text();
+        let parsed;
+        try { parsed = JSON.parse(text); } catch { parsed = null; }
+
+        showStatus(res.status);
+        showResponse(parsed !== null ? JSON.stringify(parsed, null, 2) : text);
+
+      } catch (err) {
+        showStatus(0);
+        showResponse(`Lỗi kết nối:\n${err.message}\n\nKiểm tra:\n- Spring Boot đang chạy chưa?\n- Base URL có đúng không?\n- CORS đã cấu hình chưa?`);
+      } finally {
+        btn.disabled = false;
+        document.getElementById('loading').style.display = 'none';
+      }
+    }
+
+    function buildBody(fields) {
+      const obj = {};
+      fields.forEach(f => {
+        const v = getVal(f);
+        if (v === '') return;
+        if (f === 'luong') obj[f] = parseFloat(v);
+        else if (f === 'trangThai') obj[f] = v === 'true';
+        else obj[f] = v;
+      });
+      return obj;
+    }
+
+    function showStatus(code) {
+      const bar = document.getElementById('statusBar');
+      bar.style.display = 'flex';
+      const cls = code === 0 ? 's5xx' : code < 300 ? 's2xx' : code < 500 ? 's4xx' : 's5xx';
+      const label = code === 0 ? 'Network Error' : code;
+      bar.innerHTML = `<span class="status-code ${cls}">${label}</span>
+        <span style="color:#475569;font-size:.75rem;">${code >= 200 && code < 300 ? '✓ Thành công' : code === 0 ? '✗ Không kết nối được' : '✗ Lỗi'}</span>`;
+    }
+
+    function showResponse(text) {
+      // syntax highlight đơn giản
+      const escaped = text
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const highlighted = escaped
+        .replace(/"([^"]+)":/g, '<span class="key">"$1"</span>:')
+        .replace(/: "([^"]*)"/g, ': <span class="str">"$1"</span>')
+        .replace(/: (\d+\.?\d*)/g, ': <span class="num">$1</span>')
+        .replace(/: (true|false)/g, ': <span class="bool">$1</span>')
+        .replace(/: (null)/g, ': <span class="null">$1</span>');
+      document.getElementById('responseBody').innerHTML = highlighted;
+    }
+</script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 package com.example.sbquanan.entity;
 
+import com.example.sbquanan.enums.LoaiKhachHang;
 import com.example.sbquanan.enums.LoaiKhuyenMai;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -47,6 +48,10 @@ public class KhuyenMai {
     @Column(name = "MoTa", length = 255)
     private String moTa;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "LoaiKhachHangToiThieu", length = 20)
+    private LoaiKhachHang loaiKhachHangToiThieu; // null = không giới hạn
+
     public boolean hopLe() {
         LocalDateTime now = LocalDateTime.now();
         boolean dangBat = trangThai == null || trangThai;
@@ -58,8 +63,12 @@ public class KhuyenMai {
     public boolean duDieuKien(double tongTien, KhachHang khachHang) {
         if (!hopLe()) return false;
         if (tongTien < tongTienToiThieu) return false;
-        return diemToiThieu <= 0
-                || (khachHang != null && khachHang.getDiemTichLuy() >= diemToiThieu);
+        if (diemToiThieu > 0 && (khachHang == null || khachHang.getDiemTichLuy() < diemToiThieu)) return false;
+        if (loaiKhachHangToiThieu != null) {
+            if (khachHang == null) return false;
+            if (khachHang.getLoaiKhachHang().ordinal() < loaiKhachHangToiThieu.ordinal()) return false;
+        }
+        return true;
     }
 
     public double tinhTienGiam(double tongTien) {

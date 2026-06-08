@@ -3,17 +3,16 @@ package com.example.sbquanan.controller;
 import com.example.sbquanan.dto.ApiResponse;
 import com.example.sbquanan.entity.NhanVien;
 import com.example.sbquanan.service.NhanVienService;
-import com.example.sbquanan.repository.NhanVienRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/nhanvien")
 @CrossOrigin(origins = "*")
 public class NhanVienController {
+
     @Autowired private NhanVienService service;
 
     @GetMapping
@@ -34,9 +33,11 @@ public class NhanVienController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<NhanVien>> update(@PathVariable Long id, @RequestBody NhanVien nhanVien) {
+    public ResponseEntity<ApiResponse<NhanVien>> update(
+            @PathVariable Long id, @RequestBody NhanVien nhanVien) {
         try {
-            return ResponseEntity.ok(ApiResponse.success(service.update(id, nhanVien), "Cập nhật thành công"));
+            return ResponseEntity.ok(ApiResponse.success(
+                    service.update(id, nhanVien), "Cập nhật nhân viên thành công"));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
@@ -46,7 +47,7 @@ public class NhanVienController {
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         try {
             service.delete(id);
-            return ResponseEntity.ok(ApiResponse.success(null, "Xóa thành công"));
+            return ResponseEntity.ok(ApiResponse.success(null, "Xóa nhân viên thành công"));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
