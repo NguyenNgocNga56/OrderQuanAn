@@ -152,6 +152,8 @@ CREATE TABLE KhuyenMai (
                            GiaTri        DECIMAL(10,2)  NOT NULL CHECK (GiaTri > 0),
                            DiemToiThieu  INT            DEFAULT 0 CHECK (DiemToiThieu >= 0),
                            TongTienToiThieu DECIMAL(10,2) DEFAULT 0 CHECK (TongTienToiThieu >= 0),
+                           LoaiKhachHangToiThieu NVARCHAR(20) NULL
+                                CHECK (LoaiKhachHangToiThieu IN (N'DONG', N'BAC', N'VANG', N'KIM_CUONG')),
                            NgayBatDau    DATETIME       NOT NULL,
                            NgayKetThuc   DATETIME       NOT NULL,
                            TrangThai     BIT            DEFAULT 1,
@@ -260,13 +262,13 @@ GO
 -- FIX: LoaiKhuyenMai chi PHAN_TRAM | GIAM_TIEN_MAT
 -- FIX: kieu DATETIME, NgayKetThuc = 2026 de con hieu luc khi demo
 -- FIX: xoa SO_TIEN
-INSERT INTO KhuyenMai (TenKhuyenMai, MaKhuyenMai, LoaiKhuyenMai, GiaTri, DiemToiThieu, TongTienToiThieu, NgayBatDau, NgayKetThuc, TrangThai, MoTa)
+INSERT INTO KhuyenMai (TenKhuyenMai, MaKhuyenMai, LoaiKhuyenMai, GiaTri, DiemToiThieu, TongTienToiThieu, LoaiKhachHangToiThieu, NgayBatDau, NgayKetThuc, TrangThai, MoTa)
 VALUES
-    (N'Giam 10% cuoi tuan',     'WEEKEND10', N'PHAN_TRAM',     10,    0,   0,      '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 10% cho don hang cuoi tuan'),
-    (N'Tang 50k don tren 300k', 'BILL300K',  N'GIAM_TIEN_MAT', 50000, 0,   300000, '2025-05-01 00:00:00', '2026-12-31 23:59:59', 1, N'Tang 50k cho don tu 300k'),
-    (N'Uu dai thanh vien Vang', 'VANG15',    N'PHAN_TRAM',     15,    500, 0,      '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 15% cho khach tu 500 diem');
-    (N'Giam 20% cho thanh vien',  'MEMBER20',  N'PHAN_TRAM',     20,   200,  185000, '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 20% cho khach tu 200 diem, don toi thieu 185k'),
-    (N'Tang 30k khach than thiet', 'LOYAL30K',  N'GIAM_TIEN_MAT', 30000, 350, 250000, '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 30k cho khach tu 350 diem, don toi thieu 250k');
+    (N'Giam 10% cuoi tuan',        'WEEKEND10', N'PHAN_TRAM',     10,    0,   0,      NULL,     '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 10% cho don hang cuoi tuan'),
+    (N'Tang 50k don tren 300k',    'BILL300K',  N'GIAM_TIEN_MAT', 50000, 0,   300000, NULL,     '2025-05-01 00:00:00', '2026-12-31 23:59:59', 1, N'Tang 50k cho don tu 300k'),
+    (N'Uu dai thanh vien Vang',    'VANG15',    N'PHAN_TRAM',     15,    500, 0,      N'VANG',  '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 15% cho khach tu 500 diem'),
+    (N'Giam 20% cho thanh vien',   'MEMBER20',  N'PHAN_TRAM',     20,    200, 185000, NULL,     '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 20% cho khach tu 200 diem, don toi thieu 185k'),
+    (N'Tang 30k khach than thiet', 'LOYAL30K',  N'GIAM_TIEN_MAT', 30000, 350, 250000, NULL,     '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 30k cho khach tu 350 diem, don toi thieu 250k');
 GO
 
 -- MENU

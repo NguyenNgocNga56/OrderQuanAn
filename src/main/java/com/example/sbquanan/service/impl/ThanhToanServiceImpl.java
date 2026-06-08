@@ -6,6 +6,7 @@ import com.example.sbquanan.entity.HoaDon;
 import com.example.sbquanan.entity.KhachHang;
 import com.example.sbquanan.entity.KhuyenMai;
 import com.example.sbquanan.entity.ThanhToan;
+import com.example.sbquanan.enums.LoaiKhachHang;
 import com.example.sbquanan.enums.PhuongThucThanhToan;
 import com.example.sbquanan.enums.TrangThaiDonHang;
 import com.example.sbquanan.enums.TrangThaiThanhToan;
@@ -117,6 +118,17 @@ public class ThanhToanServiceImpl implements ThanhToanService {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         String.format("Đơn hàng chưa đạt giá trị tối thiểu để dùng mã này (cần %.0f₫, hiện %.0f₫).",
                                 khuyenMai.getTongTienToiThieu(), hoaDon.getTongTien()));
+            }
+
+            // 4. Hạng khách hàng không đủ để dùng mã
+            if (khuyenMai.getLoaiKhachHangToiThieu() != null) {
+                LoaiKhachHang hangYeuCau = khuyenMai.getLoaiKhachHangToiThieu();
+                LoaiKhachHang hangHienTai = khachHang.getLoaiKhachHang();
+                if (hangHienTai.ordinal() < hangYeuCau.ordinal()) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            String.format("Mã này chỉ dành cho khách hạng %s trở lên (hạng hiện tại: %s).",
+                                    hangYeuCau, hangHienTai));
+                }
             }
         }
         // ═══════════════════════════════════════════════════════════════
