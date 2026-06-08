@@ -90,6 +90,37 @@ public class ThanhToanServiceImpl implements ThanhToanService {
                     "Vui lòng chọn phương thức thanh toán.");
         }
 
+        // ═══════════════════════════════════════════════════════════════
+        // VALIDATION MÃ KHUYẾN MÃI — backend guard, just in case FE bug
+        // ═══════════════════════════════════════════════════════════════
+        KhuyenMai khuyenMai = hoaDon.getKhuyenMai();
+        if (khuyenMai != null) {
+            KhachHang khachHang = hoaDon.getDonHang().getKhachHang();
+
+            // 1. Không nhập SDT nhưng chọn mã → chặn
+            if (khachHang == null || khachHang.getSdt() == null || khachHang.getSdt().isBlank()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Bạn cần nhập số điện thoại để sử dụng mã khuyến mãi.");
+            }
+
+            // 2. Có SDT nhưng không đủ điểm tích lũy
+            if (khuyenMai.getDiemToiThieu() > 0
+                    && khachHang.getDiemTichLuy() < khuyenMai.getDiemToiThieu()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        String.format("Không đủ điểm tích lũy để dùng mã này (cần %d điểm, hiện có %d điểm).",
+                                khuyenMai.getDiemToiThieu(), khachHang.getDiemTichLuy()));
+            }
+
+            // 3. Tổng tiền đơn hàng chưa đạt ngưỡng tối thiểu của mã
+            if (khuyenMai.getTongTienToiThieu() > 0
+                    && hoaDon.getTongTien() < khuyenMai.getTongTienToiThieu()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        String.format("Đơn hàng chưa đạt giá trị tối thiểu để dùng mã này (cần %.0f₫, hiện %.0f₫).",
+                                khuyenMai.getTongTienToiThieu(), hoaDon.getTongTien()));
+            }
+        }
+        // ═══════════════════════════════════════════════════════════════
+
         double soTienPhaiTra = tinhSoTienPhaiTra(hoaDon);
         double soTien = request.getSoTien() != null ? request.getSoTien() : soTienPhaiTra;
 
