@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Bàn – QuanAn67</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; background: #f5f5f5; padding: 2rem; }
+
+        .page-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 2rem; background: #fff; padding: 1rem 1.5rem;
+            border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .page-title { font-size: 1.4rem; font-weight: 600; }
+        .btn-print {
+            padding: 10px 24px; background: #8b0000; color: #fff;
+            border: none; border-radius: 8px; cursor: pointer; font-size: 14px;
+        }
+        .btn-print:hover { background: #a00000; }
+
+        .ban-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+        .ban-card {
+            background: #fff; border-radius: 16px; padding: 1.5rem;
+            text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border: 2px solid #eee; transition: border-color 0.2s;
+        }
+        .ban-card.CO_KHACH { border-color: #e67e22; }
+        .ban-card.DEP_BAN  { border-color: #3498db; }
+        .ban-card.TRONG    { border-color: #27ae60; }
+
+        .ban-name { font-size: 1.2rem; font-weight: 600; margin-bottom: 4px; }
+        .ban-status {
+            display: inline-block; padding: 3px 12px; border-radius: 20px;
+            font-size: 12px; font-weight: 500; margin-bottom: 1rem;
+        }
+        .status-TRONG    { background: #e8f5e9; color: #27ae60; }
+        .status-CO_KHACH { background: #fff3e0; color: #e67e22; }
+        .status-DEP_BAN  { background: #e3f2fd; color: #3498db; }
+
+        .qr-img { width: 160px; height: 160px; border-radius: 8px; margin: 0 auto 1rem; display: block; }
+        .qr-link { font-size: 11px; color: #888; word-break: break-all; margin-bottom: 1rem; }
+
+        .btn-doi-trang-thai {
+            width: 100%; padding: 8px; border-radius: 8px; border: none;
+            background: #f0f0f0; color: #333; cursor: pointer; font-size: 13px;
+        }
+        .btn-doi-trang-thai:hover { background: #e0e0e0; }
+        .loading { text-align: center; padding: 4rem; color: #888; font-size: 1.1rem; }
+
+        @media print {
+            .page-header, .btn-doi-trang-thai { display: none; }
+            body { background: white; padding: 0; }
+            .ban-grid { gap: 1rem; }
+            .ban-card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-header">
+    <div class="page-title">🪑 QR Code theo Bàn</div>
+    <div style="display:flex; gap:10px;">
+        <button class="btn-print" onclick="window.print()">🖨️ In tất cả QR</button>
+        <button class="btn-print" style="background:#555;" onclick="history.back()">← Quay lại</button>
+    </div>
+</div>
+
+<div id="banGrid" class="ban-grid">
+    <div class="loading">Đang tải danh sách bàn...</div>
+</div>
+
+<script>
+const BASE_URL = window.location.origin;
+
+const STATUS_LABEL = {
+    TRONG:    'Trống',
+    CO_KHACH: 'Có khách',
+    DEP_BAN:  'Đang dọn'
+};
+const STATUS_NEXT = {
+    TRONG:    null,
+    CO_KHACH: 'DEP_BAN',
+    DEP_BAN:  'TRONG'
+};
+const STATUS_NEXT_LABEL = {
+    DEP_BAN: '→ Chuyển sang Đang dọn',
+    TRONG:   '→ Chuyển sang Trống'
+};
+
+async function loadBan() {
+    try {
+        const res = await fetch('/api/ban');
+        const json = await res.json();
+        const banList = json.data || json;
+        renderBan(banList);
+    } catch(e) {
+        document.getElementById('banGrid').innerHTML =
+            '<div class="loading">Lỗi tải dữ liệu. Vui lòng thử lại.</div>';
+    }
+}
+
+function renderBan(banList) {
+    const grid = document.getElementById('banGrid');
+    if (!banList.length) {
+        grid.innerHTML = '<div class="loading">Chưa có bàn nào.</div>';
+        return;
+    }
+
+    grid.innerHTML = banList.map(ban => {
+        const menuUrl = `${BASE_URL}/khachhang.html?banId=${ban.banID}`;
+        const qrUrl   = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(menuUrl)}&color=8b0000&bgcolor=ffffff&margin=8`;
+        const tt      = ban.trangThai || 'TRONG';
+        const nextTt  = STATUS_NEXT[tt];
+
+        return `
+        <div class="ban-card ${tt}" id="card-${ban.banID}">
+            <div class="ban-name">${ban.tenBan}</div>
+            <span class="ban-status status-${tt}">
+                ${STATUS_LABEL[tt] || tt}
+            </span>
+            <img class="qr-img" src="${qrUrl}" alt="QR ${ban.tenBan}">
+            <div class="qr-link">${menuUrl}</div>
+            ${nextTt ? `
+            <button class="btn-doi-trang-thai"
+                onclick="doiTrangThai(${ban.banID}, '${nextTt}')">
+                ${STATUS_NEXT_LABEL[nextTt]}
+            </button>` : `<div style="height:34px;"></div>`}
+        </div>`;
+    }).join('');
+}
+
+async function doiTrangThai(banId, trangThaiMoi) {
+    try {
+        const res = await fetch(`/api/ban/${banId}/trang-thai`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ trangThai: trangThaiMoi })
+        });
+        if (res.ok) loadBan();
+        else alert('Không thể cập nhật trạng thái bàn.');
+    } catch(e) {
+        alert('Lỗi kết nối server.');
+    }
+}
+
+loadBan();
+</script>
+</body>
+</html>

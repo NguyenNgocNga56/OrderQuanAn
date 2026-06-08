@@ -258,4 +258,14 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCartBadge();
     loadKhuyenMai();
     loadMonAn('doan');
+	const _urlParams   = new URLSearchParams(window.location.search);
+	    const _banIdFromQR = _urlParams.get('banId');
+	    if (_banIdFromQR) {
+	        sessionStorage.setItem('banId', _banIdFromQR);
+	        const banner     = document.getElementById('banBanner');
+	        const bannerText = document.getElementById('banBannerText');
+	        if (banner) banner.style.display = 'block';
+	        if (bannerText) bannerText.textContent = 'Bàn #' + _banIdFromQR;
+	    }
 });
+

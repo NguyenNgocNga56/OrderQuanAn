@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Màn hình bếp – QuanAn67</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; background: #111; color: #f0f0f0; padding: 1.5rem; }
+
+        .header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+        .header h1 { font-size: 1.4rem; color: #fff; }
+        .refresh-badge {
+            background: #1a1a1a; border-radius: 20px; padding: 6px 16px;
+            font-size: 13px; color: #888;
+        }
+        .refresh-badge span { color: #e67e22; font-weight: 600; }
+
+        .don-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .don-card {
+            background: #1a1a1a; border-radius: 16px; padding: 1.25rem;
+            border-left: 4px solid #e67e22;
+        }
+        .don-card.DANG_NAU   { border-left-color: #2196f3; }
+        .don-card.DA_PHUC_VU { border-left-color: #9c27b0; }
+
+        .don-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        .don-id { font-weight: 700; font-size: 1rem; }
+        .don-ban { font-size: 13px; color: #888; }
+        .don-tt {
+            display: inline-block; padding: 3px 10px; border-radius: 20px;
+            font-size: 12px; font-weight: 600;
+        }
+        .tt-CHO_XAC_NHAN { background: #fff3e0; color: #e67e22; }
+        .tt-DANG_NAU     { background: #e3f2fd; color: #2196f3; }
+        .tt-DA_PHUC_VU   { background: #f3e5f5; color: #9c27b0; }
+
+        .mon-list { list-style: none; margin-bottom: 1rem; }
+        .mon-list li {
+            display: flex; justify-content: space-between;
+            padding: 5px 0; font-size: 14px;
+            border-bottom: 1px solid #2a2a2a;
+        }
+        .mon-list li:last-child { border: none; }
+        .mon-qty { color: #e67e22; font-weight: 600; }
+
+        .don-time { font-size: 12px; color: #555; margin-bottom: 0.75rem; }
+
+        .btn-next {
+            width: 100%; padding: 10px; border: none; border-radius: 10px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            background: #e67e22; color: #fff;
+        }
+        .btn-next:hover { opacity: 0.85; }
+        .btn-next.nau   { background: #2196f3; }
+        .btn-next.phucvu { background: #9c27b0; }
+
+        .empty { text-align: center; padding: 5rem; color: #444; font-size: 1.1rem; }
+        .toast {
+            position: fixed; bottom: 1.5rem; right: 1.5rem;
+            background: #27ae60; color: #fff; padding: 12px 20px;
+            border-radius: 10px; font-size: 14px;
+            opacity: 0; transition: opacity 0.3s; pointer-events: none;
+        }
+        .toast.show { opacity: 1; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🍳 Màn hình bếp</h1>
+    <div class="refresh-badge">Tự cập nhật sau <span id="countdown">10</span>s</div>
+</div>
+
+<div id="donGrid" class="don-grid">
+    <div class="empty">Đang tải...</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const TT_LABEL = {
+    CHO_XAC_NHAN: '⏳ Chờ xác nhận',
+    DANG_NAU:     '🍳 Đang nấu',
+    DA_PHUC_VU:   '🍽️ Đã phục vụ'
+};
+const BTN_LABEL = {
+    CHO_XAC_NHAN: { label: '▶ Bắt đầu nấu', next: 'DANG_NAU',   cls: '' },
+    DANG_NAU:     { label: '✅ Đã xong',      next: 'DA_PHUC_VU', cls: 'nau' },
+    DA_PHUC_VU:   { label: '✔ Hoàn thành',   next: 'HOAN_THANH', cls: 'phucvu' }
+};
+
+let token = localStorage.getItem('token') || '';
+
+async function loadDon() {
+    try {
+        const res  = await fetch('/api/admin/don-hang', {
+            headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+        });
+        const json = await res.json();
+        const list = (json.data?.donHangs || json.donHangs || [])
+            .filter(d => ['CHO_XAC_NHAN','DANG_NAU','DA_PHUC_VU'].includes(d.trangThai));
+        render(list);
+    } catch(e) {
+        document.getElementById('donGrid').innerHTML =
+            '<div class="empty">Lỗi tải dữ liệu. Kiểm tra server.</div>';
+    }
+}
+
+function render(list) {
+    const grid = document.getElementById('donGrid');
+    if (!list.length) {
+        grid.innerHTML = '<div class="empty">🎉 Không có đơn nào đang chờ!</div>';
+        return;
+    }
+    grid.innerHTML = list.map(dh => {
+        const btn = BTN_LABEL[dh.trangThai];
+        const monHTML = (dh.chiTiet || []).map(ct =>
+            `<li><span>${ct.tenMon}</span><span class="mon-qty">x${ct.soLuong}</span></li>`
+        ).join('');
+        const ngay = dh.ngayDat ? new Date(dh.ngayDat).toLocaleTimeString('vi-VN') : '';
+
+        return `
+        <div class="don-card ${dh.trangThai}">
+            <div class="don-header">
+                <div>
+                    <div class="don-id">#${dh.donHangID}</div>
+                    <div class="don-ban">${dh.tenBan || ''} ${dh.tenKhachHang ? '• ' + dh.tenKhachHang : ''}</div>
+                </div>
+                <span class="don-tt tt-${dh.trangThai}">${TT_LABEL[dh.trangThai] || dh.trangThai}</span>
+            </div>
+            <div class="don-time">Đặt lúc: ${ngay}</div>
+            <ul class="mon-list">${monHTML}</ul>
+            ${btn ? `<button class="btn-next ${btn.cls}"
+                onclick="chuyenTrangThai(${dh.donHangID}, '${btn.next}')">
+                ${btn.label}
+            </button>` : ''}
+        </div>`;
+    }).join('');
+}
+
+async function chuyenTrangThai(donHangID, trangThaiMoi) {
+    try {
+        const res = await fetch(`/api/admin/don-hang/${donHangID}/trang-thai`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+            },
+            body: JSON.stringify({ trangThai: trangThaiMoi })
+        });
+        if (res.ok) {
+            showToast('✅ Đã cập nhật trạng thái!');
+            loadDon();
+        } else {
+            showToast('❌ Lỗi cập nhật!');
+        }
+    } catch(e) {
+        showToast('❌ Lỗi kết nối server!');
+    }
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Auto-refresh mỗi 10 giây
+let count = 10;
+const countEl = document.getElementById('countdown');
+setInterval(() => {
+    count--;
+    if (countEl) countEl.textContent = count;
+    if (count <= 0) {
+        count = 10;
+        loadDon();
+    }
+}, 1000);
+
+loadDon();
+</script>
+</body>
+</html>

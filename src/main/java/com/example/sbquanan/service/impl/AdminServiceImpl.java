@@ -1,18 +1,14 @@
 package com.example.sbquanan.service.impl;
 
-// =====================================================
-// Duong dan: src/main/java/com/example/sbquanan/service/impl/AdminServiceImpl.java
-// THAY THE toan bo file hien tai
-// Fix: getThongKe() dung HoaDon.thanhTien thay vi DonHang.tongTien
-// =====================================================
-
 import com.example.sbquanan.dto.DashboardDTO;
 import com.example.sbquanan.dto.ThongKeDTO;
+import com.example.sbquanan.entity.Ban;
 import com.example.sbquanan.entity.ChiTietDonHang;
 import com.example.sbquanan.entity.DonHang;
 import com.example.sbquanan.entity.HoaDon;
 import com.example.sbquanan.enums.TrangThaiDonHang;
 import com.example.sbquanan.exception.ResourceNotFoundException;
+import com.example.sbquanan.repository.BanRepository;
 import com.example.sbquanan.repository.ChiTietDonHangRepository;
 import com.example.sbquanan.repository.DonHangRepository;
 import com.example.sbquanan.repository.HoaDonRepository;
@@ -33,9 +29,10 @@ import java.util.stream.Collectors;
 @Transactional
 public class AdminServiceImpl implements AdminService {
 
-    @Autowired private DonHangRepository       donHangRepo;
+    @Autowired private DonHangRepository        donHangRepo;
     @Autowired private ChiTietDonHangRepository chiTietRepo;
-    @Autowired private HoaDonRepository        hoaDonRepo;
+    @Autowired private HoaDonRepository         hoaDonRepo;
+    @Autowired private BanRepository            banRepo;
 
     @Override
     public DashboardDTO getDashboard() {
@@ -46,7 +43,7 @@ public class AdminServiceImpl implements AdminService {
                 .collect(Collectors.toList());
 
         Map<Long, List<ChiTietDonHang>> chiTietMap = chiTietRepo
-                .findByDonHangIDIn(ids).stream()
+                .findByDonHang_DonHangIDIn(ids).stream()
                 .collect(Collectors.groupingBy(
                         ct -> ct.getDonHang().getDonHangID()));
 
@@ -68,9 +65,6 @@ public class AdminServiceImpl implements AdminService {
         tq.setDonDaPhucVu(count(list, "DA_PHUC_VU"));
         tq.setDonHoanThanh(count(list, "HOAN_THANH"));
         tq.setDonDaHuy(count(list, "DA_HUY"));
-
-        // FIX: doanhThuHomNay dung HoaDon.thanhTien (da tru khuyen mai)
-        // Lay tu DonHangRepository query join HoaDon
         tq.setDoanhThuHomNay(donHangRepo.doanhThuTuNgay(
                 LocalDate.now().atStartOfDay()));
 
@@ -82,7 +76,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public DashboardDTO.DonHangDTO capNhatTrangThai(Long donHangID,
-                                                    TrangThaiDonHang trangThaiMoi) {
+                                                     TrangThaiDonHang trangThaiMoi) {
         DonHang donHang = donHangRepo.findById(donHangID)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Khong tim thay don hang #" + donHangID));
@@ -92,7 +86,18 @@ public class AdminServiceImpl implements AdminService {
         donHang.setTrangThai(trangThaiMoi);
         donHangRepo.save(donHang);
 
-        List<ChiTietDonHang> chiTiet = chiTietRepo.findByDonHangID(donHangID);
+        // Tu dong chuyen trang thai ban khi don HOAN_THANH hoac DA_HUY
+        if ((trangThaiMoi == TrangThaiDonHang.HOAN_THANH
+                || trangThaiMoi == TrangThaiDonHang.DA_HUY)
+                && donHang.getBan() != null) {
+            Ban ban = donHang.getBan();
+            if ("CO_KHACH".equals(ban.getTrangThai())) {
+                ban.setTrangThai("DEP_BAN");
+                banRepo.save(ban);
+            }
+        }
+
+        List<ChiTietDonHang> chiTiet = chiTietRepo.findByDonHang_DonHangID(donHangID);
         HoaDon hoaDon = hoaDonRepo.findByDonHang_DonHangID(donHangID).orElse(null);
         return toDonHangDTO(donHang, chiTiet, hoaDon);
     }
@@ -107,8 +112,6 @@ public class AdminServiceImpl implements AdminService {
         long donDaHuy     = donHangs.stream()
                 .filter(d -> d.getTrangThai() == TrangThaiDonHang.DA_HUY).count();
 
-        // FIX: lay ID don HOAN_THANH -> tinh doanh thu tu HoaDon.thanhTien
-        // (thanhTien = tongTien - giamGia, chinh xac hon tongTien)
         List<Long> idHoanThanh = donHangs.stream()
                 .filter(d -> d.getTrangThai() == TrangThaiDonHang.HOAN_THANH)
                 .map(DonHang::getDonHangID)
@@ -129,31 +132,33 @@ public class AdminServiceImpl implements AdminService {
 
 
     private void validateChuyenTrangThai(TrangThaiDonHang hienTai,
-                                         TrangThaiDonHang moi) {
+                                          TrangThaiDonHang moi) {
         boolean hopLe = switch (hienTai) {
             case CHO_XAC_NHAN -> moi == TrangThaiDonHang.DANG_NAU
-                    || moi == TrangThaiDonHang.DA_HUY;
+                                  || moi == TrangThaiDonHang.DA_HUY;
             case DANG_NAU     -> moi == TrangThaiDonHang.DA_PHUC_VU
-                    || moi == TrangThaiDonHang.DA_HUY;
+                                  || moi == TrangThaiDonHang.DA_HUY;
             case DA_PHUC_VU   -> moi == TrangThaiDonHang.HOAN_THANH
-                    || moi == TrangThaiDonHang.DA_HUY;
+                                  || moi == TrangThaiDonHang.DA_HUY;
             default           -> false;
         };
         if (!hopLe) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Khong the chuyen tu " + hienTai + " sang " + moi
-                            + ". Flow hop le: CHO_XAC_NHAN -> DANG_NAU -> DA_PHUC_VU -> HOAN_THANH / DA_HUY");
+                    + ". Flow hop le: CHO_XAC_NHAN -> DANG_NAU -> DA_PHUC_VU -> HOAN_THANH / DA_HUY");
         }
     }
 
     private DashboardDTO.DonHangDTO toDonHangDTO(DonHang dh,
-                                                 List<ChiTietDonHang> chiTiets,
-                                                 HoaDon hoaDon) {
+                                                   List<ChiTietDonHang> chiTiets,
+                                                   HoaDon hoaDon) {
         DashboardDTO.DonHangDTO dto = new DashboardDTO.DonHangDTO();
         dto.setDonHangID(dh.getDonHangID());
         dto.setTrangThai(dh.getTrangThai().name());
         dto.setNgayDat(dh.getNgayDat());
         dto.setTongTien(dh.getTongTien());
+
+        if (dh.getBan() != null) dto.setTenBan(dh.getBan().getTenBan());
 
         if (dh.getKhachHang() != null) {
             dto.setTenKhachHang(dh.getKhachHang().getHoTen());
@@ -167,7 +172,6 @@ public class AdminServiceImpl implements AdminService {
             dto.setGiamGia(hoaDon.getGiamGia());
             dto.setThanhTien(hoaDon.getThanhTien());
         } else {
-            // Chua co hoa don (don chua hoan thanh) -> thanhTien = tongTien
             dto.setGiamGia(0);
             dto.setThanhTien(dh.getTongTien());
         }

@@ -101,11 +101,12 @@ async function datMon() {
     const khId = document.getElementById('selKhachHang').value;
     const nvId = document.getElementById('selNhanVien').value;
 
-    const payload = {
-        khachHangId: khId ? parseInt(khId) : null,
-        nhanVienId:  nvId ? parseInt(nvId) : null,
-        items: items.map(i => ({ monId: i.monID, soLuong: i.qty }))
-    };
+	const payload = {
+	    banId:       sessionStorage.getItem('banId') ? parseInt(sessionStorage.getItem('banId')) : null,
+	    khachHangId: khId ? parseInt(khId) : null,
+	    nhanVienId:  nvId ? parseInt(nvId) : null,
+	    items: items.map(i => ({ monId: i.monID, soLuong: i.qty }))
+	};
 
     try {
         const res = await fetch('/orders', {
@@ -115,10 +116,11 @@ async function datMon() {
         });
         if (!res.ok) throw new Error();
         const order = await res.json();
-        Cart.clear();
-        renderCartPage();
-        renderSuccess(order);
-        openModal('successModal');
+		Cart.clear();
+		sessionStorage.removeItem('banId');  ← THÊM DÒNG NÀY
+		renderCartPage();
+		renderSuccess(order);
+		openModal('successModal');
     } catch {
         alert('Lỗi khi đặt hàng. Kiểm tra server đang chạy!');
     }

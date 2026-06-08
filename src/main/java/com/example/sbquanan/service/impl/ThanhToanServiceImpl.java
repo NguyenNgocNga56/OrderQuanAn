@@ -47,7 +47,7 @@ public class ThanhToanServiceImpl implements ThanhToanService {
         TrangThaiDonHang trangThai = hoaDon.getDonHang().getTrangThai();
 
         // CHECK TRẠNG THÁI — chỉ cho thanh toán khi DA_PHUC_VU
-        if (trangThai != TrangThaiDonHang.DA_PHUC_VU) {
+        /*if (trangThai != TrangThaiDonHang.DA_PHUC_VU) {
             String msg;
             switch (trangThai) {
                 case DA_HUY:
@@ -67,6 +67,14 @@ public class ThanhToanServiceImpl implements ThanhToanService {
                     break;
             }
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, msg);
+        }*/
+        if (trangThai == TrangThaiDonHang.DA_HUY) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Không thể thanh toán — đơn hàng đã bị hủy.");
+        }
+        if (trangThai == TrangThaiDonHang.HOAN_THANH) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Đơn hàng này đã hoàn thành trước đó.");
         }
 
         // CHECK đã thanh toán thành công chưa

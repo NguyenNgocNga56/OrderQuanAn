@@ -24,10 +24,10 @@ public class Ban {
     private int soChoNgoi;
 
     @Column(name = "TrangThai", length = 30)
-    private String trangThai = "Trống";
+    private String trangThai = "TRONG";
 
     @Column(name = "LoaiBan", length = 50)
-    private String loaiBan = "Bàn thường";
+    private String loaiBan = "Ban thuong";
 
     @Column(name = "GhiChu", length = 100)
     private String ghiChu;
