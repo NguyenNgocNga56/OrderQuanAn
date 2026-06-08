@@ -1,6 +1,4 @@
-// ============================================================
 // STATE trang cart
-// ============================================================
 let _khachHangId  = null;   // ID khách tìm được qua SĐT
 let _sdtDaNhap    = false;  // true nếu nhập SĐT nhưng không tìm thấy → block đặt
 let _giamGia      = 0;      // số tiền giảm (đã tính)
@@ -8,9 +6,7 @@ let _kmId         = null;   // ID khuyến mãi đang chọn
 let _allKm        = [];     // danh sách KM tải từ API
 let _loaiDon      = 'TAI_CHO'; // loại đơn: 'TAI_CHO' hoặc 'MANG_VE'
 
-// ============================================================
 // INIT
-// ============================================================
 document.addEventListener('DOMContentLoaded', () => {
     renderCartPage();
     loadKhuyenMaiSelect();
@@ -18,9 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     chonLoaiDon('TAI_CHO'); // mặc định Tại chỗ
 });
 
-// ============================================================
 // LOẠI ĐƠN: TẠI CHỖ / MANG VỀ
-// ============================================================
 function chonLoaiDon(loai) {
     _loaiDon = loai;
 
@@ -53,31 +47,39 @@ function chonLoaiDon(loai) {
     }
 }
 
-// ============================================================
 // LOAD DANH SÁCH BÀN
-// ============================================================
 async function loadBanList() {
     try {
-        const res  = await fetch('/api/ban');
-        const json = await res.json();
+        const res   = await fetch('/api/ban');
+        const json  = await res.json();
         const dsBan = json.data || [];
-        const sel  = document.getElementById('selBan');
+        const sel   = document.getElementById('selBan');
         if (!sel) return;
+
+        // Chỉ lấy bàn TRONG (còn trống)
+        const banTrong = dsBan.filter(ban =>
+            (ban.trangThai || '').toUpperCase() === 'TRONG'
+        );
+
         sel.innerHTML = '<option value="">-- Chọn bàn --</option>';
-        dsBan.forEach(ban => {
+
+        if (!banTrong.length) {
+            sel.innerHTML = '<option value="" disabled>Hiện không có bàn trống</option>';
+            return;
+        }
+
+        banTrong.forEach(ban => {
             const opt = document.createElement('option');
-            opt.value       = ban.banId ?? ban.id;
-            opt.textContent = ban.tenBan ?? ('Bàn ' + (ban.banId ?? ban.id));
+            opt.value       = ban.banID;   // ← FIX: đúng tên field (chữ hoa ID)
+            opt.textContent = (ban.tenBan ?? ('Bàn ' + ban.banID))
+                            + (ban.soChoNgoi ? ` (${ban.soChoNgoi} chỗ)` : '');
             sel.appendChild(opt);
         });
     } catch (e) {
         console.warn('Không tải được danh sách bàn:', e);
     }
 }
-
-// ============================================================
 // RENDER GIỎ HÀNG
-// ============================================================
 function renderCartPage() {
     const items     = Cart.getAll();
     const container = document.getElementById('cartPageItems');
@@ -130,14 +132,12 @@ function renderCartPage() {
         </table>
         <div style="margin-top:12px;">
             <button onclick="Cart.clear();renderCartPage();" style="background:none;border:1px solid var(--border);color:var(--text-muted);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:0.88rem;">
-                🗑 Xoá tất cả
+                 Xoá tất cả
             </button>
         </div>`;
 }
 
-// ============================================================
 // TRA CỨU KHÁCH HÀNG THEO SĐT
-// ============================================================
 function resetKhachHang() {
     _khachHangId = null;
     _sdtDaNhap   = false;
@@ -183,9 +183,7 @@ async function traCuuKhach() {
     }
 }
 
-// ============================================================
 // LOAD KHUYẾN MÃI VÀO SELECT
-// ============================================================
 async function loadKhuyenMaiSelect() {
     try {
         const res  = await fetch('/api/khuyenmai');
@@ -215,9 +213,7 @@ async function loadKhuyenMaiSelect() {
     }
 }
 
-// ============================================================
 // ÁP DỤNG KHUYẾN MÃI → CẬP NHẬT TỔNG
-// ============================================================
 function applyKhuyenMai() {
     const sel      = document.getElementById('selKhuyenMai');
     const kmInfo   = document.getElementById('kmInfo');
@@ -260,9 +256,7 @@ function updateTotal() {
     document.getElementById('sumTotal').textContent = fmtVND(Math.max(0, subtotal - _giamGia));
 }
 
-// ============================================================
 // ĐẶT MÓN → POST /orders
-// ============================================================
 async function datMon() {
     const items = Cart.getAll();
     if (!items.length) { alert('Giỏ hàng trống!'); return; }
@@ -331,9 +325,9 @@ async function datMon() {
     }
 }
 
-// ============================================================
+
 // MODAL SUCCESS
-// ============================================================
+
 function renderSuccess(order, payment) {
     const body = document.getElementById('successBody');
     const rows = (order.chiTiet || []).map(ct => `

@@ -69,14 +69,16 @@ async function handleLogin(event) {
 
         const data = await response.json();
 
-        if (response.ok && data.success) {
-            setLoginMsg('Đăng nhập thành công!', 'success');
-            sessionStorage.setItem('adminToken', data.data.token);
-            sessionStorage.setItem('adminName', data.data.hoTen);
-            setTimeout(() => {
-                window.location.href = '/admin.html';
-            }, 800);
-        } else {
+		if (response.ok && data.success) {
+		    setLoginMsg('Đăng nhập thành công!', 'success');
+		    sessionStorage.setItem('adminToken', data.data.token);
+		    sessionStorage.setItem('adminName', data.data.hoTen);
+		    sessionStorage.setItem('adminRole', data.data.role);       // ← THÊM
+		    sessionStorage.setItem('adminChucVu', data.data.chucVu);   // ← THÊM
+		    setTimeout(() => {
+		        window.location.href = '/admin.html';
+		    }, 800);
+		} else {
             setLoginMsg(data.message || 'Email hoặc mật khẩu không đúng.', 'error');
             btn.disabled = false;
             btn.textContent = 'Đăng nhập';

@@ -59,21 +59,33 @@ public class BanServiceImpl implements BanService {
     public Ban capNhatTrangThai(Long banId, String trangThaiMoi) {
         Ban ban = repository.findById(banId)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Khong tim thay ban #" + banId));
+                        "Không tìm thấy bàn #" + banId));
 
+        // ← ĐÃ BỎ DEP_BAN, chỉ còn 2 trạng thái
         boolean hopLe = switch (ban.getTrangThai()) {
             case "TRONG"    -> "CO_KHACH".equals(trangThaiMoi);
-            case "CO_KHACH" -> "DEP_BAN".equals(trangThaiMoi);
-            case "DEP_BAN"  -> "TRONG".equals(trangThaiMoi);
+            case "CO_KHACH" -> "TRONG".equals(trangThaiMoi);
             default         -> false;
         };
 
         if (!hopLe) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Khong the chuyen ban tu " + ban.getTrangThai()
+                    "Không thể chuyển bàn từ " + ban.getTrangThai()
                     + " sang " + trangThaiMoi);
         }
 
+        ban.setTrangThai(trangThaiMoi);
+        return repository.save(ban);
+    }
+
+    @Override
+    public Ban toggleTrangThai(Long banId) {
+        Ban ban = repository.findById(banId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Không tìm thấy bàn #" + banId));
+
+        // Tự động đảo trạng thái: TRONG <-> CO_KHACH
+        String trangThaiMoi = "TRONG".equals(ban.getTrangThai()) ? "CO_KHACH" : "TRONG";
         ban.setTrangThai(trangThaiMoi);
         return repository.save(ban);
     }
