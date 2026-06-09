@@ -221,19 +221,19 @@ GO
 -- NHAN VIEN (co Role)
 INSERT INTO NhanVien (TenNhanVien, SDT, DiaChi, Email, ChucVu, Luong, TrangThai, Password, Role)
 VALUES
-    (N'Nguyen Ngoc Nga',      '0901111111', N'HCM', 'nga@gmail.com',         N'QUAN_LY',      15000000, 1, '12345',  'NHAN_VIEN'),
-    (N'Nguyen Thi Huong',     '0909999999', N'HCM', 'chuquan@example.com',   N'QUAN_LY',      25000000, 1, '123456', 'NHAN_VIEN'),
-    (N'Pham Van Chef',        '0907777777', N'HCM', 'chef1@gmail.com',        N'DAU_BEP',      18000000, 1, '12345',  'NHAN_VIEN'),
-    (N'Le Thi Kim Chi',       '0908888888', N'HCM', 'chef2@gmail.com',        N'DAU_BEP',      17000000, 1, '12345',  'NHAN_VIEN'),
-    (N'Tran Van Phu',         '0911112222', N'HCM', 'phubep1@gmail.com',      N'PHU_BEP',      11000000, 1, '12345',  'NHAN_VIEN'),
-    (N'Hoang Minh Tam',       '0911113333', N'HCM', 'phubep2@gmail.com',      N'PHU_BEP',      10500000, 1, '12345',  'NHAN_VIEN'),
-    (N'Nguyen Thi Phuc Vu',   '0912223344', N'HCM', 'phucvu1@gmail.com',      N'PHUC_VU',       8500000, 1, '12345',  'NHAN_VIEN'),
-    (N'Le Van An',            '0912224455', N'HCM', 'phucvu2@gmail.com',      N'PHUC_VU',       8200000, 1, '12345',  'NHAN_VIEN'),
-    (N'Tran Thi Mai',         '0912225566', N'HCM', 'phucvu3@gmail.com',      N'PHUC_VU',       8000000, 1, '12345',  'NHAN_VIEN'),
-    (N'Tran Thao Nuong',      '0902222222', N'HCM', 'nuong@gmail.com',        N'KY_THUAT_VIEN', 12000000, 1, '12345',  'NHAN_VIEN'),
-    (N'Pham Ngoc Tu',         '0903333333', N'HCM', 'ngoctus@gmail.com',      N'KY_THUAT_VIEN', 12000000, 1, '12345',  'NHAN_VIEN'),
-    (N'Tran Minh Tu',         '0904444444', N'HCM', 'minhtu94@gmail.com',     N'NGUOI_DUNG',     9000000, 1, '12345',  'NHAN_VIEN'),
-    (N'Nguyen Van Admin',     '0905555555', N'HCM', 'admin@example.com',      N'QUAN_LY',      10000000, 1, '123456', 'ADMIN');
+    (N'Nguyễn Ngọc Ngà',      '0901111111', N'HCM', 'nga@gmail.com',         N'QUAN_LY',      15000000, 1, '12345',  'NHAN_VIEN'),
+    (N'Nguyễn Thị Hương',     '0909999999', N'HCM', 'chuquan@example.com',   N'QUAN_LY',      25000000, 1, '123456',  'NHAN_VIEN'),
+    (N'Phạm Văn Chef',        '0907777777', N'HCM', 'chef1@gmail.com',        N'DAU_BEP',      18000000, 1, '12345',  'NHAN_VIEN'),
+    (N'Lê Thị Kim Chi',       '0908888888', N'HCM', 'chef2@gmail.com',        N'DAU_BEP',      17000000, 1, '12345',  'NHAN_VIEN'),
+    (N'Trần Văn Phú',         '0911112222', N'HCM', 'phubep1@gmail.com',      N'PHU_BEP',      11000000, 1, '12345',  'NHAN_VIEN'),
+    (N'Hoàng Minh Tâm',       '0911113333', N'HCM', 'phubep2@gmail.com',      N'PHU_BEP',      10500000, 1, '12345',  'NHAN_VIEN'),
+    (N'Nguyễn Thị Phúc Vũ',   '0912223344', N'HCM', 'phucvu1@gmail.com',      N'PHUC_VU',       8500000, 1, '12345',  'NHAN_VIEN'),
+    (N'Lê Văn An',            '0912224455', N'HCM', 'phucvu2@gmail.com',      N'PHUC_VU',       8200000, 1, '12345',  'NHAN_VIEN'),
+    (N'Trần Thị Mai',         '0912225566', N'HCM', 'phucvu3@gmail.com',      N'PHUC_VU',       8000000, 1, '12345',  'NHAN_VIEN'),
+    (N'Trần Thảo Nương',      '0902222222', N'HCM', 'nuong@gmail.com',        N'KY_THUAT_VIEN', 12000000, 1, '12345',  'NHAN_VIEN'),
+    (N'Phạm Ngọc Tú',         '0903333333', N'HCM', 'ngoctus@gmail.com',      N'KY_THUAT_VIEN', 12000000, 1, '12345',  'NHAN_VIEN'),
+    (N'Trần Minh Tú',         '0904444444', N'HCM', 'minhtu94@gmail.com',     N'NGUOI_DUNG',     9000000, 1, '12345',  'NHAN_VIEN'),
+    (N'Admin',     '0905555555', N'HCM', 'admin@example.com',      N'QUAN_LY',      10000000, 1, '123456', 'ADMIN');
 GO
 
 -- KHACH HANG
@@ -268,11 +268,11 @@ GO
 -- KHUYEN MAI
 INSERT INTO KhuyenMai (TenKhuyenMai, MaKhuyenMai, LoaiKhuyenMai, GiaTri, DiemToiThieu, TongTienToiThieu, LoaiKhachHangToiThieu, NgayBatDau, NgayKetThuc, TrangThai, MoTa)
 VALUES
-    (N'Giam 10% cuoi tuan',        'WEEKEND10', N'PHAN_TRAM',     10,    0,   0,      NULL,     '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 10% cho don hang cuoi tuan'),
-    (N'Tang 50k don tren 300k',    'BILL300K',  N'GIAM_TIEN_MAT', 50000, 0,   300000, NULL,     '2025-05-01 00:00:00', '2026-12-31 23:59:59', 1, N'Tang 50k cho don tu 300k'),
-    (N'Uu dai thanh vien Vang',    'VANG15',    N'PHAN_TRAM',     15,    500, 0,      N'VANG',  '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 15% cho khach tu 500 diem'),
-    (N'Giam 20% cho thanh vien',   'MEMBER20',  N'PHAN_TRAM',     20,    200, 185000, NULL,     '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 20% cho khach tu 200 diem, don toi thieu 185k'),
-    (N'Tang 30k khach than thiet', 'LOYAL30K',  N'GIAM_TIEN_MAT', 30000, 350, 250000, NULL,     '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giam 30k cho khach tu 350 diem, don toi thieu 250k');
+    (N'Giảm 10% cuối tuần',        'WEEKEND10', N'PHAN_TRAM',     10,    0,   0,      NULL,     '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giảm 10% cho đơn hàng cuối tuần'),
+    (N'Tăng 50k đơn trên 300k',    'BILL300K',  N'GIAM_TIEN_MAT', 50000, 0,   300000, NULL,     '2025-05-01 00:00:00', '2026-12-31 23:59:59', 1, N'Tặng 50k cho đơn từ 300k'),
+    (N'Ưu đãi thành viên vàng',    'VANG15',    N'PHAN_TRAM',     15,    500, 0,      N'VANG',  '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giảm 15% cho khách từ 500 điểm'),
+    (N'Giảm 20% cho thành viên',   'MEMBER20',  N'PHAN_TRAM',     20,    200, 185000, NULL,     '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giảm 20% cho khách từ 200 điểm, đơn tối thiểu 185k'),
+    (N'Tặng 30k khách thân thiết', 'LOYAL30K',  N'GIAM_TIEN_MAT', 30000, 350, 250000, NULL,     '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giảm 30k cho khách từ 350 điểm, đơn tối thiểu 250k');
 GO
 
 -- MENU
@@ -288,46 +288,46 @@ DECLARE @doUong INT = (SELECT MenuID FROM Menu WHERE TenMenu = N'Đồ uống');
 
 INSERT INTO MonAn (PhanLoai, TenMon, Gia, MoTa, HinhAnh, TrangThai, Loai, DonViTinh, MenuID, Size)
 VALUES
-(N'DO_AN', N'Com phan',      45000,  N'Com trang an kem topping tuy chon.',    N'/img/comphan.jpg',       N'CON_HANG', N'Com',   N'Phan', @doAn, NULL),
-(N'DO_AN', N'omurice',       35000,  N'Com chien boc trung mem, an kem sot ca chua.',        N'/img/comtrung.jpg',      N'CON_HANG', N'Com',   N'Phan', @doAn, NULL),
-(N'DO_AN', N'Com ca ri',     50000,  N'Com ca ri ga',           N'/img/com-cari.jpg',      N'CON_HANG', N'Com',   N'Phan', @doAn, NULL),
-(N'DO_AN', N'donburi',       55000,  N'Com trang an kem thit bo, ga hoac hai san.',         N'/img/com-suon.jpg',      N'CON_HANG', N'Com',   N'Phan', @doAn, NULL),
-(N'DO_AN', N'Com hop',       40000,  N'Com hop van phong',      N'/img/comhop.jpg',        N'CON_HANG', N'Com',   N'Phan', @doAn, NULL),
-(N'DO_AN', N'Ramen',         65000,  N'Mi nuoc voi nuoc dung dam da, thit heo mem.',      N'/img/ramen.jpg',         N'CON_HANG', N'Mi',    N'To',   @doAn, NULL),
-(N'DO_AN', N'Udon',          60000,  N'Mi soi day, mem, an voi nuoc dung thanh nhe.',                N'/img/udon.jpg',          N'CON_HANG', N'Mi',    N'To',   @doAn, NULL),
-(N'DO_AN', N'Yakisoba',      55000,  N'Mi xao voi thit, rau va sot ngot man.',         N'/img/mi-xao.jpg',        N'CON_HANG', N'Mi',    N'To',   @doAn, NULL),
-(N'DO_AN', N'soba',          50000,  N'Mi lam tu kieu mach, co the an nong hoac lanh.',             N'/img/mi-nuoc.jpg',       N'CON_HANG', N'Mi',    N'To',   @doAn, NULL),
-(N'DO_AN', N'Sushi',         85000,  N'Com tron giam ket hop hai san tuoi.',      N'/img/sushi.jpg',         N'CON_HANG', N'Nhat',  N'Set',  @doAn, NULL),
-(N'DO_AN', N'Sashimi',       95000,  N'Hai san tuoi song cat lat mong, an kem wasabi.',         N'/img/sashimi.jpg',       N'CON_HANG', N'Nhat',  N'Set',  @doAn, NULL),
-(N'DO_AN', N'Tempura',       70000,  N'Hai san va rau cu tam bot chien gion nhe.',     N'/img/tempura.jpg',       N'CON_HANG', N'Nhat',  N'Phan', @doAn, NULL),
-(N'DO_AN', N'Takoyaki',      55000,  N'Banh tron nhan bach tuoc, phu sot mayo.',     N'/img/takoyaki.jpg',      N'CON_HANG', N'Nhat',  N'Dia',  @doAn, NULL),
-(N'DO_AN', N'sukiyaki',      150000, N'Lau ngot voi thit bo, trung song va rau.',           N'/img/laubo.jpg',         N'CON_HANG', N'Lau',   N'Noi',  @doAn, NULL),
-(N'DO_AN', N'shabu-shabu',   120000, N'Lau nhung thit bo, rau, an kem nuoc cham me.',           N'/img/lauheo.jpg',        N'CON_HANG', N'Lau',   N'Noi',  @doAn, NULL),
-(N'DO_AN', N'Okonomiyaki',   45000,  N'Banh xeo Nhat voi bap cai, thit, hai san.',      N'/img/banhxeo.jpg',       N'CON_HANG', N'Viet',  N'Cai',  @doAn, NULL),
-(N'DO_AN', N'yakitori',      75000,  N'Ga xien nuong than, phu sot ngot man.',         N'/img/thit-nuong.jpg',    N'CON_HANG', N'Nuong', N'Phan', @doAn, NULL),
-(N'DO_AN', N'Tonkatsu',      65000,  N'Thit heo chien xu',      N'/img/thit-chien-xu.jpg', N'CON_HANG', N'Chien', N'Phan', @doAn, NULL),
-(N'DO_AN', N'Karaage',       60000,  N'Thit ga chien gion',     N'/img/thit-chien.jpg',    N'CON_HANG', N'Chien', N'Phan', @doAn, NULL),
-(N'DO_AN', N'Sup miso',      25000,  N'Canh dau nanh voi rong bien, dau hu mem.',       N'/img/miso.jpg',          N'CON_HANG', N'Sup',   N'Bat',  @doAn, NULL),
-(N'DO_AN', N'Chawamushi',    20000,  N'Trung hap mem nau voi tom hoac thit',           N'/img/canh.jpg',          N'CON_HANG', N'Viet',  N'Bat',  @doAn, NULL),
-(N'DO_AN', N'Oden',          55000,  N'Cac nguyen lieu nhu trung, cu cai, cha ca nau trong nuoc dung dashi.',          N'/img/oden.jpg',          N'CON_HANG', N'Nhat',  N'Phan', @doAn, NULL),
-(N'DO_AN', N'Onigiri',       40000,  N'Com nam hinh tam giac, ben trong co ca, rong bien hoac trung.',        N'/img/onigiri.jfif',      N'CON_HANG', N'Com',   N'Cai',  @doAn, NULL),
-(N'DO_AN', N'Bingsu',        125000, N'Da bao min kieu Han Quoc, phu trai cay, dau do, siro hoac kem.',    N'/img/bingsu.jpg',        N'CON_HANG', N'Trang miem', N'Phan', @doAn, NULL),
-(N'DO_AN', N'Dango',         50000,  N'Banh tron xien que lam tu bot gao, an kem sot ngot mitarashi.',       N'/img/dango.jpg',         N'CON_HANG', N'Trang miem', N'Cai',  @doAn, NULL),
-(N'DO_AN', N'Dorayaki',      50000,  N'Banh kep nhan dau do ngot, mem xop.',       N'/img/dorayaki.jpg',      N'CON_HANG', N'Trang miem', N'Cai',  @doAn, NULL),
-(N'DO_AN', N'Mochi',         50000,  N'Banh deo nhan dau do hoac kem lanh, vo min mem.',  N'/img/mochi.jpg',        N'CON_HANG', N'Trang miem', N'Cai',  @doAn, NULL),
+(N'DO_AN', N'Cơm phần',      45000,  N'Cơm trắng ăn kèm topping tùy chọn.',              N'/img/comphan.jpg',       N'CON_HANG', N'Com',   N'Phan', @doAn, NULL),
+(N'DO_AN', N'Omurice',       35000,  N'Cơm chiên bọc trứng mềm, ăn kèm sốt cà chua.',    N'/img/comtrung.jpg',      N'CON_HANG', N'Com',   N'Phan', @doAn, NULL),
+(N'DO_AN', N'Cơm cà ri',     50000,  N'Cơm cà ri gà',           N'/img/com-cari.jpg',    N'CON_HANG', N'Com',   N'Phan', @doAn, NULL),
+(N'DO_AN', N'Donburi',       55000,  N'Cơm trắng ăn kèm thịt bò, gà hoặc hải sản.',      N'/img/com-suon.jpg',      N'CON_HANG', N'Com',   N'Phan', @doAn, NULL),
+(N'DO_AN', N'Bento',       40000,  N'Cơm hộp văn phòng',      N'/img/comhop.jpg',        N'CON_HANG', N'Com',   N'Phan', @doAn, NULL),
+(N'DO_AN', N'Ramen',         65000,  N'Mì nước với nước dùng đậm đà, thịt heo mềm.',     N'/img/ramen.jpg',         N'CON_HANG', N'Mi',    N'To',   @doAn, NULL),
+(N'DO_AN', N'Udon',          60000,  N'Mì sợi dày, mềm, ăn với nước dùng thanh nhẹ.',    N'/img/udon.jpg',          N'CON_HANG', N'Mi',    N'To',   @doAn, NULL),
+(N'DO_AN', N'Yakisoba',      55000,  N'Mì xào với thịt, rau và sốt ngọt mặn.',           N'/img/mi-xao.jpg',        N'CON_HANG', N'Mi',    N'To',   @doAn, NULL),
+(N'DO_AN', N'Soba',          50000,  N'Mì làm từ kiều mạch, có thể ăn nóng hoặc lạnh.',  N'/img/mi-nuoc.jpg',       N'CON_HANG', N'Mi',    N'To',   @doAn, NULL),
+(N'DO_AN', N'Sushi',         85000,  N'Cơm trộn nấm kết hợp hải sản tươi.',              N'/img/sushi.jpg',         N'CON_HANG', N'Nhat',  N'Set',  @doAn, NULL),
+(N'DO_AN', N'Sashimi',       95000,  N'Hải sản tươi sống cắt lát mỏng, ăn kèm wasabi.',  N'/img/sashimi.jpg',       N'CON_HANG', N'Nhat',  N'Set',  @doAn, NULL),
+(N'DO_AN', N'Tempura',       70000,  N'Hải sản và rau củ tẩm bột chiên giòn.',           N'/img/tempura.jpg',       N'CON_HANG', N'Nhat',  N'Phan', @doAn, NULL),
+(N'DO_AN', N'Takoyaki',      55000,  N'Bánh tròn nhân bạch tuộc chiên, phủ sốt mayo.',   N'/img/takoyaki.jpg',      N'CON_HANG', N'Nhat',  N'Dia',  @doAn, NULL),
+(N'DO_AN', N'Sukiyaki',      150000, N'Lẩu ngọt với thịt bò, trứng sống và rau.',        N'/img/laubo.jpg',         N'CON_HANG', N'Lau',   N'Noi',  @doAn, NULL),
+(N'DO_AN', N'Shabu-shabu',   120000, N'Lẩu nhúng thịt bò, rau, ăn kèm nước chấm me.',    N'/img/lauheo.jpg',        N'CON_HANG', N'Lau',   N'Noi',  @doAn, NULL),
+(N'DO_AN', N'Okonomiyaki',   45000,  N'Bánh xèo Nhật với bắp cải, thịt, hải sản.',       N'/img/banhxeo.jpg',       N'CON_HANG', N'Viet',  N'Cai',  @doAn, NULL),
+(N'DO_AN', N'Yakitori',      75000,  N'Gà xiên nướng than, phủ sốt ngọt mặn.',           N'/img/thit-nuong.jpg',    N'CON_HANG', N'Nuong', N'Phan', @doAn, NULL),
+(N'DO_AN', N'Tonkatsu',      65000,  N'Thịt heo chiên xù',                               N'/img/thit-chien-xu.jpg', N'CON_HANG', N'Chien', N'Phan', @doAn, NULL),
+(N'DO_AN', N'Karaage',       60000,  N'Thịt gà chiên giòn',                              N'/img/thit-chien.jpg',    N'CON_HANG', N'Chien', N'Phan', @doAn, NULL),
+(N'DO_AN', N'Súp miso',      25000,  N'Canh đậu nành với rong biển, đậu hủ mềm.',        N'/img/miso.jpg',          N'CON_HANG', N'Sup',   N'Bat',  @doAn, NULL),
+(N'DO_AN', N'Chawamushi',    20000,  N'Trứng hấp mềm nấu với tôm hoặc thịt.',            N'/img/canh.jpg',          N'CON_HANG', N'Viet',  N'Bat',  @doAn, NULL),
+(N'DO_AN', N'Oden',          55000,  N'Các nguyên liệu như trứng, củ cải, chả cá nấu trong nước dùng dashi.',          N'/img/oden.jpg',          N'CON_HANG', N'Nhat',  N'Phan', @doAn, NULL),
+(N'DO_AN', N'Onigiri',       40000,  N'Cơm nắm hình tam giác, bên trong có cá, rong biển hoặc trứng.',        N'/img/onigiri.jfif',      N'CON_HANG', N'Com',   N'Cai',  @doAn, NULL),
+(N'DO_AN', N'Bingsu',        125000, N'Đá bào mịn kiểu Hàn Quốc, phủ trái cây, đậu đỏ, siro hoặc kem.',    N'/img/bingsu.jpg',        N'CON_HANG', N'Trang miem', N'Phan', @doAn, NULL),
+(N'DO_AN', N'Dango',         50000,  N'Bánh tròn xiên que làm từ bột gạo, ăn kèm sốt ngọt mitarashi.',       N'/img/dango.jpg',         N'CON_HANG', N'Trang miem', N'Cai',  @doAn, NULL),
+(N'DO_AN', N'Dorayaki',      50000,  N'Bánh kẹp nhân đậu đỏ ngọt, mềm xốp.',       N'/img/dorayaki.jpg',      N'CON_HANG', N'Trang miem', N'Cai',  @doAn, NULL),
+(N'DO_AN', N'Mochi',         50000,  N'Bánh dẻo nhân đậu đỏ hoặc kem lạnh, vỏ mịn mềm.',  N'/img/mochi.jpg',        N'CON_HANG', N'Trang miem', N'Cai',  @doAn, NULL),
 
-(N'DO_UONG', N'Tra xanh Nhat',  45000,  N'Tra xanh truyen thong Nhat Ban, vi thanh nhe.',   N'/img/tra-xanh-nhat.jpg',   N'CON_HANG', N'Tra',    N'Ly', @doUong, NULL),
-(N'DO_UONG', N'Matcha Latte',   55000,  N'Bot matcha nguyen chat ket hop sua tuoi.',   N'/img/macha-latte.jpg', N'CON_HANG', N'Tra',  N'Ly', @doUong, NULL),
-(N'DO_UONG', N'Tra Atiso',      40000,  N'Tra thao moc thanh mat tu hoa atiso.',               N'/img/tra-atttiso.jpg',  N'CON_HANG', N'Tra',    N'Ly', @doUong, NULL),
-(N'DO_UONG', N'Ramune',         35000,  N'Nuoc soda Nhat noi tieng voi chai bi dac trung.',       N'/img/ramune.jpg',    N'CON_HANG', N'Nuoc',   N'Ly', @doUong, NULL),
-(N'DO_UONG', N'Sake',           95000,  N'Ruou gao truyen thong Nhat Ban, huong thom diu.',     N'/img/ruou-sake.jpg',      N'CON_HANG', N'Ruou',   N'Ly', @doUong, NULL),
-(N'DO_UONG', N'Bia Nhat',       35000,  N'Bia lager Nhat nhe, tuoi mat, hau vi sach.',      N'/img/bia-nhat.jpg',   N'CON_HANG', N'Bia',    N'Ly', @doUong, NULL),
-(N'DO_UONG', N'Tra Dao',        40000,  N'Tra den ket hop dao ngot tu nhien.',               N'/img/tra-dao.jpg',      N'CON_HANG', N'Tra',    N'Ly', @doUong, NULL),
-(N'DO_UONG', N'Cola',           20000,  N'Nuoc ngot co ga vi cola quen thuoc.',     N'/img/coca.jpg',      N'CON_HANG', N'Nuoc',   N'Lon', @doUong, NULL),
-(N'DO_UONG', N'Pepsi',          20000,  N'Nuoc ngot co ga vi cola dam da.',     N'/img/pepsi.jpg',     N'CON_HANG', N'Nuoc',   N'Lon', @doUong, NULL),
-(N'DO_UONG', N'Nuoc suoi',      15000,  N'Nuoc tinh khiet dong chai.',                   N'/img/nuoc-suoi.jpg',  N'CON_HANG', N'Nuoc',   N'Chai', @doUong, NULL),
-(N'DO_UONG', N'Tra Trai Cay',   45000,  N'Tra ket hop nhieu loai trai cay nhiet doi.',      N'/img/tra-trai-cay-nhiet-doi.jpg', N'CON_HANG', N'Tra',   N'Ly', @doUong, NULL),
-(N'DO_UONG', N'Tra Sua TT',     45000,  N'Tra den pha cung sua va duong, huong vi beo nhe.',               N'/img/trasua.jpg',  N'CON_HANG', N'Tra',    N'Ly', @doUong, NULL)
+(N'DO_UONG', N'Trà xanh Nhật',  45000,  N'Trà xanh truyền thống Nhật Bản, vị thanh nhẹ.',   N'/img/tra-xanh-nhat.jpg',   N'CON_HANG', N'Tra',    N'Ly', @doUong, NULL),
+(N'DO_UONG', N'Matcha Latte',   55000,  N'Bột matcha nguyên chất kết hợp sữa tươi.',   N'/img/macha-latte.jpg', N'CON_HANG', N'Tra',  N'Ly', @doUong, NULL),
+(N'DO_UONG', N'Trà Atiso',      40000,  N'Trà thảo mộc thanh mát từ hoa atiso.',               N'/img/tra-atttiso.jpg',  N'CON_HANG', N'Tra',    N'Ly', @doUong, NULL),
+(N'DO_UONG', N'Ramune',         35000,  N'Nước soda Nhật nổi tiếng với chai bị đặc trưng.',       N'/img/ramune.jpg',    N'CON_HANG', N'Nuoc',   N'Ly', @doUong, NULL),
+(N'DO_UONG', N'Sake',           95000,  N'Rượu gạo truyền thống Nhật Bản, hương thơm dịu.',     N'/img/ruou-sake.jpg',      N'CON_HANG', N'Ruou',   N'Ly', @doUong, NULL),
+(N'DO_UONG', N'Bia Nhật',       35000,  N'Bia lager Nhật, tươi mát, hậu vị sạch.',      N'/img/bia-nhat.jpg',   N'CON_HANG', N'Bia',    N'Ly', @doUong, NULL),
+(N'DO_UONG', N'Trà đào',        40000,  N'Trà đen kết hợp đào ngọt tự nhiên.',               N'/img/tra-dao.jpg',      N'CON_HANG', N'Tra',    N'Ly', @doUong, NULL),
+(N'DO_UONG', N'Cola',           20000,  N'Nước ngọt có ga vị cola quen thuộc.',     N'/img/coca.jpg',      N'CON_HANG', N'Nuoc',   N'Lon', @doUong, NULL),
+(N'DO_UONG', N'Pepsi',          20000,  N'Nước ngọt có ga vị cola đậm đà.',     N'/img/pepsi.jpg',     N'CON_HANG', N'Nuoc',   N'Lon', @doUong, NULL),
+(N'DO_UONG', N'Nước suối',      15000,  N'Nước tinh khiết đóng chai.',                   N'/img/nuoc-suoi.jpg',  N'CON_HANG', N'Nuoc',   N'Chai', @doUong, NULL),
+(N'DO_UONG', N'Trà trái cây',   45000,  N'Trà kết hợp nhiều loại trái cây nhiệt đới.',      N'/img/tra-trai-cay-nhiet-doi.jpg', N'CON_HANG', N'Tra',   N'Ly', @doUong, NULL),
+(N'DO_UONG', N'Trà sữa TT',     45000,  N'Trà đen pha cùng sữa và đường, hương vị béo nhẹ.',               N'/img/trasua.jpg',  N'CON_HANG', N'Tra',    N'Ly', @doUong, NULL)
 GO
 
 -- ============================================================

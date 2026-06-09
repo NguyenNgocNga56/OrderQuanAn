@@ -95,12 +95,11 @@ async function loadKhuyenMai() {
     const grid = document.getElementById('kmGrid');
     if (!grid) return;
     try {
-        const res  = await fetch('/api/khuyenmai');
-        const body = await res.json();
-        const kms = Array.isArray(body) ? body : (body.data || []);
+        const res = await fetch('/api/khuyenmai/hien-thi').then(r => r.json());
+        const kms  = (res && res.data) ? res.data : (Array.isArray(res) ? res : []);
 
         if (!kms.length) {
-            grid.innerHTML = '<p class="km-empty-msg">Hiện chưa có khuyến mãi nào.</p>';
+            grid.innerHTML = '<p style="text-align:center;color:var(--text-muted);">Hiện chưa có khuyến mãi nào.</p>';
             return;
         }
         grid.innerHTML = kms.map(km => {
@@ -109,7 +108,7 @@ async function loadKhuyenMai() {
                 ? `Giảm ${gia}%`
                 : `Giảm ${fmtVND(gia)}`;
             const now    = new Date();
-            const hetHan = km.ngayKetThuc ? new Date(km.ngayKetThuc) : null;
+            const hetHan = km.ngayKetThuc ? parseLocalDateTime(km.ngayKetThuc) : null;
             const con    = !hetHan || hetHan >= now;
             return `
             <div class="km-card ${con ? '' : 'km-expired'}">
@@ -117,7 +116,7 @@ async function loadKhuyenMai() {
                 <div class="km-title">${km.tenKhuyenMai||'Ưu đãi đặc biệt'}</div>
                 <div class="km-desc">${km.moTa||''}</div>
                 <div class="km-deadline">
-                    ${hetHan ? ` HSD: ${hetHan.toLocaleDateString('vi-VN')}` : '♾ Không giới hạn'}
+                    ${hetHan ? ` HSD: ${hetHan.toLocaleDateString('vi-VN')}` : 'Không giới hạn'}
                 </div>
                 <div class="km-status ${con ? 'km-con' : 'km-het'}">${con ? ' Còn hiệu lực' : ' Đã hết hạn'}</div>
             </div>`;
@@ -397,3 +396,29 @@ document.addEventListener('DOMContentLoaded', () => {
 	        if (bannerText) bannerText.textContent = 'Bàn #' + _banIdFromQR;
 	    }
 });
+
+// SCROLL REVEAL
+(function() {
+    const targets = [
+        '.km-card', '.hang-card', '.mon-card',
+        '.khuyen-mai-section .section-title',
+        '.khuyen-mai-section .section-sub',
+        '.menu-section .section-title',
+        '.menu-section .section-sub',
+        '.menu-tabs',
+    ];
+    targets.forEach(sel => {
+        document.querySelectorAll(sel).forEach(el => el.classList.add('reveal'));
+    });
+
+    const io = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                io.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+})();
