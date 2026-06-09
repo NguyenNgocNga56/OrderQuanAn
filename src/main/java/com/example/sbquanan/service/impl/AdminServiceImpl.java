@@ -92,7 +92,7 @@ public class AdminServiceImpl implements AdminService {
                 && donHang.getBan() != null) {
             Ban ban = donHang.getBan();
             if ("CO_KHACH".equals(ban.getTrangThai())) {
-                ban.setTrangThai("DEP_BAN");
+            	ban.setTrangThai("TRONG");
                 banRepo.save(ban);
             }
         }

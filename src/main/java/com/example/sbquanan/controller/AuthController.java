@@ -65,7 +65,8 @@ public class AuthController {
                 "token",  token,
                 "email",  nhanVien.getEmail(),
                 "hoTen",  nhanVien.getHoTen(),
-                "chucVu", nhanVien.getChucVu() != null ? nhanVien.getChucVu() : ""
+                "chucVu", nhanVien.getChucVu() != null ? nhanVien.getChucVu() : "",
+                "role",   nhanVien.getRole() != null ? nhanVien.getRole().name() : "NHAN_VIEN"  // ← THÊM DÒNG NÀY
         )));
     }
 

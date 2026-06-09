@@ -24,7 +24,15 @@ public class KhachHangServiceImpl implements KhachHangService {
     public Optional<KhachHang> getById(Long id) { return repository.findById(id); }
 
     @Override
-    public Optional<KhachHang> getBySdt(String sdt) { return repository.findBySdt(sdt); }
+    public Optional<KhachHang> getBySdt(String sdt) {
+        String cleaned = sdt == null ? "" : sdt.trim();
+        // Thử exact match trước, nếu không có thì thử trim cả DB
+        Optional<KhachHang> result = repository.findBySdt(cleaned);
+        if (result.isEmpty()) {
+            result = repository.findBySdtTrimmed(cleaned);
+        }
+        return result;
+    }
 
     @Override
     public KhachHang create(KhachHang khachHang) {

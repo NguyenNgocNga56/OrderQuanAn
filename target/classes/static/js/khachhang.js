@@ -71,7 +71,7 @@ function renderCartPanel() {
             <div class="cart-item-info">
                 ${i.hinhAnh ? `<img src="${i.hinhAnh}" onerror="this.style.display='none'">` : '<span class="cart-item-emoji">🍽</span>'}
                 <div>
-                    <div class="cart-item-name">${i.tenMon}</div>
+                    <div class="cart-item-name">${i.tenMon}${i.size ? ` <span class="cart-size-tag">${i.size}</span>` : ''}</div>
                     <div class="cart-item-price">${fmtVND(i.gia)}</div>
                 </div>
             </div>
@@ -103,25 +103,43 @@ async function loadKhuyenMai() {
             return;
         }
         grid.innerHTML = kms.map(km => {
+            const gia   = km.giaTri ?? km.giaTriKhuyenMai ?? 0;
             const label = km.loaiKhuyenMai === 'PHAN_TRAM'
-                ? `Giảm ${km.giaTri}%`
-                : `Giảm ${fmtVND(km.giaTri)}`;
+                ? `Giảm ${gia}%`
+                : `Giảm ${fmtVND(gia)}`;
             const now    = new Date();
-            const hetHan = parseLocalDateTime(km.ngayKetThuc);            const con    = !hetHan || hetHan >= now;
+            const hetHan = km.ngayKetThuc ? new Date(km.ngayKetThuc) : null;
+            const con    = !hetHan || hetHan >= now;
             return `
             <div class="km-card ${con ? '' : 'km-expired'}">
                 <div class="km-badge">${label}</div>
-                <div class="km-title">${km.tenKhuyenMai || 'Ưu đãi đặc biệt'}</div>
-                <div class="km-desc">${km.moTa || ''}</div>
+                <div class="km-title">${km.tenKhuyenMai||'Ưu đãi đặc biệt'}</div>
+                <div class="km-desc">${km.moTa||''}</div>
                 <div class="km-deadline">
-                    ${hetHan ? `HSD: ${hetHan.toLocaleDateString('vi-VN')}` : 'Không giới hạn'}
+                    ${hetHan ? ` HSD: ${hetHan.toLocaleDateString('vi-VN')}` : 'Không giới hạn'}
                 </div>
-                <div class="km-status ${con ? 'km-con' : 'km-het'}">${con ? 'Còn hiệu lực' : 'Đã hết hạn'}</div>
+                <div class="km-status ${con ? 'km-con' : 'km-het'}">${con ? ' Còn hiệu lực' : ' Đã hết hạn'}</div>
             </div>`;
         }).join('');
-    } catch (e) {
-        grid.innerHTML = '<p style="text-align:center;color:var(--text-muted);">Không tải được khuyến mãi.</p>';
+    } catch(e) {
+        grid.innerHTML = '<p class="km-empty-msg">Không tải được khuyến mãi.</p>';
     }
+}
+
+function initScrollReveal() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('revealed');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.mon-card').forEach((el, i) => {
+        el.style.transitionDelay = `${(i % 4) * 80}ms`;
+        observer.observe(el);
+    });
 }
 
 // LOAD THỰC ĐƠN
@@ -132,6 +150,23 @@ function switchTab(tab, btn) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     loadMonAn(tab);
+}
+
+// Gom các món đồ uống cùng loaiTen thành 1 card với size picker S/M/L
+function groupDoUong(items) {
+    const groups = {};
+    items.forEach(mon => {
+        // loaiTen: tên gốc không kèm suffix size (do backend trả về)
+        const key = mon.loaiTen || mon.tenMon;
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(mon);
+    });
+    // Sắp xếp mỗi group theo thứ tự S → M → L
+    const sizeOrder = { S: 0, M: 1, L: 2 };
+    return Object.values(groups).map(group => {
+        group.sort((a, b) => (sizeOrder[a.size] ?? 99) - (sizeOrder[b.size] ?? 99));
+        return group;
+    });
 }
 
 async function loadMonAn(tab) {
@@ -145,38 +180,117 @@ async function loadMonAn(tab) {
             grid.innerHTML = '<p style="text-align:center;color:var(--text-muted);">Không có món nào.</p>';
             return;
         }
-        grid.innerHTML = items.map(mon => {
-            const gia = mon.gia || mon.giaTien || mon.giaMon || 0;
-            const ten = mon.tenMon || mon.ten || '';
-            const available = !mon.trangThai || mon.trangThai === 'AVAILABLE' || mon.trangThai === 'CON_HANG';
-            return `
-            <div class="mon-card">
-                <div class="mon-img">
-                    ${mon.hinhAnh
-                        ? `<img src="${mon.hinhAnh}" alt="${ten}" onerror="this.outerHTML='<span style=font-size:3rem>🍽</span>'">`
-                        : '<span style="font-size:3rem;">🍽</span>'}
-                </div>
-                <div class="mon-body">
-                    <div class="mon-ten">${ten}</div>
-                    <div class="mon-mota">${mon.moTa || ''}</div>
-                    <div class="mon-footer">
-                        <span class="mon-gia">${fmtVND(gia)}</span>
-                        ${available
-                            ? `<button class="btn-them" onclick="themVaoGio(${mon.monID},'${ten}',${gia},'${mon.hinhAnh||''}')">+ Thêm</button>`
-                            : `<span style="color:var(--red);font-size:0.82rem;">Hết món</span>`}
+
+        if (tab === 'douong') {
+            // Phụ phí size — khớp với enum SizeDoUong backend
+            const SIZE_PHU_PHI = { S: 0, M: 5000, L: 10000 };
+            const SIZE_LABELS  = ['S', 'M', 'L'];
+
+            grid.innerHTML = items.map(mon => {
+                const ten   = mon.tenMon || '';
+                const mota  = mon.moTa  || '';
+                const giaGoc = mon.gia  || 0;
+                const available = !mon.trangThai || mon.trangThai === 'CON_HANG' || mon.trangThai === 'AVAILABLE';
+                // uid dùng monID — mỗi món là 1 record riêng, uid unique
+                const uid = 'size_' + mon.monID;
+
+                const sizeBtns = SIZE_LABELS.map((s, idx) => {
+                    const giaSize = giaGoc + SIZE_PHU_PHI[s];
+                    return `<button class="size-btn ${idx===0?'active':''}"
+                        onclick="selectSizeFE(this,'${uid}',${mon.monID},${giaSize},'${ten.replace(/'/g,"\\'")}','${(mon.hinhAnh||'').replace(/'/g,"\\'")}','${s}')"
+                    >${s}</button>`;
+                }).join('');
+
+                // Init state mặc định (size S)
+                window._sizeState[uid] = {
+                    monID: mon.monID, gia: giaGoc, ten,
+                    hinh: mon.hinhAnh||'', size: 'S'
+                };
+
+                return `
+                <div class="mon-card scroll-reveal">
+                    <div class="mon-img">
+                        ${mon.hinhAnh
+                            ? `<img src="${mon.hinhAnh}" alt="${ten}" onerror="this.outerHTML='<span style=font-size:3rem>🥤</span>'">`
+                            : '<span style="font-size:3rem;">🥤</span>'}
                     </div>
-                </div>
-            </div>`;
-        }).join('');
-    } catch {
+                    <div class="mon-body">
+                        <div class="mon-ten">${ten}</div>
+                        <div class="mon-mota">${mota}</div>
+                        <div class="size-row">${sizeBtns}</div>
+                        <div class="mon-footer">
+                            <span class="mon-gia" id="gia_${uid}">${fmtVND(giaGoc)}</span>
+                            ${available
+                                ? `<button class="btn-them" onclick="themDoUongVaoGio('${uid}')">+ Thêm</button>`
+                                : `<span style="color:var(--red);font-size:0.82rem;">Hết món</span>`}
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        } else {
+            // Đồ ăn: render bình thường
+            grid.innerHTML = items.map(mon => {
+                const gia = mon.gia || 0;
+                const ten = mon.tenMon || '';
+                const mota = mon.moTa || '';
+                const available = !mon.trangThai || mon.trangThai === 'AVAILABLE' || mon.trangThai === 'CON_HANG';
+                return `
+                <div class="mon-card scroll-reveal">
+                    <div class="mon-img">
+                        ${mon.hinhAnh ? `<img src="${mon.hinhAnh}" alt="${ten}" onerror="this.outerHTML='<span style=font-size:3rem>🍽</span>'">` : '<span style="font-size:3rem;">🍽</span>'}
+                    </div>
+                    <div class="mon-body">
+                        <div class="mon-ten">${ten}</div>
+                        <div class="mon-mota">${mota}</div>
+                        <div class="mon-footer">
+                            <span class="mon-gia">${fmtVND(gia)}</span>
+                            ${available
+                                ? `<button class="btn-them" onclick="themVaoGio(${mon.monID},'${ten}',${gia},'${mon.hinhAnh||''}',null)">+ Thêm</button>`
+                                : `<span style="color:var(--red);font-size:0.82rem;">Hết món</span>`}
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        initScrollReveal();
+    } catch(e) {
         grid.innerHTML = '<p style="text-align:center;color:var(--text-muted);">Không tải được thực đơn.</p>';
     }
 }
 
-function themVaoGio(monID, tenMon, gia, hinhAnh) {
-    Cart.add({ monID, tenMon, gia, hinhAnh });
+// Lưu state size đang chọn cho từng uid
+window._sizeState = {};
+
+function selectSize(btn, uid, monID, gia, ten, hinh, size) {
+    btn.closest('.size-row').querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    window._sizeState[uid] = { monID, gia, ten, hinh, size };
+    const giaEl = document.getElementById('gia_' + uid);
+    if (giaEl) giaEl.textContent = fmtVND(gia);
+}
+
+// Alias cho frontend-side size picker (dùng chung logic)
+function selectSizeFE(btn, uid, monID, gia, ten, hinh, size) {
+    selectSize(btn, uid, monID, gia, ten, hinh, size);
+}
+
+function themDoUongVaoGio(uid) {
+    const state = window._sizeState[uid];
+    if (!state) return;
+    Cart.add({ monID: state.monID, tenMon: state.ten, gia: state.gia, hinhAnh: state.hinh, size: state.size });
     renderCartPanel();
-    // Mini toast
+    const t = document.createElement('div');
+    t.className = 'mini-toast';
+    t.textContent = ` Đã thêm: ${state.ten} (${state.size})`;
+    document.body.appendChild(t);
+    setTimeout(() => t.classList.add('show'), 10);
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 2000);
+}
+
+function themVaoGio(monID, tenMon, gia, hinhAnh, size) {
+    Cart.add({ monID, tenMon, gia, hinhAnh, size });
+    renderCartPanel();
     const t = document.createElement('div');
     t.className = 'mini-toast';
     t.textContent = ` Đã thêm: ${tenMon}`;
@@ -222,10 +336,16 @@ async function traCuu() {
     if (!sdt) { setMsg(msg, 'Vui lòng nhập số điện thoại.', 'error'); return; }
 
     try {
-        const data = await fetch(`/api/khachhang/sdt/${sdt}`).then(r => {
-            if (!r.ok) throw new Error();
+        const resp = await fetch(`/api/khachhang/sdt/${sdt}`).then(r => {
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
             return r.json();
         });
+
+        console.log('API response:', resp);
+
+        // API trả về ApiResponse wrapper { success, message, data: {...} }
+        const data = resp.data ?? resp;
+        console.log('data:', data);
 
         document.getElementById('tcTen').textContent  = data.hoTen || '';
         document.getElementById('tcDiem').textContent = data.diemTichLuy || 0;
@@ -249,9 +369,9 @@ async function traCuu() {
 
         setMsg(msg, '', '');
         result.style.display = 'block';
-    } catch {
+    } catch(e) {
         result.style.display = 'none';
-        setMsg(msg, 'Không tìm thấy số điện thoại này.', 'error');
+        setMsg(msg, 'Lỗi: ' + e.message, 'error');
     }
 }
 
@@ -277,3 +397,28 @@ document.addEventListener('DOMContentLoaded', () => {
 	    }
 });
 
+// SCROLL REVEAL
+(function() {
+    const targets = [
+        '.km-card', '.hang-card', '.mon-card',
+        '.khuyen-mai-section .section-title',
+        '.khuyen-mai-section .section-sub',
+        '.menu-section .section-title',
+        '.menu-section .section-sub',
+        '.menu-tabs',
+    ];
+    targets.forEach(sel => {
+        document.querySelectorAll(sel).forEach(el => el.classList.add('reveal'));
+    });
+
+    const io = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                io.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+})();

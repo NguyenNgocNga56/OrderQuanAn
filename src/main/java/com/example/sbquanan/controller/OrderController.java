@@ -1,5 +1,6 @@
 package com.example.sbquanan.controller;
 
+import com.example.sbquanan.dto.ApiResponse;
 import com.example.sbquanan.dto.OrderRequest;
 import com.example.sbquanan.dto.OrderResponse;
 import com.example.sbquanan.service.OrderService;
@@ -25,8 +26,8 @@ public class OrderController {
     }
 
     @GetMapping
-    public List<OrderResponse> getAll() {
-        return orderService.getAll();
+    public ApiResponse<List<OrderResponse>> getAll() {
+        return ApiResponse.success(orderService.getAll());
     }
 
     @GetMapping("/{id}")

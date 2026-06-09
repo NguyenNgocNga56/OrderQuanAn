@@ -11,11 +11,11 @@
     <script src="https://unpkg.com/i18next@23.7.6/i18next.min.js"></script>
 </head>
 <body>
-	
-	<div id="banBanner" style="display:none; background:#8b0000; color:#fff;
+
+<div id="banBanner" style="display:none; background:#8b0000; color:#fff;
 	     text-align:center; padding:10px; font-size:14px; font-weight:500;">
-	    🪑 Bạn đang đặt món tại <strong id="banBannerText">Bàn ?</strong>
-	</div>
+    🪑 Bạn đang đặt món tại <strong id="banBannerText">Bàn ?</strong>
+</div>
 <!-- HEADER -->
 <header class="header">
     <div class="header-inner">
@@ -54,43 +54,45 @@
 <section class="kh-hero">
     <div class="kh-hero-bg"></div>
     <div class="kh-hero-inner">
-        <div class="kh-hero-content">
-            <p class="hero-label" data-i18n="kh.hero.label"> Chương trình thành viên</p>
-            <h1 class="hero-title" data-i18n="kh.hero.title">Tích điểm –<br><span class="highlight">Nhận ưu đãi</span></h1>
-            <p class="hero-desc" data-i18n="kh.hero.desc">Đăng ký thành viên miễn phí, tích điểm mỗi lần đặt món và nhận ưu đãi độc quyền theo hạng.</p>
-            <div class="hero-actions">
-                <button class="btn-primary" onclick="openModal('dangKyModal')" data-i18n="kh.btn.register">Đăng ký ngay</button>
-                <button class="btn-ghost" onclick="openModal('traCuuModal')" data-i18n="kh.btn.lookup">Tra cứu điểm</button>
+        <div class="kh-hero-left-col">
+            <div class="kh-hero-content">
+                <p class="hero-label" data-i18n="kh.hero.label"> Chương trình thành viên</p>
+                <h1 class="hero-title" data-i18n="kh.hero.title">Tích điểm –<br><span class="highlight">Nhận ưu đãi</span></h1>
+                <p class="hero-desc" data-i18n="kh.hero.desc">Đăng ký thành viên miễn phí, tích điểm mỗi lần đặt món và nhận ưu đãi độc quyền theo hạng.</p>
+                <div class="hero-actions">
+                    <button class="btn-primary" onclick="openModal('dangKyModal')" data-i18n="kh.btn.register">Đăng ký ngay</button>
+                    <button class="btn-ghost" onclick="openModal('traCuuModal')" data-i18n="kh.btn.lookup">Tra cứu điểm</button>
+                </div>
             </div>
-        </div>
-        <!-- HẠNG THÀNH VIÊN -->
-        <div class="hang-grid">
-            <div class="hang-card">
-                <div class="hang-icon">🥉</div>
-                <div class="hang-name" data-i18n="kh.hang.dong">Đồng</div>
-                <div class="hang-diem" data-i18n="kh.hang.dong.diem">0 – 99 điểm</div>
-                <div class="hang-uu" data-i18n="kh.hang.dong.uu">Ưu đãi sinh nhật</div>
-            </div>
-            <div class="hang-card hang-bac">
-                <div class="hang-icon">🥈</div>
-                <div class="hang-name" data-i18n="kh.hang.bac">Bạc</div>
-                <div class="hang-diem" data-i18n="kh.hang.bac.diem">100 – 499 điểm</div>
-                <div class="hang-uu" data-i18n="kh.hang.bac.uu">Giảm 5% mỗi đơn</div>
-            </div>
-            <div class="hang-card hang-vang">
-                <div class="hang-icon">🥇</div>
-                <div class="hang-name" data-i18n="kh.hang.vang">Vàng</div>
-                <div class="hang-diem" data-i18n="kh.hang.vang.diem">500 – 999 điểm</div>
-                <div class="hang-uu" data-i18n="kh.hang.vang.uu">Giảm 10% + ưu tiên</div>
-            </div>
-            <div class="hang-card hang-kim">
-                <div class="hang-icon">💎</div>
-                <div class="hang-name" data-i18n="kh.hang.kim">Kim Cương</div>
-                <div class="hang-diem" data-i18n="kh.hang.kim.diem">1000+ điểm</div>
-                <div class="hang-uu" data-i18n="kh.hang.kim.uu">Giảm 15% + VIP</div>
-            </div>
-        </div>
-    </div>
+            <!-- HẠNG THÀNH VIÊN -->
+            <div class="hang-grid">
+                <div class="hang-card">
+                    <div class="hang-icon">🥉</div>
+                    <div class="hang-name" data-i18n="kh.hang.dong">Đồng</div>
+                    <div class="hang-diem" data-i18n="kh.hang.dong.diem">0 – 99 điểm</div>
+                    <div class="hang-uu" data-i18n="kh.hang.dong.uu">Ưu đãi sinh nhật</div>
+                </div>
+                <div class="hang-card hang-bac">
+                    <div class="hang-icon">🥈</div>
+                    <div class="hang-name" data-i18n="kh.hang.bac">Bạc</div>
+                    <div class="hang-diem" data-i18n="kh.hang.bac.diem">100 – 499 điểm</div>
+                    <div class="hang-uu" data-i18n="kh.hang.bac.uu">Giảm 5% mỗi đơn</div>
+                </div>
+                <div class="hang-card hang-vang">
+                    <div class="hang-icon">🥇</div>
+                    <div class="hang-name" data-i18n="kh.hang.vang">Vàng</div>
+                    <div class="hang-diem" data-i18n="kh.hang.vang.diem">500 – 999 điểm</div>
+                    <div class="hang-uu" data-i18n="kh.hang.vang.uu">Giảm 10% + ưu tiên</div>
+                </div>
+                <div class="hang-card hang-kim">
+                    <div class="hang-icon">💎</div>
+                    <div class="hang-name" data-i18n="kh.hang.kim">Kim Cương</div>
+                    <div class="hang-diem" data-i18n="kh.hang.kim.diem">1000+ điểm</div>
+                    <div class="hang-uu" data-i18n="kh.hang.kim.uu">Giảm 15% + VIP</div>
+                </div>
+            </div><!-- end hang-grid -->
+        </div><!-- end kh-hero-left-col -->
+    </div><!-- end kh-hero-inner -->
 </section>
 
 <!-- BANNER KHUYẾN MÃI -->
@@ -107,17 +109,37 @@
 <!-- THỰC ĐƠN -->
 <section class="menu-section" id="menu-section">
     <div class="section-inner">
-        <h2 class="section-title" data-i18n="kh.menu.title"> Thực đơn hôm nay</h2>
+        <h2 class="section-title" data-i18n="kh.menu.title">Thực đơn hôm nay</h2>
         <p class="section-sub" data-i18n="kh.menu.sub">Chọn món yêu thích và thêm vào giỏ hàng</p>
 
         <!-- TABS: Đồ ăn / Đồ uống -->
         <div class="menu-tabs">
-            <button class="tab-btn active" onclick="switchTab('doan', this)" data-i18n="kh.tab.food"> Đồ ăn</button>
-            <button class="tab-btn" onclick="switchTab('douong', this)" data-i18n="kh.tab.drink"> Đồ uống</button>
+            <button class="tab-btn active" onclick="switchTab('doan', this)" data-i18n="kh.tab.food">Đồ ăn</button>
+            <button class="tab-btn" onclick="switchTab('douong', this)" data-i18n="kh.tab.drink">Đồ uống</button>
         </div>
 
-        <div class="mon-grid" id="monGrid">
-            <div class="km-loading"> Đang tải thực đơn...</div>
+        <!-- LAYOUT 3 CỘT: ảnh trái | grid món | ảnh phải -->
+        <div class="menu-layout">
+
+            <!-- ẢNH TRÁI -->
+            <div class="menu-side menu-side-left">
+                <div class="menu-side-img">
+                    <img src="/img/cua_giay.jpg" alt="cái cửa" onerror="this.parentElement.style.background='#1a0a0a'">
+                </div>
+            </div>
+
+            <!-- GRID MÓN ĂN (giữ nguyên như cũ) -->
+            <div class="mon-grid" id="monGrid">
+                <div class="km-loading">Đang tải thực đơn...</div>
+            </div>
+
+            <!-- ẢNH PHẢI -->
+            <div class="menu-side menu-side-right">
+                <div class="menu-side-img">
+                    <img src="/img/cua_giay.jpg" alt="cái cửa" onerror="this.parentElement.style.background='#0a0a1a'">
+                </div>
+            </div>
+
         </div>
     </div>
 </section>
@@ -197,8 +219,8 @@
                     <div class="tc-hang" id="tcHang">💎</div>
                     <div class="tc-info">
                         <div class="tc-ten" id="tcTen">Nguyễn Văn A</div>
-                        <div class="tc-diem" data-i18n="kh.tc.diem">Điểm tích lũy: <strong id="tcDiem">0</strong></div>
-                        <div class="tc-loai" data-i18n="kh.tc.hang">Hạng: <strong id="tcLoai">Đồng</strong></div>
+                        <div class="tc-diem"><span data-i18n="kh.tc.diem">Điểm tích lũy: </span><strong id="tcDiem">0</strong></div>
+                        <div class="tc-loai"><span data-i18n="kh.tc.hang">Hạng: </span><strong id="tcLoai">Đồng</strong></div>
                     </div>
                 </div>
                 <div class="tc-progress-wrap">
@@ -212,7 +234,7 @@
     </div>
 </div>
 <script src="https://unpkg.com/i18next@23.7.6/i18next.min.js"></script>
-<script src="/js/lang.js"></script>
-<script src="/js/khachhang.js"></script>
+<script src="/js/lang.js?v=2"></script>
+<script src="/js/khachhang.js?v=2"></script>
 </body>
 </html>
