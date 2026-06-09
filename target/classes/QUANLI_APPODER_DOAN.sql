@@ -152,6 +152,8 @@ CREATE TABLE KhuyenMai (
                            GiaTri        DECIMAL(10,2)  NOT NULL CHECK (GiaTri > 0),
                            DiemToiThieu  INT            DEFAULT 0 CHECK (DiemToiThieu >= 0),
                            TongTienToiThieu DECIMAL(10,2) DEFAULT 0 CHECK (TongTienToiThieu >= 0),
+                           LoaiKhachHangToiThieu NVARCHAR(20) NULL
+                                CHECK (LoaiKhachHangToiThieu IN (N'DONG', N'BAC', N'VANG', N'KIM_CUONG')),
                            NgayBatDau    DATETIME       NOT NULL,
                            NgayKetThuc   DATETIME       NOT NULL,
                            TrangThai     BIT            DEFAULT 1,
@@ -212,12 +214,19 @@ GO
 -- de hash BCrypt, xong xoa MigrateController.java
 INSERT INTO NhanVien (TenNhanVien, SDT, DiaChi, Email, ChucVu, Luong, TrangThai, Password)
 VALUES
-    (N'Nguyễn Ngọc Ngà',  '0901111111', N'HCM', 'nga@gmail.com',       N'QUAN_LY',       15000000, 1, '12345'),
-    (N'Trần Thảo Nương',  '0902222222', N'HCM', 'nuong@gmail.com',     N'KY_THUAT_VIEN', 12000000, 1, '12345'),
-    (N'Phạm Ngọc Tú',     '0903333333', N'HCM', 'ngoctus@gmail.com',   N'KY_THUAT_VIEN', 12000000, 1, '12345'),
-    (N'Trần Minh Tú',     '0904444444', N'HCM', 'minhtu94@gmail.com',  N'NGUOI_DUNG',     9000000, 1, '12345'),
-    (N'Admin', '0905555555', N'HCM', 'admin@example.com',   N'QUAN_LY',       10000000, 1, '123456'),
-    (N'Nguyễn Thị Hương', '0909999999', N'HCM', 'chuquan@example.com', N'QUAN_LY',       25000000, 1, '123456');
+    (N'Nguyễn Ngọc Ngà',      '0901111111', N'HCM', 'nga@gmail.com',         N'QUAN_LY',      15000000, 1, '12345'),
+    (N'Nguyễn Thị Hương',     '0909999999', N'HCM', 'chuquan@example.com',   N'QUAN_LY',      25000000, 1, '123456'),
+    (N'Phạm Văn Chef',        '0907777777', N'HCM', 'chef1@gmail.com',        N'DAU_BEP',      18000000, 1, '12345'),
+    (N'Lê Thị Kim Chi',       '0908888888', N'HCM', 'chef2@gmail.com',        N'DAU_BEP',      17000000, 1, '12345'),
+    (N'Trần Văn Phú',         '0911112222', N'HCM', 'phubep1@gmail.com',      N'PHU_BEP',      11000000, 1, '12345'),
+    (N'Hoàng Minh Tâm',       '0911113333', N'HCM', 'phubep2@gmail.com',      N'PHU_BEP',      10500000, 1, '12345'),
+    (N'Nguyễn Thị Phúc Vũ',   '0912223344', N'HCM', 'phucvu1@gmail.com',      N'PHUC_VU',       8500000, 1, '12345'),
+    (N'Lê Văn An',            '0912224455', N'HCM', 'phucvu2@gmail.com',      N'PHUC_VU',       8200000, 1, '12345'),
+    (N'Trần Thị Mai',         '0912225566', N'HCM', 'phucvu3@gmail.com',      N'PHUC_VU',       8000000, 1, '12345'),
+    (N'Trần Thảo Nương',      '0902222222', N'HCM', 'nuong@gmail.com',        N'KY_THUAT_VIEN', 12000000, 1, '12345'),
+    (N'Phạm Ngọc Tú',         '0903333333', N'HCM', 'ngoctus@gmail.com',      N'KY_THUAT_VIEN', 12000000, 1, '12345'),
+    (N'Trần Minh Tú',         '0904444444', N'HCM', 'minhtu94@gmail.com',     N'NGUOI_DUNG',     9000000, 1, '12345'),
+    (N'Admin',     '0905555555', N'HCM', 'admin@example.com',      N'QUAN_LY',      10000000, 1, '123456');
 GO
 
 -- KHACH HANG
@@ -253,11 +262,13 @@ GO
 -- FIX: LoaiKhuyenMai chi PHAN_TRAM | GIAM_TIEN_MAT
 -- FIX: kieu DATETIME, NgayKetThuc = 2026 de con hieu luc khi demo
 -- FIX: xoa SO_TIEN
-INSERT INTO KhuyenMai (TenKhuyenMai, LoaiKhuyenMai, GiaTri, NgayBatDau, NgayKetThuc, TrangThai, MoTa)
+INSERT INTO KhuyenMai (TenKhuyenMai, MaKhuyenMai, LoaiKhuyenMai, GiaTri, DiemToiThieu, TongTienToiThieu, LoaiKhachHangToiThieu, NgayBatDau, NgayKetThuc, TrangThai, MoTa)
 VALUES
-    (N'Giảm 10% cuối tuần',     N'PHAN_TRAM',     10,    '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giảm 10% cho đơn hàng cuối tuần'),
-    (N'Tặng 50k don tren 300k', N'GIAM_TIEN_MAT', 50000, '2025-05-01 00:00:00', '2026-12-31 23:59:59', 1, N'Tặng 50k cho đơn từ 300k'),
-    (N'Ưu đãi thành viên Vàng', N'PHAN_TRAM',     15,    '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giảm 15% cho hội viên Vàng');
+    (N'Giảm 10% cuối tuần',        'WEEKEND10', N'PHAN_TRAM',     10,    0,   0,      NULL,     '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giảm 10% cho đơn hàng cuối tuần'),
+    (N'Tăng 50k đơn trên 300k',    'BILL300K',  N'GIAM_TIEN_MAT', 50000, 0,   300000, NULL,     '2025-05-01 00:00:00', '2026-12-31 23:59:59', 1, N'Tặng 50k cho đơn từ 300k'),
+    (N'Ưu đãi thành viên vàng',    'VANG15',    N'PHAN_TRAM',     15,    500, 0,      N'VANG',  '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giảm 15% cho khách từ 500 điểm'),
+    (N'Giảm 20% cho thành viên',   'MEMBER20',  N'PHAN_TRAM',     20,    200, 185000, NULL,     '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giảm 20% cho khách từ 200 điểm, đơn tối thiểu 185k'),
+    (N'Tặng 30k khách thân thiết', 'LOYAL30K',  N'GIAM_TIEN_MAT', 30000, 350, 250000, NULL,     '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1, N'Giảm 30k cho khách từ 350 điểm, đơn tối thiểu 250k');
 GO
 
 -- MENU
