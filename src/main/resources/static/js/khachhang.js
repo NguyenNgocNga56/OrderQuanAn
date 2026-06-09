@@ -327,10 +327,16 @@ async function traCuu() {
     if (!sdt) { setMsg(msg, 'Vui lòng nhập số điện thoại.', 'error'); return; }
 
     try {
-        const data = await fetch(`/api/khachhang/sdt/${sdt}`).then(r => {
-            if (!r.ok) throw new Error();
+        const resp = await fetch(`/api/khachhang/sdt/${sdt}`).then(r => {
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
             return r.json();
         });
+
+        console.log('API response:', resp);
+
+        // API trả về ApiResponse wrapper { success, message, data: {...} }
+        const data = resp.data ?? resp;
+        console.log('data:', data);
 
         document.getElementById('tcTen').textContent  = data.hoTen || '';
         document.getElementById('tcDiem').textContent = data.diemTichLuy || 0;
@@ -354,9 +360,9 @@ async function traCuu() {
 
         setMsg(msg, '', '');
         result.style.display = 'block';
-    } catch {
+    } catch(e) {
         result.style.display = 'none';
-        setMsg(msg, 'Không tìm thấy số điện thoại này.', 'error');
+        setMsg(msg, 'Lỗi: ' + e.message, 'error');
     }
 }
 

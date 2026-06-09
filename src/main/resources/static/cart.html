@@ -46,15 +46,12 @@
                 <!-- SĐT khách hàng -->
                 <div class="form-group">
                     <label>Số điện thoại <span style="color:var(--text-muted);font-size:0.82rem;">(tuỳ chọn – để tích điểm)</span></label>
-                    <div style="display:flex;gap:8px;">
+                    <div style="position:relative;">
                         <input type="tel" id="inputSdt" placeholder="0901234567"
-                               style="flex:1;"
-                               oninput="resetKhachHang()"
-                               onkeydown="if(event.key==='Enter') traCuuKhach()">
-                        <button onclick="traCuuKhach()" id="btnTraCuu"
-                                style="background:var(--accent);color:#fff;border:none;border-radius:8px;padding:0 14px;cursor:pointer;font-size:0.88rem;white-space:nowrap;">
-                            Tra cứu
-                        </button>
+                               style="width:100%;padding-right:36px;box-sizing:border-box;"
+                               oninput="onSdtInput()"
+                               autocomplete="off">
+                        <span id="sdtSpinner" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:0.9rem;color:var(--text-muted);">⏳</span>
                     </div>
                     <!-- Kết quả tra cứu khách hàng -->
                     <div id="khachInfo" style="display:none;margin-top:10px;background:var(--surface2);border-radius:8px;padding:10px 14px;font-size:0.88rem;">
@@ -75,7 +72,9 @@
 
                 <!-- Khuyến mãi -->
                 <div class="form-group" style="margin-top:14px;">
-                    <label> Áp dụng khuyến mãi</label>
+                    <label> Khuyến mãi khả dụng
+                        <span id="kmLoadingBadge" style="display:none;font-size:0.78rem;color:var(--text-muted);font-weight:400;"> ⏳ đang kiểm tra...</span>
+                    </label>
                     <select id="selKhuyenMai" onchange="applyKhuyenMai()"
                             style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:0.9rem;">
                         <option value="">-- Không dùng khuyến mãi --</option>
@@ -87,13 +86,37 @@
                 </div>
 
                 <div class="form-group" style="margin-top:14px;">
-                    <label>Phuong thuc thanh toan</label>
+                    <label>Phương thức thanh toán</label>
                     <select id="selPhuongThuc"
                             style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:0.9rem;">
-                        <option value="TIEN_MAT">Tien mat</option>
-                        <option value="CHUYEN_KHOAN">Chuyen khoan</option>
-                        <option value="THE_NGAN_HANG">The ngan hang</option>
-                        <option value="VI_DIEN_TU">Vi dien tu</option>
+                        <option value="TIEN_MAT">Tiền mặt</option>
+                        <option value="CHUYEN_KHOAN">Chuyển khoản</option>
+                        <option value="THE_NGAN_HANG">Thẻ ngân hàng</option>
+                        <option value="VI_DIEN_TU">Ví điện tử</option>
+                    </select>
+                </div>
+
+                <!-- LOẠI ĐƠN: TẠI CHỖ / MANG VỀ -->
+                <div class="form-group" style="margin-top:14px;">
+                    <label>Hình thức</label>
+                    <div style="display:flex;gap:10px;margin-top:6px;">
+                        <button id="btnTaiCho" onclick="chonLoaiDon('TAI_CHO')"
+                                style="flex:1;padding:10px;border-radius:8px;border:2px solid var(--accent);background:var(--accent);color:#fff;font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.2s;">
+                            Tại chỗ
+                        </button>
+                        <button id="btnMangVe" onclick="chonLoaiDon('MANG_VE')"
+                                style="flex:1;padding:10px;border-radius:8px;border:2px solid var(--border);background:var(--surface2);color:var(--text);font-weight:600;cursor:pointer;font-size:0.9rem;transition:all 0.2s;">
+                            Mang về
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CHỌN BÀN (chỉ hiện khi Tại chỗ) -->
+                <div class="form-group" id="groupChonBan" style="margin-top:14px;">
+                    <label>Chọn bàn</label>
+                    <select id="selBan"
+                            style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:0.9rem;">
+                        <option value="">-- Chọn bàn --</option>
                     </select>
                 </div>
 
@@ -118,9 +141,9 @@
 </div>
 
 <!-- MODAL ĐẶT THÀNH CÔNG -->
-<div class="modal-overlay" id="successModal" onclick="closeModalOut(event,'successModal')">
+<div class="modal-overlay" id="successModal" onclick="closeModalOut(event,'successModal');if(event.target===event.currentTarget)renderCartPage()">
     <div class="modal-box" style="max-width:560px;">
-        <button class="modal-close" onclick="closeModal('successModal')">✕</button>
+        <button class="modal-close" onclick="closeModal('successModal');renderCartPage()">✕</button>
         <div class="modal-header">
             <div class="modal-icon">🎉</div>
             <h2>Đặt hàng thành công!</h2>
@@ -138,7 +161,7 @@
         <!-- sua o day !-->
         <div style="display:flex;gap:10px;margin-top:20px;">
             <a href="/khachhang.html" class="btn-ghost" style="flex:1;text-align:center;padding:12px;text-decoration:none;"> Về trang chủ</a>
-            <button class="btn-primary" style="flex:1;" onclick="closeModal('successModal')">Đặt thêm</button>
+            <button class="btn-primary" style="flex:1;" onclick="closeModal('successModal');renderCartPage()">Đặt thêm</button>
         </div>
     </div>
 </div>

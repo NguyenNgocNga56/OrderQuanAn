@@ -30,7 +30,7 @@ public class KhachHangController {
 
     @GetMapping("/sdt/{sdt}")
     public ResponseEntity<ApiResponse<KhachHang>> getBySdt(@PathVariable String sdt) {
-        return service.getBySdt(sdt)
+        return service.getBySdt(sdt.trim())
                 .map(kh -> ResponseEntity.ok(ApiResponse.success(kh)))
                 .orElse(ResponseEntity.notFound().build());
     }
