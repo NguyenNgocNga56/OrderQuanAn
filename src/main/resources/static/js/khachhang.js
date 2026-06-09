@@ -71,7 +71,7 @@ function renderCartPanel() {
             <div class="cart-item-info">
                 ${i.hinhAnh ? `<img src="${i.hinhAnh}" onerror="this.style.display='none'">` : '<span class="cart-item-emoji">🍽</span>'}
                 <div>
-                    <div class="cart-item-name">${i.tenMon}${i.size ? ` <span class="cart-size-tag">${i.size}</span>` : ''}</div>
+                    <div class="cart-item-name">${i.tenMon}</div>
                     <div class="cart-item-price">${fmtVND(i.gia)}</div>
                 </div>
             </div>

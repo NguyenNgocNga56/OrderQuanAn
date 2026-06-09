@@ -111,6 +111,8 @@ CREATE TABLE CaLamViec (
 );
 
 -- 7. DON HANG
+-- TrangThai khop enum TrangThaiDonHang.java
+-- DEFAULT = CHO_XAC_NHAN khop Java entity default
 CREATE TABLE DonHang (
                          DonHangID   INT            IDENTITY(1,1) PRIMARY KEY,
                          NgayDat     DATETIME       DEFAULT GETDATE(),
@@ -134,6 +136,7 @@ CREATE TABLE DonHang (
 );
 
 -- 8. CHI TIET DON HANG
+-- Java: DonGia -> giaBan, ThanhTien -> tongTien (computed, insertable=false)
 CREATE TABLE ChiTietDonHang (
                                 CTDH_ID   INT            IDENTITY(1,1) PRIMARY KEY,
                                 DonHangID INT            NOT NULL,
@@ -147,6 +150,8 @@ CREATE TABLE ChiTietDonHang (
 );
 
 -- 9. KHUYEN MAI
+-- FIX: NgayBatDau/NgayKetThuc phai la DATETIME (khop LocalDateTime trong Java)
+-- FIX: LoaiKhuyenMai chi co PHAN_TRAM | GIAM_TIEN_MAT (xoa SO_TIEN)
 CREATE TABLE KhuyenMai (
                            KhuyenMaiID   INT            IDENTITY(1,1) PRIMARY KEY,
                            TenKhuyenMai  NVARCHAR(100)  NOT NULL,
@@ -353,6 +358,8 @@ SELECT N'Ban',               COUNT(*) FROM Ban        UNION ALL
 SELECT N'Menu',              COUNT(*) FROM Menu       UNION ALL
 SELECT N'MonAn',             COUNT(*) FROM MonAn      UNION ALL
 SELECT N'KhuyenMai',         COUNT(*) FROM KhuyenMai;
+
+SELECT KhuyenMaiID, TenKhuyenMai, LoaiKhuyenMai, GiaTri, NgayKetThuc FROM KhuyenMai;
 
 PRINT N'Done! Chay app xong goi POST /api/migrate/hash-passwords de hash password BCrypt.';
 GO
