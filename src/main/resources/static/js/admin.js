@@ -157,6 +157,10 @@ async function openManager(api) {
         await loadKhachHangManager();
     } else if (api === '/api/nhanvien') {
         await loadNhanVienManager();
+    } else if (api === '/api/hoadon') {
+        await loadHoaDonManager();
+    } else if (api === '/api/thanhtoan') {
+        await loadThanhToanManager();
     } else if (config.monAn) {
         await loadMenuOptions();
         await loadMonAnAdmin();
@@ -185,7 +189,7 @@ async function loadBanManager() {
         const formHtml = admin ? `
             <div id="banFormBox" style="background:var(--surface2,#f9f9f9);border:1px solid var(--border,#ddd);
                         border-radius:10px;padding:16px;margin-bottom:20px;">
-                <h3 id="banFormTitle" style="margin:0 0 12px;font-size:1rem;">➕ Thêm bàn mới</h3>
+                <h3 id="banFormTitle" style="margin:0 0 12px;font-size:1rem;color:#8b0000;font-weight:700;">➕ Thêm bàn mới</h3>
                 <input type="hidden" id="banEditId">
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
                     <input id="banTen"       placeholder="Tên bàn *"          style="${inputStyle}">
@@ -501,7 +505,7 @@ async function loadNhanVienManager() {
         const formHtml = admin ? `
             <div id="nvFormBox" style="background:var(--surface2,#f9f9f9);border:1px solid var(--border,#ddd);
                         border-radius:10px;padding:16px;margin-bottom:20px;">
-                <h3 id="nvFormTitle" style="margin:0 0 12px;font-size:1rem;">➕ Thêm nhân viên mới</h3>
+                <h3 id="nvFormTitle" style="margin:0 0 12px;font-size:1rem;color:#8b0000;font-weight:700;">➕ Thêm nhân viên mới</h3>
                 <input type="hidden" id="nvEditId">
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
                     <input id="nvHoTen"   placeholder="Họ tên *"            style="${inputStyle}">
@@ -701,7 +705,7 @@ async function loadKhuyenMaiManager() {
         const formHtml = admin ? `
             <div style="background:var(--surface2,#f9f9f9);border:1px solid var(--border,#ddd);
                         border-radius:10px;padding:16px;margin-bottom:20px;">
-                <h3 style="margin:0 0 12px;font-size:1rem;">➕ Thêm khuyến mãi mới</h3>
+                <h3 style="margin:0 0 12px;font-size:1rem;color:#8b0000;font-weight:700;">➕ Thêm khuyến mãi mới</h3>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                     <input  id="kmTen"          placeholder="Tên khuyến mãi *"                      style="${inputStyle}">
                     <input  id="kmMa"           placeholder="Mã khuyến mãi (VD: KM10)"              style="${inputStyle}">
@@ -976,7 +980,7 @@ async function loadKhachHangManager() {
         const formHtml = admin ? `
             <div id="khFormBox" style="background:var(--surface2,#f9f9f9);border:1px solid var(--border,#ddd);
                         border-radius:10px;padding:16px;margin-bottom:20px;">
-                <h3 id="khFormTitle" style="margin:0 0 12px;font-size:1rem;">➕ Thêm khách hàng</h3>
+                <h3 id="khFormTitle" style="margin:0 0 12px;font-size:1rem;color:#8b0000;font-weight:700;">➕ Thêm khách hàng</h3>
                 <input type="hidden" id="khEditId">
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
                     <input id="khHoTen"  placeholder="Họ tên *"                style="${inputStyle}">
@@ -1134,6 +1138,141 @@ async function xoaKhachHang(id) {
         await loadStats();
     } catch {
         alert('Không xóa được khách hàng này.');
+    }
+}
+
+// ============================================================
+// MANAGER HÓA ĐƠN — hiển thị kèm thông tin bàn
+// ============================================================
+async function loadHoaDonManager() {
+    const content = document.getElementById('managerContent');
+    content.innerHTML = '<div class="admin-loading">Đang tải hóa đơn...</div>';
+    try {
+        // Fetch song song hóa đơn và đơn hàng (để lấy tên bàn)
+        const [rawHD, rawDH] = await Promise.all([
+            fetch('/api/hoadon').then(r => r.json()),
+            fetch('/api/donhang').then(r => r.json())
+        ]);
+        const hoaDons  = unwrapApiData(rawHD) ?? [];
+        const donHangs = unwrapApiData(rawDH) ?? [];
+
+        // Map donHangID → tenBan
+        const banMap = {};
+        for (const dh of (Array.isArray(donHangs) ? donHangs : [])) {
+            banMap[dh.donHangID] = dh.ban ? (dh.ban.tenBan || 'Bàn ' + dh.ban.banID) : '—';
+        }
+
+        const rows = Array.isArray(hoaDons) ? hoaDons : [];
+        if (!rows.length) {
+            content.innerHTML = '<div class="admin-empty">Chưa có hóa đơn nào.</div>';
+            return;
+        }
+
+        const tableHtml = `
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID HÓA ĐƠN</th>
+                        <th>BÀN</th>
+                        <th>NGÀY LẬP</th>
+                        <th>TỔNG TIỀN</th>
+                        <th>GIẢM GIÁ</th>
+                        <th>THÀNH TIỀN</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows.map(hd => {
+                        // hoaDonID có thể map sang donHang qua index (hóa đơn tạo từ đơn hàng cùng ID)
+                        const tenBan = banMap[hd.hoaDonID] || '—';
+                        const ngay = hd.ngayLap ? new Date(hd.ngayLap).toLocaleString('vi-VN') : '—';
+                        return `
+                            <tr>
+                                <td>${hd.hoaDonID}</td>
+                                <td><strong>${escapeHtml(tenBan)}</strong></td>
+                                <td>${ngay}</td>
+                                <td>${fmtVNDAdmin(hd.tongTien)}</td>
+                                <td>${fmtVNDAdmin(hd.giamGia)}</td>
+                                <td style="color:#2e7d32;font-weight:700;">${fmtVNDAdmin(hd.thanhTien)}</td>
+                            </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>`;
+        content.innerHTML = tableHtml;
+    } catch(e) {
+        content.innerHTML = '<div class="admin-empty">Không tải được danh sách hóa đơn.</div>';
+        console.error(e);
+    }
+}
+
+// ============================================================
+// MANAGER THANH TOÁN — hiển thị kèm thông tin bàn
+// ============================================================
+async function loadThanhToanManager() {
+    const content = document.getElementById('managerContent');
+    content.innerHTML = '<div class="admin-loading">Đang tải thanh toán...</div>';
+    try {
+        // Fetch song song thanh toán + hóa đơn + đơn hàng
+        const [rawTT, rawHD, rawDH] = await Promise.all([
+            fetch('/api/thanhtoan').then(r => r.json()),
+            fetch('/api/hoadon').then(r => r.json()),
+            fetch('/api/donhang').then(r => r.json())
+        ]);
+        const thanhToans = unwrapApiData(rawTT) ?? [];
+        const hoaDons    = unwrapApiData(rawHD) ?? [];
+        const donHangs   = unwrapApiData(rawDH) ?? [];
+
+        // Map donHangID → tenBan
+        const banByDonHang = {};
+        for (const dh of (Array.isArray(donHangs) ? donHangs : [])) {
+            banByDonHang[dh.donHangID] = dh.ban ? (dh.ban.tenBan || 'Bàn ' + dh.ban.banID) : '—';
+        }
+        // Map hoaDonID → tenBan (hoaDon.hoaDonID ≈ donHang.donHangID theo thiết kế OneToOne)
+        const banByHoaDon = {};
+        for (const hd of (Array.isArray(hoaDons) ? hoaDons : [])) {
+            banByHoaDon[hd.hoaDonID] = banByDonHang[hd.hoaDonID] || '—';
+        }
+
+        const rows = Array.isArray(thanhToans) ? thanhToans : [];
+        if (!rows.length) {
+            content.innerHTML = '<div class="admin-empty">Chưa có giao dịch nào.</div>';
+            return;
+        }
+
+        const tableHtml = `
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>BÀN</th>
+                        <th>PHƯƠNG THỨC</th>
+                        <th>SỐ TIỀN</th>
+                        <th>THỜI GIAN</th>
+                        <th>TRẠNG THÁI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows.map(tt => {
+                        const tenBan = banByHoaDon[tt.thanhToanID] || '—';
+                        const thoiGian = tt.thoiGian ? new Date(tt.thoiGian).toLocaleString('vi-VN') : '—';
+                        const trangThaiColor = tt.trangThai === 'THANH_CONG' ? '#2e7d32'
+                                             : tt.trangThai === 'THAT_BAI'   ? '#b71c1c'
+                                             : '#e65100';
+                        return `
+                            <tr>
+                                <td>${tt.thanhToanID}</td>
+                                <td><strong>${escapeHtml(tenBan)}</strong></td>
+                                <td>${escapeHtml(tt.phuongThuc || '—')}</td>
+                                <td style="font-weight:700;">${fmtVNDAdmin(tt.soTien)}</td>
+                                <td>${thoiGian}</td>
+                                <td style="color:${trangThaiColor};font-weight:700;">${escapeHtml(tt.trangThai || '—')}</td>
+                            </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>`;
+        content.innerHTML = tableHtml;
+    } catch(e) {
+        content.innerHTML = '<div class="admin-empty">Không tải được dữ liệu thanh toán.</div>';
+        console.error(e);
     }
 }
 
