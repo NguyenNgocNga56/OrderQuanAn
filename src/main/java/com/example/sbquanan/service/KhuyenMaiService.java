@@ -7,6 +7,7 @@ import java.util.Optional;
 public interface KhuyenMaiService {
     List<KhuyenMai> getAll();
     List<KhuyenMai> getKhaDung(String sdtKhachHang, double tongTien);
+    List<KhuyenMai> getHienThi();
     Optional<KhuyenMai> getById(Long id);
     KhuyenMai create(KhuyenMai entity);
     KhuyenMai update(Long id, KhuyenMai updated);

@@ -28,6 +28,11 @@ public class KhuyenMaiController {
         return ApiResponse.success(service.getKhaDung(sdt, tongTien));
     }
 
+    @GetMapping("/hien-thi")
+    public ApiResponse<List<KhuyenMai>> getHienThi() {
+        return ApiResponse.success(service.getHienThi());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<KhuyenMai>> getById(@PathVariable Long id) {
         return service.getById(id)

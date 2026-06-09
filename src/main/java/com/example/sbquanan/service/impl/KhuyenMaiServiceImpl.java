@@ -55,6 +55,13 @@ public class KhuyenMaiServiceImpl implements KhuyenMaiService {
     }
 
     @Override
+    public List<KhuyenMai> getHienThi() {
+        return repository.findAll().stream()
+                .filter(KhuyenMai::hopLe)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Optional<KhuyenMai> getById(Long id) { return repository.findById(id); }
 
     @Override

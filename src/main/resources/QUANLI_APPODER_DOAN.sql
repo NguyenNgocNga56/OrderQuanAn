@@ -49,6 +49,7 @@ CREATE TABLE Ban (
 );
 
 -- 3. MON AN
+-- SINGLE_TABLE inheritance: PhanLoai = DO_AN | DO_UONG
 CREATE TABLE MonAn (
                        MonID       INT            IDENTITY(1,1) PRIMARY KEY,
                        TenMon      NVARCHAR(100)  NOT NULL,
@@ -70,6 +71,7 @@ CREATE TABLE MonAn (
 );
 
 -- 4. KHACH HANG
+-- Java: @AttributeOverride hoTen -> TenKhach, LoaiKhachHang -> LoaiKhachHang
 CREATE TABLE KhachHang (
                            KhachHangID   INT           IDENTITY(1,1) PRIMARY KEY,
                            TenKhach      NVARCHAR(100) NOT NULL,
@@ -109,6 +111,8 @@ CREATE TABLE CaLamViec (
 );
 
 -- 7. DON HANG
+-- TrangThai khop enum TrangThaiDonHang.java
+-- DEFAULT = CHO_XAC_NHAN khop Java entity default
 CREATE TABLE DonHang (
                          DonHangID   INT            IDENTITY(1,1) PRIMARY KEY,
                          NgayDat     DATETIME       DEFAULT GETDATE(),
@@ -132,6 +136,7 @@ CREATE TABLE DonHang (
 );
 
 -- 8. CHI TIET DON HANG
+-- Java: DonGia -> giaBan, ThanhTien -> tongTien (computed, insertable=false)
 CREATE TABLE ChiTietDonHang (
                                 CTDH_ID   INT            IDENTITY(1,1) PRIMARY KEY,
                                 DonHangID INT            NOT NULL,
@@ -145,6 +150,8 @@ CREATE TABLE ChiTietDonHang (
 );
 
 -- 9. KHUYEN MAI
+-- FIX: NgayBatDau/NgayKetThuc phai la DATETIME (khop LocalDateTime trong Java)
+-- FIX: LoaiKhuyenMai chi co PHAN_TRAM | GIAM_TIEN_MAT (xoa SO_TIEN)
 CREATE TABLE KhuyenMai (
                            KhuyenMaiID   INT            IDENTITY(1,1) PRIMARY KEY,
                            TenKhuyenMai  NVARCHAR(100)  NOT NULL,
@@ -177,6 +184,9 @@ CREATE TABLE HoaDon (
 );
 
 -- 11. THANH TOAN
+-- FIX: TrangThai DEFAULT = CHO_XU_LY khop Java entity default
+-- FIX: CHECK khop enum TrangThaiThanhToan.java
+-- FIX: PhuongThuc khop enum PhuongThucThanhToan.java
 CREATE TABLE ThanhToan (
                            ThanhToanID INT            IDENTITY(1,1) PRIMARY KEY,
                            HoaDonID    INT            NOT NULL,
@@ -229,30 +239,30 @@ GO
 -- KHACH HANG
 INSERT INTO KhachHang (TenKhach, SDT, Email, DiemTichLuy, LoaiKhachHang)
 VALUES
-    (N'Nguyen Minh Tu', '0901234567', 'tu@gmail.com',    150,  N'BAC'),
-    (N'Le Thi Hoa',     '0912345678', 'hoa@gmail.com',   520,  N'VANG'),
-    (N'Tran Van Hung',  '0923456789', 'hung@gmail.com',    0,  N'DONG'),
-    (N'Pham Ngoc Lan',  '0934567890', 'lan@gmail.com',  1200,  N'KIM_CUONG');
+    (N'Nguyễn Minh Tú',  '0901234567', 'tu@gmail.com',   150,  N'BAC'),
+    (N'Lê Thị Hoa',      '0912345678', 'hoa@gmail.com',  520,  N'VANG'),
+    (N'Trần Văn Hưng',   '0923456789', 'hung@gmail.com',   0,  N'DONG'),
+    (N'Phạm Ngọc Lan',   '0934567890', 'lan@gmail.com',  1200, N'KIM_CUONG');
 GO
 
 -- BAN AN
 INSERT INTO Ban (TenBan, ViTri, SoChoNgoi, TrangThai, LoaiBan, GhiChu)
 VALUES
-    (N'Ban 1',    N'Tang 1 - Gan cua', 4, N'Trong', N'Ban thuong', N''),
-    (N'Ban 2',    N'Tang 1 - Gan cua', 4, N'Trong', N'Ban thuong', N''),
-    (N'Ban 3',    N'Tang 1 - Giua',    6, N'Trong', N'Ban thuong', N''),
-    (N'Ban 4',    N'Tang 1 - Goc',     2, N'Trong', N'Ban doi',    N''),
-    (N'Ban 5',    N'Tang 2',           8, N'Trong', N'Ban lon',    N'Phu hop nhom'),
-    (N'Ban 6',    N'Tang 2',           4, N'Trong', N'Ban thuong', N''),
-    (N'Ban VIP 1',N'Tang 2',           6, N'Trong', N'Ban VIP',    N'Khong gian rieng');
+    (N'Bàn 1',    N'Tầng 1 - Gần cửa', 4, N'Đang dùng', N'Bàn thường', N''),
+    (N'Bàn 2',    N'Tầng 1 - Gần cửa', 4, N'Trống', N'Bàn thường', N''),
+    (N'Bàn 3',    N'Tầng 1 - Giữa',    6, N'Trống', N'Bàn thường', N''),
+    (N'Bàn 4',    N'Tầng 1 - Góc',     2, N'Đặt trước', N'Bàn đôi',    N''),
+    (N'Bàn 5',    N'Tầng 2',           8, N'Trống', N'Bàn lớn',    N'Phù hợp nhóm'),
+    (N'Bàn 6',    N'Tầng 2',           4, N'Trống', N'Bàn thường', N''),
+    (N'Bàn VIP 1',N'Tầng 2',           6, N'Trống', N'Bàn VIP',    N'Không gian riêng');
 GO
 
 -- CA LAM VIEC
 INSERT INTO CaLamViec (TenCa, GioBatDau, GioKetThuc)
 VALUES
-    (N'Ca sang',  '06:00', '14:00'),
-    (N'Ca chieu', '14:00', '22:00'),
-    (N'Ca toi',   '22:00', '06:00');
+    (N'Ca sáng',  '06:00', '14:00'),
+    (N'Ca chiều', '14:00', '22:00'),
+    (N'Ca tối',   '22:00', '06:00');
 GO
 
 -- KHUYEN MAI
@@ -268,13 +278,13 @@ GO
 -- MENU
 INSERT INTO Menu (TenMenu, MoTa, TrangThai)
 VALUES
-    (N'Do an',   N'Menu cac mon an',      N'ACTIVE'),
-    (N'Do uong', N'Menu cac mon do uong', N'ACTIVE');
+    (N'Đồ ăn',   N'Menu các món ăn',         N'ACTIVE'),
+    (N'Đồ uống', N'Menu các món đồ uống',    N'ACTIVE');
 GO
 
--- MON AN
-DECLARE @doAn   INT = (SELECT MenuID FROM Menu WHERE TenMenu = N'Do an');
-DECLARE @doUong INT = (SELECT MenuID FROM Menu WHERE TenMenu = N'Do uong');
+-- MÓN ĂN & ĐỒ UỐNG
+DECLARE @doAn   INT = (SELECT MenuID FROM Menu WHERE TenMenu = N'Đồ ăn');
+DECLARE @doUong INT = (SELECT MenuID FROM Menu WHERE TenMenu = N'Đồ uống');
 
 INSERT INTO MonAn (PhanLoai, TenMon, Gia, MoTa, HinhAnh, TrangThai, Loai, DonViTinh, MenuID, Size)
 VALUES
@@ -348,6 +358,8 @@ SELECT N'Ban',               COUNT(*) FROM Ban        UNION ALL
 SELECT N'Menu',              COUNT(*) FROM Menu       UNION ALL
 SELECT N'MonAn',             COUNT(*) FROM MonAn      UNION ALL
 SELECT N'KhuyenMai',         COUNT(*) FROM KhuyenMai;
+
+SELECT KhuyenMaiID, TenKhuyenMai, LoaiKhuyenMai, GiaTri, NgayKetThuc FROM KhuyenMai;
 
 PRINT N'Done! Chay app xong goi POST /api/migrate/hash-passwords de hash password BCrypt.';
 GO

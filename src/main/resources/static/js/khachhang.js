@@ -71,7 +71,7 @@ function renderCartPanel() {
             <div class="cart-item-info">
                 ${i.hinhAnh ? `<img src="${i.hinhAnh}" onerror="this.style.display='none'">` : '<span class="cart-item-emoji">🍽</span>'}
                 <div>
-                    <div class="cart-item-name">${i.tenMon}${i.size ? ` <span class="cart-size-tag">${i.size}</span>` : ''}</div>
+                    <div class="cart-item-name">${i.tenMon}</div>
                     <div class="cart-item-price">${fmtVND(i.gia)}</div>
                 </div>
             </div>
@@ -82,7 +82,15 @@ function renderCartPanel() {
             </div>
         </div>`).join('');
 }
-
+function parseLocalDateTime(val) {
+    if (!val) return null;
+    if (Array.isArray(val)) {
+        // [year, month, day, hour, min, sec] — month trong JS bắt đầu từ 0
+        return new Date(val[0], val[1] - 1, val[2], val[3] || 0, val[4] || 0, val[5] || 0);
+    }
+    return new Date(val); // fallback nếu là string ISO
+}
+// LOAD KHUYẾN MÃI
 async function loadKhuyenMai() {
     const grid = document.getElementById('kmGrid');
     if (!grid) return;
@@ -292,6 +300,7 @@ function themVaoGio(monID, tenMon, gia, hinhAnh, size) {
     setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 2000);
 }
 
+// ĐĂNG KÝ KHÁCH HÀNG → POST /api/khachhang
 async function dangKy() {
     const hoTen  = document.getElementById('regHoTen').value.trim();
     const sdt    = document.getElementById('regSdt').value.trim();
@@ -320,6 +329,7 @@ async function dangKy() {
     }
 }
 
+// TRA CỨU ĐIỂM → GET /api/khachhang?sdt=xxx
 async function traCuu() {
     const sdt    = document.getElementById('tcSdt').value.trim();
     const msg    = document.getElementById('tcMsg');
@@ -387,29 +397,3 @@ document.addEventListener('DOMContentLoaded', () => {
 	        if (bannerText) bannerText.textContent = 'Bàn #' + _banIdFromQR;
 	    }
 });
-
-// SCROLL REVEAL
-(function() {
-    const targets = [
-        '.km-card', '.hang-card', '.mon-card',
-        '.khuyen-mai-section .section-title',
-        '.khuyen-mai-section .section-sub',
-        '.menu-section .section-title',
-        '.menu-section .section-sub',
-        '.menu-tabs',
-    ];
-    targets.forEach(sel => {
-        document.querySelectorAll(sel).forEach(el => el.classList.add('reveal'));
-    });
-
-    const io = new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry) {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-                io.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.12 });
-
-    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-})();
