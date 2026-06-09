@@ -15,8 +15,7 @@ import java.util.Optional;
 @Transactional
 public class KhachHangServiceImpl implements KhachHangService {
 
-    @Autowired
-    private KhachHangRepository repository;
+    @Autowired private KhachHangRepository repository;
 
     @Override
     public List<KhachHang> getAll() { return repository.findAll(); }
@@ -25,18 +24,34 @@ public class KhachHangServiceImpl implements KhachHangService {
     public Optional<KhachHang> getById(Long id) { return repository.findById(id); }
 
     @Override
-    public KhachHang create(KhachHang entity) {
-        entity.capNhatHangKhachHang();
-        return repository.save(entity);
+    public Optional<KhachHang> getBySdt(String sdt) {
+        String cleaned = sdt == null ? "" : sdt.trim();
+        // Thử exact match trước, nếu không có thì thử trim cả DB
+        Optional<KhachHang> result = repository.findBySdt(cleaned);
+        if (result.isEmpty()) {
+            result = repository.findBySdtTrimmed(cleaned);
+        }
+        return result;
+    }
+
+    @Override
+    public KhachHang create(KhachHang khachHang) {
+        khachHang.capNhatHangKhachHang();
+        return repository.save(khachHang);
     }
 
     @Override
     public KhachHang update(Long id, KhachHang updated) {
-        if (!repository.existsById(id))
-            throw new ResourceNotFoundException("Khách hàng không tồn tại với id: " + id);
-        updated.setId(id);
-        updated.capNhatHangKhachHang();
-        return repository.save(updated);
+        KhachHang existing = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Khách hàng không tồn tại với id: " + id));
+        existing.setHoTen(updated.getHoTen());
+        existing.setSdt(updated.getSdt());
+        existing.setDiaChi(updated.getDiaChi());
+        existing.setEmail(updated.getEmail());
+        existing.setDiemTichLuy(updated.getDiemTichLuy());
+        existing.capNhatHangKhachHang(); // tự cập nhật loại DONG/BAC/VANG/KIM_CUONG
+        return repository.save(existing);
     }
 
     @Override

@@ -8,9 +8,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/khachhang.css">
+    <script src="https://unpkg.com/i18next@23.7.6/i18next.min.js"></script>
 </head>
 <body>
 
+<div id="banBanner" style="display:none; background:#8b0000; color:#fff;
+	     text-align:center; padding:10px; font-size:14px; font-weight:500;">
+    🪑 Bạn đang đặt món tại <strong id="banBannerText">Bàn ?</strong>
+</div>
 <!-- HEADER -->
 <header class="header">
     <div class="header-inner">
@@ -19,14 +24,28 @@
             <span class="logo-text">QuanAn<strong>67</strong></span>
         </a>
         <nav class="nav">
-            <div id="google_translate_element"></div>
-            <a href="/khachhang.html" class="nav-active"> Trang chủ</a>
-            <a href="#menu-section"> Thực đơn</a>
-            <a href="#khuyen-mai-section"> Khuyến mãi</a>
+            <a href="/khachhang.html" class="nav-active" data-i18n="kh.nav.home"> Trang chủ</a>
+            <a href="#menu-section" data-i18n="kh.nav.menu"> Thực đơn</a>
+            <a href="#khuyen-mai-section" data-i18n="kh.nav.promo"> Khuyến mãi</a>
             <button class="btn-cart" onclick="toggleCart()">
-                 Giỏ hàng <span class="cart-badge" id="cartBadge">0</span>
+                <span data-i18n="kh.nav.cart">Giỏ hàng</span>
+                <span class="cart-badge" id="cartBadge">0</span>
             </button>
-            <button class="btn-login" onclick="openModal('dangKyModal')"> Đăng ký / Tra cứu</button>
+            <div class="lang-switcher">
+                <button class="lang-btn" onclick="switchLang('vi', this)" title="Tiếng Việt">
+                    <img src="https://flagcdn.com/w20/vn.png" alt="VIE">
+                    <span>VIE</span>
+                </button>
+                <button class="lang-btn" onclick="switchLang('en', this)" title="English">
+                    <img src="https://flagcdn.com/w20/gb.png" alt="ENG">
+                    <span>ENG</span>
+                </button>
+                <button class="lang-btn" onclick="switchLang('ja', this)" title="日本語">
+                    <img src="https://flagcdn.com/w20/jp.png" alt="JPN">
+                    <span>JPN</span>
+                </button>
+            </div>
+            <button class="btn-login" onclick="openModal('dangKyModal')" data-i18n="kh.nav.register"> Đăng ký / Tra cứu</button>
         </nav>
     </div>
 </header>
@@ -35,50 +54,52 @@
 <section class="kh-hero">
     <div class="kh-hero-bg"></div>
     <div class="kh-hero-inner">
-        <div class="kh-hero-content">
-            <p class="hero-label"> Chương trình thành viên</p>
-            <h1 class="hero-title">Tích điểm –<br><span class="highlight">Nhận ưu đãi</span></h1>
-            <p class="hero-desc">Đăng ký thành viên miễn phí, tích điểm mỗi lần đặt món và nhận ưu đãi độc quyền theo hạng.</p>
-            <div class="hero-actions">
-                <button class="btn-primary" onclick="openModal('dangKyModal')">Đăng ký ngay</button>
-                <button class="btn-ghost" onclick="openModal('traCuuModal')">Tra cứu điểm</button>
+        <div class="kh-hero-left-col">
+            <div class="kh-hero-content">
+                <p class="hero-label" data-i18n="kh.hero.label"> Chương trình thành viên</p>
+                <h1 class="hero-title" data-i18n="kh.hero.title">Tích điểm –<br><span class="highlight">Nhận ưu đãi</span></h1>
+                <p class="hero-desc" data-i18n="kh.hero.desc">Đăng ký thành viên miễn phí, tích điểm mỗi lần đặt món và nhận ưu đãi độc quyền theo hạng.</p>
+                <div class="hero-actions">
+                    <button class="btn-primary" onclick="openModal('dangKyModal')" data-i18n="kh.btn.register">Đăng ký ngay</button>
+                    <button class="btn-ghost" onclick="openModal('traCuuModal')" data-i18n="kh.btn.lookup">Tra cứu điểm</button>
+                </div>
             </div>
-        </div>
-        <!-- HẠNG THÀNH VIÊN -->
-        <div class="hang-grid">
-            <div class="hang-card">
-                <div class="hang-icon">🥉</div>
-                <div class="hang-name">Đồng</div>
-                <div class="hang-diem">0 – 99 điểm</div>
-                <div class="hang-uu">Ưu đãi sinh nhật</div>
-            </div>
-            <div class="hang-card hang-bac">
-                <div class="hang-icon">🥈</div>
-                <div class="hang-name">Bạc</div>
-                <div class="hang-diem">100 – 499 điểm</div>
-                <div class="hang-uu">Giảm 5% mỗi đơn</div>
-            </div>
-            <div class="hang-card hang-vang">
-                <div class="hang-icon">🥇</div>
-                <div class="hang-name">Vàng</div>
-                <div class="hang-diem">500 – 999 điểm</div>
-                <div class="hang-uu">Giảm 10% + ưu tiên</div>
-            </div>
-            <div class="hang-card hang-kim">
-                <div class="hang-icon">💎</div>
-                <div class="hang-name">Kim Cương</div>
-                <div class="hang-diem">1000+ điểm</div>
-                <div class="hang-uu">Giảm 15% + VIP</div>
-            </div>
-        </div>
-    </div>
+            <!-- HẠNG THÀNH VIÊN -->
+            <div class="hang-grid">
+                <div class="hang-card">
+                    <div class="hang-icon">🥉</div>
+                    <div class="hang-name" data-i18n="kh.hang.dong">Đồng</div>
+                    <div class="hang-diem" data-i18n="kh.hang.dong.diem">0 – 99 điểm</div>
+                    <div class="hang-uu" data-i18n="kh.hang.dong.uu">Ưu đãi sinh nhật</div>
+                </div>
+                <div class="hang-card hang-bac">
+                    <div class="hang-icon">🥈</div>
+                    <div class="hang-name" data-i18n="kh.hang.bac">Bạc</div>
+                    <div class="hang-diem" data-i18n="kh.hang.bac.diem">100 – 499 điểm</div>
+                    <div class="hang-uu" data-i18n="kh.hang.bac.uu">Giảm 5% mỗi đơn</div>
+                </div>
+                <div class="hang-card hang-vang">
+                    <div class="hang-icon">🥇</div>
+                    <div class="hang-name" data-i18n="kh.hang.vang">Vàng</div>
+                    <div class="hang-diem" data-i18n="kh.hang.vang.diem">500 – 999 điểm</div>
+                    <div class="hang-uu" data-i18n="kh.hang.vang.uu">Giảm 10% + ưu tiên</div>
+                </div>
+                <div class="hang-card hang-kim">
+                    <div class="hang-icon">💎</div>
+                    <div class="hang-name" data-i18n="kh.hang.kim">Kim Cương</div>
+                    <div class="hang-diem" data-i18n="kh.hang.kim.diem">1000+ điểm</div>
+                    <div class="hang-uu" data-i18n="kh.hang.kim.uu">Giảm 15% + VIP</div>
+                </div>
+            </div><!-- end hang-grid -->
+        </div><!-- end kh-hero-left-col -->
+    </div><!-- end kh-hero-inner -->
 </section>
 
 <!-- BANNER KHUYẾN MÃI -->
 <section class="khuyen-mai-section" id="khuyen-mai-section">
     <div class="section-inner">
-        <h2 class="section-title"> Khuyến mãi đang diễn ra</h2>
-        <p class="section-sub">Ưu đãi hấp dẫn dành riêng cho khách hàng thành viên</p>
+        <h2 class="section-title" data-i18n="kh.promo.title"> Khuyến mãi đang diễn ra</h2>
+        <p class="section-sub" data-i18n="kh.promo.sub">Ưu đãi hấp dẫn dành riêng cho khách hàng thành viên</p>
         <div class="km-grid" id="kmGrid">
             <div class="km-loading"> Đang tải khuyến mãi...</div>
         </div>
@@ -88,17 +109,37 @@
 <!-- THỰC ĐƠN -->
 <section class="menu-section" id="menu-section">
     <div class="section-inner">
-        <h2 class="section-title"> Thực đơn hôm nay</h2>
-        <p class="section-sub">Chọn món yêu thích và thêm vào giỏ hàng</p>
+        <h2 class="section-title" data-i18n="kh.menu.title">Thực đơn hôm nay</h2>
+        <p class="section-sub" data-i18n="kh.menu.sub">Chọn món yêu thích và thêm vào giỏ hàng</p>
 
         <!-- TABS: Đồ ăn / Đồ uống -->
         <div class="menu-tabs">
-            <button class="tab-btn active" onclick="switchTab('doan', this)"> Đồ ăn</button>
-            <button class="tab-btn" onclick="switchTab('douong', this)"> Đồ uống</button>
+            <button class="tab-btn active" onclick="switchTab('doan', this)" data-i18n="kh.tab.food">Đồ ăn</button>
+            <button class="tab-btn" onclick="switchTab('douong', this)" data-i18n="kh.tab.drink">Đồ uống</button>
         </div>
 
-        <div class="mon-grid" id="monGrid">
-            <div class="km-loading"> Đang tải thực đơn...</div>
+        <!-- LAYOUT 3 CỘT: ảnh trái | grid món | ảnh phải -->
+        <div class="menu-layout">
+
+            <!-- ẢNH TRÁI -->
+            <div class="menu-side menu-side-left">
+                <div class="menu-side-img">
+                    <img src="/img/cua_giay.jpg" alt="cái cửa" onerror="this.parentElement.style.background='#1a0a0a'">
+                </div>
+            </div>
+
+            <!-- GRID MÓN ĂN (giữ nguyên như cũ) -->
+            <div class="mon-grid" id="monGrid">
+                <div class="km-loading">Đang tải thực đơn...</div>
+            </div>
+
+            <!-- ẢNH PHẢI -->
+            <div class="menu-side menu-side-right">
+                <div class="menu-side-img">
+                    <img src="/img/cua_giay.jpg" alt="cái cửa" onerror="this.parentElement.style.background='#0a0a1a'">
+                </div>
+            </div>
+
         </div>
     </div>
 </section>
@@ -107,18 +148,18 @@
 <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
 <div class="cart-panel" id="cartPanel">
     <div class="cart-header">
-        <h3>Giỏ hàng</h3>
+        <h3 data-i18n="kh.cart.title">Giỏ hàng</h3>
         <button class="cart-close" onclick="toggleCart()">✕</button>
     </div>
     <div class="cart-items" id="cartItems">
-        <div class="cart-empty">Giỏ hàng trống</div>
+        <div class="cart-empty" data-i18n="kh.cart.empty">Giỏ hàng trống</div>
     </div>
     <div class="cart-footer">
         <div class="cart-total-row">
-            <span>Tổng cộng:</span>
+            <span data-i18n="kh.cart.total">Tổng cộng:</span>
             <span class="cart-total" id="cartTotal">0 đ</span>
         </div>
-        <a href="/cart.html" class="btn-primary" style="display:block;text-align:center;margin-top:12px;text-decoration:none;">
+        <a href="/cart.html" class="btn-primary" data-i18n="kh.cart.order" style="display:block;text-align:center;margin-top:12px;text-decoration:none;">
             Đặt món →
         </a>
     </div>
@@ -130,28 +171,28 @@
         <button class="modal-close" onclick="closeModal('dangKyModal')">✕</button>
         <div class="modal-header">
             <div class="modal-icon">👤</div>
-            <h2>Đăng ký thành viên</h2>
-            <p>Tạo tài khoản miễn phí</p>
+            <h2 data-i18n="kh.modal.reg.title">Đăng ký thành viên</h2>
+            <p data-i18n="kh.modal.reg.sub">Tạo tài khoản miễn phí</p>
         </div>
         <div style="display:flex;flex-direction:column;gap:16px;">
             <div class="form-group">
-                <label>Họ tên</label>
+                <label data-i18n="kh.modal.reg.name">Họ tên</label>
                 <input type="text" id="regHoTen" placeholder="Nguyễn Văn A">
             </div>
             <div class="form-group">
-                <label>Số điện thoại</label>
+                <label data-i18n="kh.modal.reg.phone">Số điện thoại</label>
                 <input type="tel" id="regSdt" placeholder="0901234567">
             </div>
             <div class="form-group">
-                <label>Email</label>
+                <label data-i18n="kh.modal.reg.email">Email</label>
                 <input type="email" id="regEmail" placeholder="email@example.com">
             </div>
             <div class="form-group">
-                <label>Địa chỉ</label>
+                <label data-i18n="kh.modal.reg.address">Địa chỉ</label>
                 <input type="text" id="regDiaChi" placeholder="123 Đường ABC, TP.HCM">
             </div>
             <div class="form-msg" id="regMsg"></div>
-            <button class="btn-submit" onclick="dangKy()">Đăng ký ngay</button>
+            <button class="btn-submit" onclick="dangKy()" data-i18n="kh.modal.reg.btn">Đăng ký ngay</button>
         </div>
     </div>
 </div>
@@ -162,24 +203,24 @@
         <button class="modal-close" onclick="closeModal('traCuuModal')">✕</button>
         <div class="modal-header">
             <div class="modal-icon"></div>
-            <h2>Tra cứu điểm</h2>
-            <p>Nhập SĐT để xem điểm & hạng</p>
+            <h2 data-i18n="kh.modal.lookup.title">Tra cứu điểm</h2>
+            <p data-i18n="kh.modal.lookup.sub">Nhập SĐT để xem điểm & hạng</p>
         </div>
         <div style="display:flex;flex-direction:column;gap:16px;">
             <div class="form-group">
-                <label>Số điện thoại</label>
+                <label data-i18n="kh.modal.lookup.phone">Số điện thoại</label>
                 <input type="tel" id="tcSdt" placeholder="0901234567" onkeydown="if(event.key==='Enter') traCuu()">
             </div>
             <div class="form-msg" id="tcMsg"></div>
-            <button class="btn-submit" onclick="traCuu()">Tra cứu</button>
+            <button class="btn-submit" onclick="traCuu()" data-i18n="kh.modal.lookup.btn">Tra cứu</button>
             <!-- KẾT QUẢ TRA CỨU -->
             <div class="tc-result" id="tcResult" style="display:none;">
                 <div class="tc-card">
                     <div class="tc-hang" id="tcHang">💎</div>
                     <div class="tc-info">
                         <div class="tc-ten" id="tcTen">Nguyễn Văn A</div>
-                        <div class="tc-diem">Điểm tích lũy: <strong id="tcDiem">0</strong></div>
-                        <div class="tc-loai">Hạng: <strong id="tcLoai">Đồng</strong></div>
+                        <div class="tc-diem"><span data-i18n="kh.tc.diem">Điểm tích lũy: </span><strong id="tcDiem">0</strong></div>
+                        <div class="tc-loai"><span data-i18n="kh.tc.hang">Hạng: </span><strong id="tcLoai">Đồng</strong></div>
                     </div>
                 </div>
                 <div class="tc-progress-wrap">
@@ -192,16 +233,48 @@
         </div>
     </div>
 </div>
-<script type="text/javascript">
-    function googleTranslateElementInit() {
-        new google.translate.TranslateElement({
-            pageLanguage: 'vi',
-            includedLanguages: 'vi,en',
-            layout: google.translate.TranslateElement.InlineLayout.SIMPLE
-        }, 'google_translate_element');
-    }
-</script>
-<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-<script src="/js/khachhang.js"></script>
+<!-- FOOTER -->
+<footer class="footer" id="lien-he">
+    <div class="footer-inner">
+        <!-- Cột 1: Giới thiệu -->
+        <div class="footer-col">
+            <a href="/index.html" class="logo" style="text-decoration:none;">
+                <span class="logo-icon"></span>
+                <span class="logo-text">QuanAn<strong>67</strong></span>
+            </a>
+            <p class="footer-about">Hệ thống quản lý nhà hàng hiện đại — quản lý bàn, đơn hàng, nhân viên và khuyến mãi trong một nền tảng duy nhất.</p>
+        </div>
+
+        <!-- Cột 2: Liên kết nhanh -->
+        <div class="footer-col">
+            <h4 class="footer-heading">Liên kết nhanh</h4>
+            <ul class="footer-links">
+                <li><a href="/khachhang.html">Trang chủ</a></li>
+                <li><a href="#menu-section">Thực đơn món ăn</a></li>
+                <li><a href="#khuyen-mai-section">Khuyến mãi</a></li>
+                <li><a href="/cart.html">Giỏ hàng</a></li>
+                <li><a href="/index.html#tinh-nang">Tính năng hệ thống</a></li>
+            </ul>
+        </div>
+
+        <!-- Cột 3: Thông tin liên hệ -->
+        <div class="footer-col">
+            <h4 class="footer-heading">Liên hệ</h4>
+            <ul class="footer-contact">
+                <li>📍 67 Đường Ẩm Thực, Q.1, TP.HCM</li>
+                <li>📞 <a href="tel:0901234567">090 123 4567</a></li>
+                <li>✉️ <a href="mailto:quanan67@gmail.com">quanan67@gmail.com</a></li>
+                <li>🕐 Mở cửa: 08:00 – 22:00 mỗi ngày</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <p>© 2026 QuanAn67 — Hệ thống quản lý nhà hàng</p>
+    </div>
+</footer>
+<script src="https://unpkg.com/i18next@23.7.6/i18next.min.js"></script>
+<script src="/js/lang.js?v=2"></script>
+<script src="/js/khachhang.js?v=2"></script>
 </body>
 </html>

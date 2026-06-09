@@ -19,10 +19,24 @@ public class MonAnServiceImpl implements MonAnService {
     private MonAnRepository repository;
 
     @Override
-    public List<MonAn> getAll() { return repository.findAll(); }
+    public List<MonAn> getAll() {
+        return repository.findAll();
+    }
+
+    @Override // ★ MỚI
+    public List<MonAn> getAllDoAn() {
+        return repository.findAllDoAn();
+    }
+
+    @Override // ★ MỚI
+    public List<MonAn> getAllDoUong() {
+        return repository.findAllDoUong();
+    }
 
     @Override
-    public Optional<MonAn> getById(Long id) { return repository.findById(id); }
+    public Optional<MonAn> getById(Long id) {
+        return repository.findById(id);
+    }
 
     @Override
     public List<MonAn> getByMenu(Long menuId) {
@@ -30,7 +44,9 @@ public class MonAnServiceImpl implements MonAnService {
     }
 
     @Override
-    public MonAn create(MonAn monAn) { return repository.save(monAn); }
+    public MonAn create(MonAn monAn) {
+        return repository.save(monAn);
+    }
 
     @Override
     public MonAn update(Long id, MonAn updated) {
@@ -44,7 +60,8 @@ public class MonAnServiceImpl implements MonAnService {
                     existing.setMenu(updated.getMenu());
                     return repository.save(existing);
                 })
-                .orElseThrow(() -> new ResourceNotFoundException("Món ăn không tồn tại với id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Món ăn không tồn tại với id: " + id));
     }
 
     @Override

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/ban")
@@ -22,10 +23,36 @@ public class BanController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Ban>> getById(@PathVariable Long id) {
-        return service.getById(id)
-                .map(b -> ResponseEntity.ok(ApiResponse.success(b)))
-                .orElse(ResponseEntity.notFound().build());
+    public ApiResponse<Ban> getById(@PathVariable Long id) {
+        return ApiResponse.success(service.getById(id));
+    }
+
+    @GetMapping("/trang-thai/{trangThai}")
+    public ApiResponse<List<Ban>> getByTrangThai(@PathVariable String trangThai) {
+        return ApiResponse.success(service.getBanTheoTrangThai(trangThai));
+    }
+
+    // PATCH /api/ban/{id}/trang-thai
+    // Body: { "trangThai": "CO_KHACH" }
+    // Flow: TRONG <-> CO_KHACH (đã bỏ DEP_BAN)
+    @PatchMapping("/{id}/trang-thai")
+    public ApiResponse<Ban> capNhatTrangThai(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+        String trangThaiMoi = body.get("trangThai");
+        return ApiResponse.success(
+                service.capNhatTrangThai(id, trangThaiMoi),
+                "Cập nhật trạng thái bàn thành công");
+    }
+
+    // ← THÊM ENDPOINT MỚI
+    // PATCH /api/ban/{id}/toggle-trang-thai
+    // Không cần body, tự đảo: TRONG -> CO_KHACH, CO_KHACH -> TRONG
+    @PatchMapping("/{id}/toggle-trang-thai")
+    public ApiResponse<Ban> toggleTrangThai(@PathVariable Long id) {
+        return ApiResponse.success(
+                service.toggleTrangThai(id),
+                "Đổi trạng thái bàn thành công");
     }
 
     @PostMapping
@@ -34,9 +61,12 @@ public class BanController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Ban>> update(@PathVariable Long id, @RequestBody Ban ban) {
+    public ResponseEntity<ApiResponse<Ban>> update(
+            @PathVariable Long id,
+            @RequestBody Ban ban) {
         try {
-            return ResponseEntity.ok(ApiResponse.success(service.update(id, ban), "Cập nhật thành công"));
+            return ResponseEntity.ok(ApiResponse.success(
+                    service.update(id, ban), "Cập nhật thành công"));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }

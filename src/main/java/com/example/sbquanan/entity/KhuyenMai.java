@@ -1,5 +1,6 @@
 package com.example.sbquanan.entity;
 
+import com.example.sbquanan.enums.LoaiKhachHang;
 import com.example.sbquanan.enums.LoaiKhuyenMai;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -19,6 +20,9 @@ public class KhuyenMai {
     @Column(name = "TenKhuyenMai", length = 100)
     private String tenKhuyenMai;
 
+    @Column(name = "MaKhuyenMai", length = 50)
+    private String maKhuyenMai;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "LoaiKhuyenMai", length = 50)
     private LoaiKhuyenMai loaiKhuyenMai;
@@ -26,15 +30,58 @@ public class KhuyenMai {
     @Column(name = "GiaTri")
     private double giaTri;
 
+    @Column(name = "DiemToiThieu")
+    private int diemToiThieu = 0;
+
+    @Column(name = "TongTienToiThieu")
+    private double tongTienToiThieu = 0;
+
     @Column(name = "NgayBatDau")
     private LocalDateTime ngayBatDau;
 
     @Column(name = "NgayKetThuc")
     private LocalDateTime ngayKetThuc;
 
+    @Column(name = "TrangThai")
+    private Boolean trangThai = true;
+
+    @Column(name = "MoTa", length = 255)
+    private String moTa;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "LoaiKhachHangToiThieu", length = 20)
+    private LoaiKhachHang loaiKhachHangToiThieu; // null = không giới hạn
+
     public boolean hopLe() {
         LocalDateTime now = LocalDateTime.now();
-        return ngayBatDau != null && ngayKetThuc != null
-                && now.isAfter(ngayBatDau) && now.isBefore(ngayKetThuc);
+        boolean dangBat = trangThai == null || trangThai;
+        if (!dangBat) return false;
+        if (ngayBatDau != null && now.isBefore(ngayBatDau)) return false;
+        if (ngayKetThuc != null && now.isAfter(ngayKetThuc)) return false;
+        return true;
+    }
+
+    public boolean duDieuKien(double tongTien, KhachHang khachHang) {
+        if (!hopLe()) return false;
+        if (tongTien < tongTienToiThieu) return false;
+        if (diemToiThieu > 0 && (khachHang == null || khachHang.getDiemTichLuy() < diemToiThieu)) return false;
+        if (loaiKhachHangToiThieu != null) {
+            if (khachHang == null) return false;
+            if (khachHang.getLoaiKhachHang().ordinal() < loaiKhachHangToiThieu.ordinal()) return false;
+        }
+        return true;
+    }
+
+    public double tinhTienGiam(double tongTien) {
+        double tienGiam = 0;
+        switch (loaiKhuyenMai) {
+            case PHAN_TRAM:
+                tienGiam = tongTien * giaTri / 100;
+                break;
+            case GIAM_TIEN_MAT:
+                tienGiam = giaTri;
+                break;
+        }
+        return Math.min(Math.max(tienGiam, 0), tongTien);
     }
 }

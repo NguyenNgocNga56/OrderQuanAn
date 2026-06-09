@@ -25,7 +25,7 @@ public class ChiTietDonHangServiceImpl implements ChiTietDonHangService {
     public Optional<ChiTietDonHang> getById(Long id) { return repository.findById(id); }
 
     public List<ChiTietDonHang> getByDonHang(Long donHangId) {
-        return repository.findByDonHangID(donHangId);
+        return repository.findByDonHang_DonHangID(donHangId);
     }
 
     @Override
