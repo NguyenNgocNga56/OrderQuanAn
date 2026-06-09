@@ -55,9 +55,10 @@ public class KhuyenMai {
     public boolean hopLe() {
         LocalDateTime now = LocalDateTime.now();
         boolean dangBat = trangThai == null || trangThai;
-        return dangBat
-                && ngayBatDau != null && ngayKetThuc != null
-                && !now.isBefore(ngayBatDau) && !now.isAfter(ngayKetThuc);
+        if (!dangBat) return false;
+        if (ngayBatDau != null && now.isBefore(ngayBatDau)) return false;
+        if (ngayKetThuc != null && now.isAfter(ngayKetThuc)) return false;
+        return true;
     }
 
     public boolean duDieuKien(double tongTien, KhachHang khachHang) {

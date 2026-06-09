@@ -108,7 +108,7 @@ async function loadKhuyenMai() {
                 ? `Giảm ${gia}%`
                 : `Giảm ${fmtVND(gia)}`;
             const now    = new Date();
-            const hetHan = km.ngayKetThuc ? new Date(km.ngayKetThuc) : null;
+            const hetHan = km.ngayKetThuc ? parseLocalDateTime(km.ngayKetThuc) : null;
             const con    = !hetHan || hetHan >= now;
             return `
             <div class="km-card ${con ? '' : 'km-expired'}">
