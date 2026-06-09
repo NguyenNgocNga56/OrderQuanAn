@@ -18,9 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AuthController {
 
     private final NhanVienRepository nhanVienRepository;
-
-    // Của Ngà: Đổi thành static và lưu Token -> NhanVien ID (Long)
-    private static final ConcurrentHashMap<String, Long> tokenStore = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, String> tokenStore;
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<Map<String, Object>>> login(
@@ -29,13 +27,11 @@ public class AuthController {
         String email    = body.get("email");
         String password = body.get("password");
 
-        // Của Ngà: Thêm check isBlank() chặt chẽ hơn
         if (email == null || password == null || email.isBlank() || password.isBlank()) {
             return ResponseEntity.badRequest()
                     .body(ApiResponse.error("Vui lòng nhập đầy đủ email và mật khẩu."));
         }
 
-        // Của Ngà: Dùng Optional truy vấn DB
         Optional<NhanVien> optNhanVien = nhanVienRepository.findByEmail(email);
 
         if (optNhanVien.isEmpty()) {
@@ -45,7 +41,6 @@ public class AuthController {
 
         NhanVien nhanVien = optNhanVien.get();
 
-        // CỦA BẠN: So sánh mật khẩu trực tiếp (Plain-text), không BCrypt
         if (!password.equals(nhanVien.getPassword())) {
             return ResponseEntity.status(401)
                     .body(ApiResponse.error("Email hoặc mật khẩu không đúng."));
@@ -57,16 +52,14 @@ public class AuthController {
         }
 
         String token = UUID.randomUUID().toString();
-        // Của Ngà: Lưu ID nhân viên vào tokenStore thay vì lưu email
-        tokenStore.put(token, nhanVien.getId());
+        tokenStore.put(token, nhanVien.getEmail());
 
-        // Của bạn: Giữ nguyên format ApiResponse
         return ResponseEntity.ok(ApiResponse.success(Map.of(
                 "token",  token,
                 "email",  nhanVien.getEmail(),
                 "hoTen",  nhanVien.getHoTen(),
                 "chucVu", nhanVien.getChucVu() != null ? nhanVien.getChucVu() : "",
-                "role",   nhanVien.getRole() != null ? nhanVien.getRole().name() : "NHAN_VIEN"  // ← THÊM DÒNG NÀY
+                "role",   nhanVien.getRole() != null ? nhanVien.getRole().name() : "NHAN_VIEN"
         )));
     }
 
@@ -81,8 +74,7 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success("Đăng xuất thành công."));
     }
 
-    // Của Ngà: Hàm check token tĩnh cho các Filter gọi vào
-    public static boolean isValidToken(String token) {
+    public boolean isValidToken(String token) {
         return token != null && tokenStore.containsKey(token);
     }
 }

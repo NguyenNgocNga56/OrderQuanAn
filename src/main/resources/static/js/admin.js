@@ -155,6 +155,8 @@ async function openManager(api) {
         await loadBanManager();
     } else if (api === '/api/khachhang') {
         await loadKhachHangManager();
+    } else if (api === '/api/nhanvien') {
+        await loadNhanVienManager();
     } else if (config.monAn) {
         await loadMenuOptions();
         await loadMonAnAdmin();
@@ -481,7 +483,209 @@ async function xoaMonAnAdmin(id) {
     }
 }
 
-// MANAGER KHUYẾN MÃI (ADMIN thêm / xóa)
+// ============================================================
+// MANAGER NHÂN VIÊN — CRUD đầy đủ (chỉ ADMIN)
+// ============================================================
+async function loadNhanVienManager() {
+    const content = document.getElementById('managerContent');
+    content.innerHTML = '<div class="admin-loading">Đang tải danh sách nhân viên...</div>';
+
+    try {
+        const token = sessionStorage.getItem('adminToken');
+        const data = unwrapApiData(await fetch('/api/nhanvien', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        }).then(r => r.json()));
+        const rows = Array.isArray(data) ? data : [];
+        const admin = isAdmin();
+
+        const formHtml = admin ? `
+            <div id="nvFormBox" style="background:var(--surface2,#f9f9f9);border:1px solid var(--border,#ddd);
+                        border-radius:10px;padding:16px;margin-bottom:20px;">
+                <h3 id="nvFormTitle" style="margin:0 0 12px;font-size:1rem;">➕ Thêm nhân viên mới</h3>
+                <input type="hidden" id="nvEditId">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+                    <input id="nvHoTen"   placeholder="Họ tên *"            style="${inputStyle}">
+                    <input id="nvSdt"     placeholder="Số điện thoại *"      style="${inputStyle}">
+                    <input id="nvEmail"   placeholder="Email *"              style="${inputStyle}">
+                    <input id="nvDiaChi"  placeholder="Địa chỉ"             style="${inputStyle}">
+                    <input id="nvChucVu"  placeholder="Chức vụ"             style="${inputStyle}">
+                    <input id="nvLuong"   placeholder="Lương" type="number" min="0" style="${inputStyle}">
+                    <input id="nvPassword" placeholder="Mật khẩu (để trống = không đổi)" type="password" style="${inputStyle}">
+                    <select id="nvRole" style="${inputStyle}">
+                        <option value="NHAN_VIEN">Nhân viên</option>
+                        <option value="ADMIN">Admin</option>
+                    </select>
+                </div>
+                <div style="margin-top:12px;display:flex;gap:10px;">
+                    <button id="nvSubmitBtn" onclick="submitNhanVien()"
+                        style="padding:8px 24px;border-radius:8px;border:none;
+                               background:#8b0000;color:#fff;font-weight:700;cursor:pointer;font-size:0.9rem;">
+                        Thêm nhân viên
+                    </button>
+                    <button id="nvCancelBtn" onclick="resetNhanVienForm()" style="display:none;
+                        padding:8px 18px;border-radius:8px;border:1px solid #aaa;
+                        background:#fff;color:#333;font-weight:600;cursor:pointer;font-size:0.9rem;">
+                        Hủy
+                    </button>
+                </div>
+                <div id="nvFormMsg" style="margin-top:8px;font-size:0.85rem;color:#c62828;display:none;"></div>
+            </div>` : '';
+
+        if (!rows.length) {
+            content.innerHTML = formHtml + '<div class="admin-empty">Chưa có nhân viên nào.</div>';
+            return;
+        }
+
+        const tableHtml = `
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>HỌ TÊN</th>
+                        <th>SĐT</th>
+                        <th>DIACHI</th>
+                        <th>EMAIL</th>
+                        <th>LƯƠNG</th>
+                        <th>CHỨC VỤ</th>
+                        <th>ROLE</th>
+                        <th>THAO TÁC</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows.map(nv => {
+                        const roleBadge = nv.role === 'ADMIN'
+                            ? '<span style="padding:2px 8px;border-radius:10px;background:#fce4ec;color:#880e4f;font-weight:700;font-size:0.78rem;">ADMIN</span>'
+                            : '<span style="padding:2px 8px;border-radius:10px;background:#e8f5e9;color:#1b5e20;font-weight:700;font-size:0.78rem;">NV</span>';
+
+                        const btnSua = admin ? `
+                            <button onclick="suaNhanVien(${nv.id},'${escapeHtml(nv.hoTen||'')}','${escapeHtml(nv.sdt||'')}','${escapeHtml(nv.email||'')}','${escapeHtml(nv.diaChi||'')}','${escapeHtml(nv.chucVu||'')}',${nv.luong||0},'${nv.role||'NHAN_VIEN'}')"
+                                style="padding:5px 10px;border-radius:6px;border:none;cursor:pointer;
+                                       font-weight:600;margin-right:4px;background:#1565c0;color:white;font-size:0.82rem;">
+                                Sửa
+                            </button>` : '';
+
+                        const btnXoa = admin ? `
+                            <button onclick="xoaNhanVien(${nv.id})"
+                                style="padding:5px 10px;border-radius:6px;border:none;cursor:pointer;
+                                       font-weight:600;background:#b71c1c;color:white;font-size:0.82rem;">
+                                Xóa
+                            </button>` : '';
+
+                        return `
+                            <tr id="nv-row-${nv.id}">
+                                <td>${nv.id}</td>
+                                <td><strong>${escapeHtml(nv.hoTen || '')}</strong></td>
+                                <td>${escapeHtml(nv.sdt || '—')}</td>
+                                <td>${escapeHtml(nv.diaChi || '—')}</td>
+                                <td>${escapeHtml(nv.email || '—')}</td>
+                                <td>${nv.luong ? nv.luong.toLocaleString('vi-VN') + '₫' : '—'}</td>
+                                <td>${escapeHtml(nv.chucVu || '—')}</td>
+                                <td>${roleBadge}</td>
+                                <td>${btnSua}${btnXoa}</td>
+                            </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>`;
+
+        content.innerHTML = formHtml + tableHtml;
+    } catch {
+        content.innerHTML = '<div class="admin-empty">Không tải được danh sách nhân viên.</div>';
+    }
+}
+
+function suaNhanVien(id, hoTen, sdt, email, diaChi, chucVu, luong, role) {
+    document.getElementById('nvEditId').value  = id;
+    document.getElementById('nvHoTen').value   = hoTen;
+    document.getElementById('nvSdt').value     = sdt;
+    document.getElementById('nvEmail').value   = email;
+    document.getElementById('nvDiaChi').value  = diaChi;
+    document.getElementById('nvChucVu').value  = chucVu;
+    document.getElementById('nvLuong').value   = luong;
+    document.getElementById('nvRole').value    = role;
+    document.getElementById('nvPassword').value = '';
+    document.getElementById('nvFormTitle').textContent = '✏️ Sửa nhân viên #' + id;
+    document.getElementById('nvSubmitBtn').textContent = 'Cập nhật';
+    document.getElementById('nvCancelBtn').style.display = 'inline-block';
+    document.getElementById('nvFormBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function resetNhanVienForm() {
+    ['nvEditId','nvHoTen','nvSdt','nvEmail','nvDiaChi','nvChucVu','nvLuong','nvPassword'].forEach(id => {
+        document.getElementById(id).value = '';
+    });
+    document.getElementById('nvRole').value = 'NHAN_VIEN';
+    document.getElementById('nvFormTitle').textContent = '➕ Thêm nhân viên mới';
+    document.getElementById('nvSubmitBtn').textContent = 'Thêm nhân viên';
+    document.getElementById('nvCancelBtn').style.display = 'none';
+    document.getElementById('nvFormMsg').style.display = 'none';
+}
+
+async function submitNhanVien() {
+    if (!isAdmin()) { alert('Bạn không có quyền.'); return; }
+    const hoTen = document.getElementById('nvHoTen').value.trim();
+    const sdt   = document.getElementById('nvSdt').value.trim();
+    const email = document.getElementById('nvEmail').value.trim();
+    const msg   = document.getElementById('nvFormMsg');
+
+    if (!hoTen)  { showFormMsg(msg, 'Vui lòng nhập họ tên.'); return; }
+    if (!sdt)    { showFormMsg(msg, 'Vui lòng nhập số điện thoại.'); return; }
+    if (!/^0[0-9]{9}$/.test(sdt)) { showFormMsg(msg, 'SĐT không hợp lệ (VD: 0912345678).'); return; }
+
+    const editId   = document.getElementById('nvEditId').value;
+    const password = document.getElementById('nvPassword').value;
+    const payload  = {
+        hoTen:   hoTen,
+        sdt:     sdt,
+        email:   email || null,
+        diaChi:  document.getElementById('nvDiaChi').value.trim() || null,
+        chucVu:  document.getElementById('nvChucVu').value.trim() || null,
+        luong:   parseFloat(document.getElementById('nvLuong').value || '0'),
+        role:    document.getElementById('nvRole').value,
+        trangThai: true
+    };
+    if (password) payload.password = password;
+    if (!editId && !password) { showFormMsg(msg, 'Vui lòng nhập mật khẩu cho nhân viên mới.'); return; }
+
+    try {
+        const token  = sessionStorage.getItem('adminToken');
+        const isEdit = !!editId;
+        const res = await fetch(isEdit ? `/api/nhanvien/${editId}` : '/api/nhanvien', {
+            method:  isEdit ? 'PUT' : 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body:    JSON.stringify(payload)
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || 'Lỗi server');
+        }
+        resetNhanVienForm();
+        await loadNhanVienManager();
+        await loadStats();
+    } catch (e) {
+        showFormMsg(msg, 'Lỗi: ' + (e.message || 'Không lưu được.'));
+    }
+}
+
+async function xoaNhanVien(id) {
+    if (!isAdmin()) { alert('Bạn không có quyền xóa nhân viên.'); return; }
+    if (!confirm('Xóa nhân viên này? Hành động không thể hoàn tác.')) return;
+    try {
+        const token = sessionStorage.getItem('adminToken');
+        const res = await fetch(`/api/nhanvien/${id}`, {
+            method:  'DELETE',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (!res.ok) throw new Error();
+        await loadNhanVienManager();
+        await loadStats();
+    } catch {
+        alert('Không xóa được nhân viên này.');
+    }
+}
+
+// ============================================================
+// MANAGER KHUYẾN MÃI (ADMIN thêm / sửa / xóa)
+// ============================================================
 const inputStyle = 'width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border,#ddd);font-size:0.88rem;box-sizing:border-box;background:white;';
 
 async function loadKhuyenMaiManager() {
@@ -534,7 +738,7 @@ async function loadKhuyenMaiManager() {
                         <th>Đơn tối thiểu</th>
                         <th>Hạn dùng</th>
                         <th>Trạng thái</th>
-                        ${admin ? '<th></th>' : ''}
+                        ${admin ? '<th>THAO TÁC</th>' : ''}
                     </tr>
                 </thead>
                 <tbody>
@@ -565,11 +769,16 @@ async function loadKhuyenMaiManager() {
                             <td>${km.tongTienToiThieu > 0 ? 'Từ ' + fmtVNDAdmin(km.tongTienToiThieu) : '—'}</td>
                             <td>${hanLabel}</td>
                             <td>${ttLabel}</td>
-                            ${admin ? `<td>
+                            ${admin ? `<td style="white-space:nowrap;">
+                                <button onclick="suaKhuyenMai(${km.khuyenMaiID},'${escapeHtml(km.tenKhuyenMai||'')}','${escapeHtml(km.maKhuyenMai||'')}','${km.loaiKhuyenMai}',${km.giaTri},'${km.ngayBatDau||''}','${km.ngayKetThuc||''}',${km.tongTienToiThieu||0},'${escapeHtml(km.moTa||'')}',${km.trangThai})"
+                                    style="padding:5px 10px;border-radius:6px;border:none;cursor:pointer;
+                                           font-weight:600;margin-right:4px;background:#1565c0;color:white;font-size:0.82rem;">
+                                    Sửa
+                                </button>
                                 <button onclick="xoaKhuyenMai(${km.khuyenMaiID})"
-                                    style="padding:5px 12px;border-radius:6px;border:none;cursor:pointer;
-                                           background:#b71c1c;color:white;font-weight:600;">
-                                     Xóa
+                                    style="padding:5px 10px;border-radius:6px;border:none;cursor:pointer;
+                                           background:#b71c1c;color:white;font-weight:600;font-size:0.82rem;">
+                                    Xóa
                                 </button>
                             </td>` : ''}
                         </tr>`;
@@ -580,6 +789,63 @@ async function loadKhuyenMaiManager() {
         content.innerHTML = formHtml + tableHtml;
     } catch {
         content.innerHTML = '<div class="admin-empty">Không tải được danh sách khuyến mãi.</div>';
+    }
+}
+
+function suaKhuyenMai(id, ten, ma, loai, giaTri, batDau, ketThuc, toiThieuTien, moTa, trangThai) {
+    document.getElementById('kmTen').value          = ten;
+    document.getElementById('kmMa').value           = ma;
+    document.getElementById('kmLoai').value         = loai;
+    document.getElementById('kmGiaTri').value       = giaTri;
+    document.getElementById('kmBatDau').value       = batDau ? batDau.substring(0, 16) : '';
+    document.getElementById('kmKetThuc').value      = ketThuc ? ketThuc.substring(0, 16) : '';
+    document.getElementById('kmToiThieuTien').value = toiThieuTien;
+    document.getElementById('kmMoTa').value         = moTa;
+
+    // Đổi nút thành Cập nhật
+    const btn = document.querySelector('[onclick="themKhuyenMai()"]');
+    if (btn) {
+        btn.textContent = 'Cập nhật khuyến mãi';
+        btn.setAttribute('onclick', `capNhatKhuyenMai(${id})`);
+    }
+    document.querySelector('#managerContent').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function capNhatKhuyenMai(id) {
+    if (!isAdmin()) { alert('Bạn không có quyền.'); return; }
+    const ten     = document.getElementById('kmTen').value.trim();
+    const giaTri  = parseFloat(document.getElementById('kmGiaTri').value || '0');
+    const batDau  = document.getElementById('kmBatDau').value;
+    const ketThuc = document.getElementById('kmKetThuc').value;
+
+    if (!ten)                   { alert('Vui lòng nhập tên khuyến mãi.'); return; }
+    if (!giaTri || giaTri <= 0) { alert('Vui lòng nhập giá trị hợp lệ.'); return; }
+    if (!batDau || !ketThuc)    { alert('Vui lòng chọn ngày bắt đầu và kết thúc.'); return; }
+    if (new Date(batDau) >= new Date(ketThuc)) { alert('Ngày kết thúc phải sau ngày bắt đầu.'); return; }
+
+    const payload = {
+        tenKhuyenMai:     ten,
+        maKhuyenMai:      document.getElementById('kmMa').value.trim() || null,
+        loaiKhuyenMai:    document.getElementById('kmLoai').value,
+        giaTri:           giaTri,
+        ngayBatDau:       batDau,
+        ngayKetThuc:      ketThuc,
+        tongTienToiThieu: parseFloat(document.getElementById('kmToiThieuTien').value || '0'),
+        moTa:             document.getElementById('kmMoTa').value.trim() || null,
+        trangThai:        true
+    };
+
+    try {
+        const token = sessionStorage.getItem('adminToken');
+        const res = await fetch(`/api/khuyenmai/${id}`, {
+            method:  'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body:    JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error();
+        await loadKhuyenMaiManager();
+    } catch {
+        alert('Không cập nhật được khuyến mãi. Kiểm tra lại dữ liệu hoặc server.');
     }
 }
 
@@ -675,7 +941,6 @@ async function loadGenericManager(api) {
         content.innerHTML = '<div class="admin-empty">Không tải được dữ liệu.</div>';
     }
 }
-
 
 // ============================================================
 // MANAGER KHÁCH HÀNG — CRUD đầy đủ
@@ -866,7 +1131,6 @@ function showFormMsg(el, text) {
     el.textContent = text;
     el.style.display = 'block';
 }
-
 
 function fmtVNDAdmin(value) {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value || 0);
